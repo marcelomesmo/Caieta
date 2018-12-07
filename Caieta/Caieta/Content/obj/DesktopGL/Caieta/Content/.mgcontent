@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SourceFileCollection xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Profile>Reach</Profile>
+  <Platform>DesktopGL</Platform>
+  <Config />
+  <SourceFiles>
+    <File>/Users/marcelo/VS/Projects/Caieta/Caieta/Content/Fonts/DefaultFontEXTRALARGE.spritefont</File>
+    <File>/Users/marcelo/VS/Projects/Caieta/Caieta/Content/Fonts/DefaultFontLARGE.spritefont</File>
+    <File>/Users/marcelo/VS/Projects/Caieta/Caieta/Content/Fonts/DefaultFontMEDIUM.spritefont</File>
+    <File>/Users/marcelo/VS/Projects/Caieta/Caieta/Content/Fonts/DefaultFontSMALL.spritefont</File>
+    <File>/Users/marcelo/VS/Projects/Caieta/Caieta/Content/Fonts/DefaultFontVERYSMALL.spritefont</File>
+    <File>/Users/marcelo/VS/Projects/Caieta/Caieta/Content/Textures/Caieta-BaseAtlas.png</File>
+  </SourceFiles>
+  <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+  </DestFiles>
+</SourceFileCollection>
