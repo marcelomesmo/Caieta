@@ -68,6 +68,16 @@ namespace Caieta
                 IsOpen = false;
                 _State = InspectorState.NONE;
                 Input.Enable();
+
+                // Make Entities colliders visible
+                foreach (var layer in Engine.SceneManager.SceneLayers())
+                {
+                    foreach (var ent in layer.Entities)
+                    {
+                        if (ent.Get<Platform>() != null)
+                            ent.Get<Platform>().HideColliders();
+                    }
+                }
             }
         }
 
@@ -78,6 +88,16 @@ namespace Caieta
                 IsOpen = true;
                 _State = InspectorState.NONE;
                 Input.Disable();
+
+                // Make Entities colliders visible
+                foreach (var layer in Engine.SceneManager.SceneLayers())
+                {
+                    foreach (var ent in layer.Entities)
+                    {
+                        if (ent.Get<Platform>() != null)
+                            ent.Get<Platform>().ShowColliders();
+                    }
+                }
             }
         }
 
@@ -132,9 +152,9 @@ namespace Caieta
                     foreach (var layer in Engine.SceneManager.SceneLayers())
                     {
                         if (layer.IsGlobal)
-                            Graphics.DrawText("  " + layer.Name + " [GLOBAL]", new Vector2(screenWidth - 20, 160 + (20 * draw_space)), Color.White);
+                            Graphics.DrawText("  " + layer.Name + " [GLOBAL]", new Vector2(2 * screenWidth / 3, 160 + (20 * draw_space)), Color.White);
                         else
-                            Graphics.DrawText("  " + layer.Name, new Vector2(screenWidth - 20, 160 + (20 * draw_space)), Color.White);
+                            Graphics.DrawText("  " + layer.Name, new Vector2(2 * screenWidth / 3, 160 + (20 * draw_space)), Color.White);
 
                         draw_space++;
                     }
@@ -149,11 +169,14 @@ namespace Caieta
                     Graphics.DrawText("(" + Engine.SceneManager.ScenePopulation() + ")", new Vector2((2 * screenWidth / 3) +150, 80), Color.White, FontSize.MEDIUM);
 
                     // Open Entities
-                    /*draw_space = 0;
-                    foreach (var ent in Engine.SceneManager.CurrScene().Entities())
+                    draw_space = 0;
+                    foreach (var layer in Engine.SceneManager.SceneLayers())
                     {
-                        Graphics.DrawText("  " + ent.Name, new Vector2(screenWidth - 20, 80 + (20*draw_space)), Color.White);
-                    }*/
+                        foreach(var ent in layer.Entities)
+                            Graphics.DrawText("  " + ent.Name, new Vector2(2 * screenWidth / 3, 100 + (20*draw_space)), Color.White);
+
+                        draw_space++;
+                    }
                     break;
 
                 case InspectorState.INPUTS:
@@ -181,16 +204,18 @@ namespace Caieta
                     {
                         if(gamepad.IsAttached)
                         {
-                            Graphics.DrawText("GamePad " + draw_space, new Vector2(screenWidth / 2, 220 + (200 * draw_space)), Color.White);
+                            int startX = 20 + ((screenWidth / 4) * draw_space);
+                            int startY = 240;
+                            Graphics.DrawText("GamePad " + draw_space,                              new Vector2(startX, startY - 20),   Color.White);
 
-                            Graphics.DrawText("GamePad Hold  " + gamepad.GetHoldButton(), new Vector2(screenWidth / 2, 240 + (200 * draw_space)), Color.White);
-                            Graphics.DrawText("GamePad Pressed   " + gamepad.GetPressedButton(), new Vector2(screenWidth / 2, 260 + (200 * draw_space)), Color.White);
-                            Graphics.DrawText("GamePad Released  " + gamepad.GetReleasedButton(), new Vector2(screenWidth / 2, 280 + (20 * draw_space)), Color.White);
-                            Graphics.DrawText("DPad Direction        ", new Vector2(screenWidth / 2, 300 + (200 * draw_space)), Color.White);
-                            Graphics.DrawText("Left Axis Direction  ", new Vector2(2 * screenWidth / 3, 240 + (200 * draw_space)), Color.White);
-                            Graphics.DrawText("Right Axis Direction  ", new Vector2(2 * screenWidth / 3, 260 + (200 * draw_space)), Color.White);
-                            Graphics.DrawText("Left Trigger Pressure  ", new Vector2(2 * screenWidth / 3, 280 + (200 * draw_space)), Color.White);
-                            Graphics.DrawText("Right Trigger Pressure  ", new Vector2(2 * screenWidth / 3, 300 + (200 * draw_space)), Color.White);
+                            Graphics.DrawText("GamePad Hold  " + gamepad.GetHoldButton(),           new Vector2(startX, startY),        Color.White);
+                            Graphics.DrawText("GamePad Pressed   " + gamepad.GetPressedButton(),    new Vector2(startX, startY + 20),   Color.White);
+                            Graphics.DrawText("GamePad Released  " + gamepad.GetReleasedButton(),   new Vector2(startX, startY + 40),   Color.White);
+                            Graphics.DrawText("DPad Direction        ",                             new Vector2(startX, startY + 60),   Color.White);
+                            Graphics.DrawText("Left Axis Direction  ",                              new Vector2(startX, startY + 80),   Color.White);
+                            Graphics.DrawText("Right Axis Direction  ",                             new Vector2(startX, startY + 100),  Color.White);
+                            Graphics.DrawText("LT Pressure  ",                                      new Vector2(startX, startY + 120),  Color.White);
+                            Graphics.DrawText("RT Pressure  ",                                      new Vector2(startX, startY + 140),  Color.White);
                         }
                         draw_space++;
                     }

@@ -6,8 +6,14 @@
   <SourceFiles>
     <File>/Users/marcelo/VS/Projects/ExampleProject/ExampleProject/Content/ball.png</File>
     <File>/Users/marcelo/VS/Projects/ExampleProject/ExampleProject/Content/BgResTest.png</File>
+    <File>/Users/marcelo/VS/Projects/ExampleProject/ExampleProject/Content/Sheet/Sheet1.png</File>
+    <File>/Users/marcelo/VS/Projects/ExampleProject/ExampleProject/Content/Sheet/Sheet2.png</File>
+    <File>/Users/marcelo/VS/Projects/ExampleProject/ExampleProject/Content/SplashScene/Tapioca_logo.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
   </DestFiles>

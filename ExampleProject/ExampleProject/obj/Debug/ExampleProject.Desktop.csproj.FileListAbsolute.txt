@@ -26,3 +26,6 @@
 /Users/marcelo/VS/Projects/ExampleProject/ExampleProject/obj/Debug/ExampleProject.exe
 /Users/marcelo/VS/Projects/ExampleProject/ExampleProject/obj/Debug/ExampleProject.pdb
 /Users/marcelo/VS/Projects/ExampleProject/ExampleProject/obj/Debug/ExampleProject.Desktop.csprojAssemblyReference.cache
+/Users/marcelo/VS/Projects/ExampleProject/ExampleProject/bin/DesktopGL/AnyCPU/Debug/Content/SplashScene/Tapioca_logo.xnb
+/Users/marcelo/VS/Projects/ExampleProject/ExampleProject/bin/DesktopGL/AnyCPU/Debug/Content/Sheet/Sheet1.xnb
+/Users/marcelo/VS/Projects/ExampleProject/ExampleProject/bin/DesktopGL/AnyCPU/Debug/Content/Sheet/Sheet2.xnb

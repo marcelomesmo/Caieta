@@ -15,6 +15,12 @@ namespace Caieta
         {
             // Init Scene List
             _SceneList = scenes;
+            // Init Scenes
+            foreach (var _pair in _SceneList)
+            {
+                var _scene = _pair.Value;
+                _scene.Name = _pair.Key;
+            }
 
             _GlobalLayers = new Dictionary<string, Layer>();
 
@@ -23,34 +29,6 @@ namespace Caieta
                 throw new ArgumentException("[SceneManager]: First scene '" + firstScene + "'. Name invalid or not declared.");
             else _CurrScene = _NextScene = _SceneList[firstScene];
 
-            // Check Global Layers
-            foreach (var _pair in _SceneList)
-            {
-                var _scene = _pair.Value;
-                _scene.Name = _pair.Key;
-
-                Debug.Log("[SceneManager]: Loading layers for Scene '" + _scene.Name + "'.");
-
-                // CHECK THIS OUT
-                foreach (var _CurrLayer in _scene.Layers.Values)
-                {
-                    if (_CurrLayer.IsGlobal)
-                    {
-                        // Add to Global
-                        if (!_GlobalLayers.ContainsKey(_CurrLayer.Name))
-                        {
-                            _GlobalLayers.Add(_CurrLayer.Name, _CurrLayer);
-                            Debug.Log("[SceneManager]: '" + _CurrLayer.Name + "' added to Global layers stack.");
-                        }
-                        // Already on Global
-                        else
-                            Debug.Log("[SceneManager]: '" + _CurrLayer.Name + "' Global layer already on stack.");
-                    }
-                    // Layer Loaded
-                    else
-                        Debug.Log("[SceneManager]: '" + _CurrLayer.Name + "' loaded.");
-                }
-            }
 
             Debug.LogLine();
 
@@ -164,6 +142,24 @@ namespace Caieta
         public int ScenePopulation()
         {
             return _CurrScene.Population();
+        }
+
+        public void AddGlobal(string name, Layer layer)
+        {
+            // Check Global Layers
+            if (!_GlobalLayers.ContainsKey(name))
+            {
+                _GlobalLayers.Add(name, layer);
+                Debug.Log("[SceneManager]: '" + name + "' added to Global layers stack.");
+            }
+            // Already on Global
+            else
+                Debug.Log("[SceneManager]: '" + name + "' Global layer already on stack.");
+        }
+
+        public bool CheckGlobal(string name)
+        {
+            return _GlobalLayers.ContainsKey(name);
         }
 
         #endregion

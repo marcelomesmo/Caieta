@@ -30,6 +30,7 @@ namespace Caieta
         {
             Layers = new Dictionary<string, Layer>();
         }
+
         /*
          * Trigger Actions for OnSceneStart and OnSceneEnd
          */
@@ -49,6 +50,15 @@ namespace Caieta
         public virtual void End()
         {
             Debug.Log("[Scene]: Closing scene '" + Name + "'.");
+
+            foreach(var layer in Layers.Values)
+            {
+                if(!layer.IsGlobal)
+                {
+                    foreach (var ent in layer.Entities)
+                        ent.Unload();
+                }
+            }
 
             if (OnSceneEnd != null)
             {
@@ -105,6 +115,10 @@ namespace Caieta
 
         public void Add(Layer layer)
         {
+            // Auto make Layer global if global is set in previous layer
+            if (Engine.SceneManager.CheckGlobal(layer.Name))
+                layer.SetGlobal();
+
             Layers.Add(layer.Name, layer);
         }
 

@@ -17,6 +17,8 @@ namespace ExampleProject.Game.Scenes
         {
             base.Begin();
 
+            //Add(new Layer("HUD").SetGlobal(true));
+            Add(new Layer("HUD"));
         }
 
         public override void Render()

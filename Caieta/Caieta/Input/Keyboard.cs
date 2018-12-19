@@ -28,10 +28,7 @@ namespace Caieta
         internal void Update()
         {
             PreviousState = CurrentState;
-            if (IsActive)
-                CurrentState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
-            else
-                CurrentState = new KeyboardState();
+            CurrentState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
         }
 
         #region Utils
@@ -80,7 +77,7 @@ namespace Caieta
                 foreach (var key in curr)
                     if (!CurrentState.IsKeyDown(key))       // Released(key)
                         result += key.ToString() + " ";
-               
+
                 if (result.Equals(""))
                     return "-";
 
@@ -95,7 +92,7 @@ namespace Caieta
             {
                 string result = "";
 
-                if(!IsShiftDown() && !IsAltDown() && !IsControlDown() && !IsCommandDown())
+                if (!IsShiftDown() && !IsAltDown() && !IsControlDown() && !IsCommandDown())
                     return "-";
 
                 if (IsShiftDown())
@@ -121,16 +118,25 @@ namespace Caieta
 
         public bool IsShiftDown()
         {
+            if (!IsActive)
+                return false;
+
             return CurrentState.IsKeyDown(Keys.LeftShift) || CurrentState.IsKeyDown(Keys.RightShift);
         }
 
         public bool IsAltDown()
         {
+            if (!IsActive)
+                return false;
+
             return CurrentState.IsKeyDown(Keys.LeftAlt) || CurrentState.IsKeyDown(Keys.RightAlt);
         }
 
         public bool IsControlDown()
         {
+            if (!IsActive)
+                return false;
+
 #if OSX
             return CurrentState.IsKeyDown(Keys.LeftWindows) || CurrentState.IsKeyDown(Keys.RightWindows);
 #endif
@@ -139,12 +145,15 @@ namespace Caieta
 
         public bool IsCommandDown()
         {
+            if (!IsActive)
+                return false;
+
             return CurrentState.IsKeyDown(Keys.LeftWindows) || CurrentState.IsKeyDown(Keys.RightWindows);
         }
 
-#endregion
+        #endregion
 
-#region Key Checks
+        #region Key Checks
 
         public bool Hold(Keys key)
         {
@@ -170,9 +179,9 @@ namespace Caieta
             return !CurrentState.IsKeyDown(key) && PreviousState.IsKeyDown(key);
         }
 
-#endregion
+        #endregion
 
-#region Multiple Key Checks
+        #region Multiple Key Checks
 
         // Convenience methods
         // Notes: This is O(n)
@@ -186,7 +195,7 @@ namespace Caieta
                 hold = hold && Hold(_key);
                 if (!hold) return false;
             }
-            
+
             return true;
         }
 
@@ -206,9 +215,9 @@ namespace Caieta
             return Released(keyA) || Released(keyB);
         }
 
-#endregion
+        #endregion
 
-#region Direction
+        #region Direction
 
         public string GetDirection()
         {
@@ -249,7 +258,7 @@ namespace Caieta
 
             The idea is to update the Direction in DirectionCheck by passing Horizontal or Vertical and then set the Velocity Vector2 based on it.
         */
-        public int DirectionCheck(Keys negative, Keys positive, int both = 0 )
+        public int DirectionCheck(Keys negative, Keys positive, int both = 0)
         {
             if (Hold(negative))
             {
@@ -273,7 +282,7 @@ namespace Caieta
         */
         public bool IsMoving()
         {
-            if(CurrentState.IsKeyDown(Keys.Up) || CurrentState.IsKeyDown(Keys.Down) ||
+            if (CurrentState.IsKeyDown(Keys.Up) || CurrentState.IsKeyDown(Keys.Down) ||
                CurrentState.IsKeyDown(Keys.Left) || CurrentState.IsKeyDown(Keys.Right))
             {
                 Direction = new Vector2(DirectionCheck(Keys.Left, Keys.Right), DirectionCheck(Keys.Up, Keys.Down));
@@ -284,6 +293,6 @@ namespace Caieta
             return false;
         }
 
-#endregion
+        #endregion
     }
 }

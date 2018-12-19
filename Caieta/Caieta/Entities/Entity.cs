@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using Caieta.Components;
 
-namespace Caieta
+namespace Caieta.Entities
 {
     public class Entity
     {
@@ -15,14 +17,24 @@ namespace Caieta
          */
         //public Transform transform;
 
+        /*
+         *      ACTIONS
+         */
         public event Action OnCreate;
         public event Action OnDestroy;
+
+        /*
+         *      COMPONENTS
+         */
+        public List<Component> Components;
 
         // Notes: Think about taking initial_visibility out, pattern Constructors and init
         public Entity(string entityname, bool initial_visibility = true)
         {
             Name = entityname;
             IsVisible = initial_visibility;
+
+            Components = new List<Component>();
         }
 
         public virtual void Create()
@@ -53,23 +65,37 @@ namespace Caieta
 
         public virtual void Update()
         {
-            // Components.Update();
+            foreach (var component in Components)
+                component.Update();
         }
 
         public virtual void Render()
         {
-            // Components.Render();
+            foreach (var component in Components)
+                component.Render();
         }
 
+        public virtual void Unload()
+        {
+            foreach (var component in Components)
+                component.Unload();
+        }
 
-        #region Component Search
-        /*
-         * 
+        #region Components
+
+        public void Add(Component component)
+        {
+            Components.Add(component);
+        }
+
         public T Get<T>() where T : Component
         {
-            return Components.Get<T>();
+            foreach (var component in Components)
+                if (component is T)
+                    return component as T;
+            return null;
         }
-        */
+
         #endregion
     }
 }

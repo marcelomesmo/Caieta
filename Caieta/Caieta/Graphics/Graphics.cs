@@ -14,12 +14,12 @@ namespace Caieta
         public static SpriteBatch SpriteBatch;
 
         /* Default Assets */
-        //public static Dictionary<FontSize, SpriteFont> DefaultFont;
-        public static SpriteFont DefaultFontVERYSMALL { get; private set; }
+        public static Dictionary<FontSize, SpriteFont> DefaultFont;
+        /*public static SpriteFont DefaultFontVERYSMALL { get; private set; }
         public static SpriteFont DefaultFontSMALL { get; private set; }
         public static SpriteFont DefaultFontMEDIUM { get; private set; }
         public static SpriteFont DefaultFontLARGE { get; private set; }
-        public static SpriteFont DefaultFontEXTRALARGE { get; private set; }
+        public static SpriteFont DefaultFontEXTRALARGE { get; private set; }*/
 
         public static Texture2D BaseAtlas;
         private static Texture2D Particle;
@@ -53,19 +53,19 @@ namespace Caieta
         {
             SpriteBatch = new SpriteBatch(graphicsDevice);
 
-            /*DefaultFont = new Dictionary<FontSize, SpriteFont>
+            DefaultFont = new Dictionary<FontSize, SpriteFont>
             {
                 { FontSize.VERYSMALL, Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontVERYSMALL") },
                 { FontSize.SMALL, Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontSMALL") },
                 { FontSize.MEDIUM, Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontMEDIUM") },
                 { FontSize.LARGE, Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontLARGE") },
                 { FontSize.EXTRALARGE, Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontEXTRALARGE") }
-            };*/
-            DefaultFontVERYSMALL = Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontVERYSMALL");
+            };
+            /*DefaultFontVERYSMALL = Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontVERYSMALL");
             DefaultFontSMALL = Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontSMALL");
             DefaultFontMEDIUM = Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontMEDIUM");
             DefaultFontLARGE = Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontLARGE");
-            DefaultFontEXTRALARGE = Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontEXTRALARGE");
+            DefaultFontEXTRALARGE = Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontEXTRALARGE");*/
 
             BaseAtlas = Engine.Instance.Content.Load<Texture2D>("Textures/Caieta-BaseAtlas");
 
@@ -112,13 +112,12 @@ namespace Caieta
         // Draw Text with DefaultFont
         public static void DrawText(string text, Vector2 position, Color color, FontSize size = FontSize.SMALL)
         {
-            /*if(!DefaultFont.ContainsKey(size))
+            if(!DefaultFont.ContainsKey(size))
                 throw new ArgumentException("[Graphics]: Default font size '" + size + "'. Name invalid or not declared.");
             else
                 SpriteBatch.DrawString(DefaultFont[size], text, Calc.Floor(position), color);
-                */
-            
-            switch(size)
+
+            /*switch(size)
             {
                 case FontSize.VERYSMALL:
                     SpriteBatch.DrawString(DefaultFontVERYSMALL, text, Calc.Floor(position), color);
@@ -143,7 +142,7 @@ namespace Caieta
                 default:
                     Debug.ErrorLog("[Graphics]: Invalid Font Size.");
                     break;
-            }
+            }*/
         }
 
         // Draw SpriteFont Text
@@ -186,6 +185,11 @@ namespace Caieta
         public static void Draw(Texture2D texture)
         {
             SpriteBatch.Draw(texture, Vector2.Zero, Color.White);
+        }
+
+        public static void Draw(Texture2D Texture, Vector2 Position, Rectangle ClipRect, Color Color, float Rotation, Vector2 Origin, Vector2 Scale, SpriteEffects Effects, float depth)
+        {
+            SpriteBatch.Draw(Texture, Position, ClipRect, Color, Rotation, Origin, Scale, Effects, depth);
         }
 
         #endregion
@@ -256,6 +260,16 @@ namespace Caieta
         public static void DrawRect(Rectangle rect, Color color, int opacity = 100, FillType fill = FillType.HOLLOW)
         {
             DrawRect(rect.X, rect.Y, rect.Width, rect.Height, color, opacity, fill);
+        }
+
+        #endregion
+
+        #region Utils
+
+        public static void ResetColor()
+        {
+            LetterBoxColor = Color.Black;
+            ClearColor = Color.CornflowerBlue;
         }
 
         #endregion

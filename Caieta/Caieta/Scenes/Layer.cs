@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Caieta.Entities;
 using Microsoft.Xna.Framework;
 
 namespace Caieta
@@ -9,8 +10,9 @@ namespace Caieta
     {
         public string Name { get; private set; }
 
-        public bool IsVisible { get; set; }
-        public bool IsGlobal { get; set; }
+        public bool IsVisible;
+        public bool IsGlobal { get; private set; }
+
         public Vector2 Parallax
         {
             get { return parallax; }
@@ -54,6 +56,17 @@ namespace Caieta
             _adding = new HashSet<Entity>();
             _removing = new HashSet<Entity>();
         }
+
+        #region Fluent Constructor
+
+        public void SetGlobal()
+        {
+            IsGlobal = true;
+
+            Engine.SceneManager.AddGlobal(Name, this);
+        }
+
+        #endregion
 
         public virtual void UpdateLists()
         {

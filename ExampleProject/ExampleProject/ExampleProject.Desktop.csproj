@@ -47,6 +47,9 @@
     <Compile Include="Game\Scenes\MenuScene.cs" />
     <Compile Include="Game\Scenes\SplashScene.cs" />
     <Compile Include="Game\Scenes\Fase1Scene.cs" />
+    <Compile Include="Game\Entities\Logo.cs" />
+    <Compile Include="Game\Entities\Player.cs" />
+    <Compile Include="Game\Entities\Background.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

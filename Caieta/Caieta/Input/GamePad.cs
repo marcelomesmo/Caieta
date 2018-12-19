@@ -60,8 +60,7 @@ namespace Caieta
              * Update GamePads
              */
             PreviousState = CurrentState;
-            if (IsActive)
-                CurrentState = Microsoft.Xna.Framework.Input.GamePad.GetState(PlayerIndex);
+            CurrentState = Microsoft.Xna.Framework.Input.GamePad.GetState(PlayerIndex);
 
             /*
              *  Check Gamepad State
@@ -70,7 +69,7 @@ namespace Caieta
             {
                 IsAttached = IsActive = CurrentState.IsConnected;
 
-                if(IsAttached)
+                if (IsAttached)
                 {
                     Debug.Log("[GamePad]: GamePad '" + PlayerIndex + "' connected.");
 
@@ -167,6 +166,8 @@ namespace Caieta
         {
             string result = "";
 
+            IsActive = true;
+
             if (Hold(Buttons.A)) result += "A ";
             if (Hold(Buttons.B)) result += "B ";
             if (Hold(Buttons.Back)) result += "Back ";
@@ -180,17 +181,63 @@ namespace Caieta
             if (Hold(Buttons.X)) result += "X ";
             if (Hold(Buttons.Y)) result += "Y ";
 
-            return "-";
+            if (result.Equals("")) result = "-";
+
+            IsActive = false;
+
+            return result;
         }
 
         public string GetPressedButton()
         {
-            return "-";
+            string result = "";
+
+            IsActive = true;
+
+            if (Pressed(Buttons.A)) result += "A ";
+            if (Pressed(Buttons.B)) result += "B ";
+            if (Pressed(Buttons.Back)) result += "Back ";
+            if (Pressed(Buttons.LeftShoulder)) result += "LS ";
+            if (Pressed(Buttons.LeftStick)) result += "LeftStick ";
+            if (Pressed(Buttons.LeftTrigger) || LeftTriggerPressed()) result += "LT ";
+            if (Pressed(Buttons.RightShoulder)) result += "RS ";
+            if (Pressed(Buttons.RightStick)) result += "RightStick ";
+            if (Pressed(Buttons.RightTrigger) || RightTriggerPressed()) result += "RT ";
+            if (Pressed(Buttons.Start)) result += "Start ";
+            if (Pressed(Buttons.X)) result += "X ";
+            if (Pressed(Buttons.Y)) result += "Y ";
+
+            if (result.Equals("")) result = "-";
+
+            IsActive = false;
+
+            return result;
         }
 
         public string GetReleasedButton()
         {
-            return "-";
+            string result = "";
+
+            IsActive = true;
+
+            if (Released(Buttons.A)) result += "A ";
+            if (Released(Buttons.B)) result += "B ";
+            if (Released(Buttons.Back)) result += "Back ";
+            if (Released(Buttons.LeftShoulder)) result += "LS ";
+            if (Released(Buttons.LeftStick)) result += "LeftStick ";
+            if (Released(Buttons.LeftTrigger) || LeftTriggerReleased()) result += "LT ";
+            if (Released(Buttons.RightShoulder)) result += "RS ";
+            if (Released(Buttons.RightStick)) result += "RightStick ";
+            if (Released(Buttons.RightTrigger) || RightTriggerReleased()) result += "RT ";
+            if (Released(Buttons.Start)) result += "Start ";
+            if (Released(Buttons.X)) result += "X ";
+            if (Released(Buttons.Y)) result += "Y ";
+
+            if (result.Equals("")) result = "-";
+
+            IsActive = false;
+
+            return result;
         }
 
         #endregion
@@ -658,7 +705,7 @@ namespace Caieta
 
         public bool DPadHold(InputDirection direction)
         {
-            switch(direction)
+            switch (direction)
             {
                 case InputDirection.LEFT:
                     return CurrentState.DPad.Left == ButtonState.Pressed;
