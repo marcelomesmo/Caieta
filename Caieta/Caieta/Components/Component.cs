@@ -1,9 +1,12 @@
 ﻿using System;
+using Caieta.Entities;
 
 namespace Caieta
 {
     public abstract class Component
     {
+        public Entity Entity;
+
         public bool IsActive;
         /*{
             get { return IsActive; }

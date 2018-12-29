@@ -6,6 +6,7 @@ namespace Caieta
 {
     public class DebugInspector
     {
+        // Notes: Set this to false to force disable.
         public bool IsEnabled = true;
         public bool IsOpen;
 
@@ -68,16 +69,6 @@ namespace Caieta
                 IsOpen = false;
                 _State = InspectorState.NONE;
                 Input.Enable();
-
-                // Make Entities colliders visible
-                foreach (var layer in Engine.SceneManager.SceneLayers())
-                {
-                    foreach (var ent in layer.Entities)
-                    {
-                        if (ent.Get<Platform>() != null)
-                            ent.Get<Platform>().HideColliders();
-                    }
-                }
             }
         }
 
@@ -88,16 +79,6 @@ namespace Caieta
                 IsOpen = true;
                 _State = InspectorState.NONE;
                 Input.Disable();
-
-                // Make Entities colliders visible
-                foreach (var layer in Engine.SceneManager.SceneLayers())
-                {
-                    foreach (var ent in layer.Entities)
-                    {
-                        if (ent.Get<Platform>() != null)
-                            ent.Get<Platform>().ShowColliders();
-                    }
-                }
             }
         }
 
@@ -105,9 +86,54 @@ namespace Caieta
 
         internal void Render()
         {
+            /*
+             *      DRAW SCENE
+             */
+         
+            // Start graphics with rendertarget
+            Graphics.Begin();
+
+            // Game Objects Debug
+            foreach (var layer in Engine.SceneManager.SceneLayers())
+            {
+                foreach (var ent in layer.Entities)
+                {
+                    // Draw Entity Colliders
+                    foreach (var col in ent.GetAll<Collider>())
+                    {
+                        // Collider Box
+                        Graphics.DrawRect(col.AbsolutePosition.X, col.AbsolutePosition.Y, col.Width, col.Height, Color.Red, 100, FillType.HOLLOW);
+                        // Collider Origin
+                        Graphics.DrawPoint(col.AbsolutePosition, Color.Red);
+                    }
+
+                    // Draw Sprite Origin
+                    foreach (var sprite in ent.GetAll<Sprite>())
+                    {
+                        // Draw Sprite rect
+                        Graphics.DrawRect(ent.Transform.Position.X - sprite.Origin.X, ent.Transform.Position.Y - sprite.Origin.Y, sprite.Width, sprite.Height, Color.RoyalBlue, 50);
+
+                        // Draw Sprite origin
+                        Graphics.DrawRect(ent.Transform.Position.X - 2, ent.Transform.Position.Y - 2, 5, 5, Color.RoyalBlue, 50);
+                        Graphics.DrawPoint(ent.Transform.Position, Color.RoyalBlue, 50);
+                        Graphics.DrawRect(ent.Transform.Position.X - 2, ent.Transform.Position.Y - 2, 5, 5, Color.RoyalBlue, 50);
+                    }
+
+                    // Draw Entity Transform Position
+                    Graphics.DrawPoint(ent.Transform.Position, Color.OrangeRed);
+                }
+            }
+
+            Graphics.End();
+
+
+            /*
+             *      DRAW TEXT
+             */
             int screenWidth = Graphics.ViewWidth;
             int screenHeight = Graphics.ViewHeight;
 
+            // Start a new batch to draw relative to screensize
             Graphics.SpriteBatch.Begin();
 
             // Game Data
@@ -173,7 +199,8 @@ namespace Caieta
                     foreach (var layer in Engine.SceneManager.SceneLayers())
                     {
                         foreach(var ent in layer.Entities)
-                            Graphics.DrawText("  " + ent.Name, new Vector2(2 * screenWidth / 3, 100 + (20*draw_space)), Color.White);
+                            // Draw Entity Name List
+                            Graphics.DrawText("  " + ent.Name, new Vector2(2 * screenWidth / 3, 100 + (20 * draw_space)), Color.White);
 
                         draw_space++;
                     }

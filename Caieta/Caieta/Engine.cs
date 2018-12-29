@@ -26,7 +26,7 @@ namespace Caieta
         /*
          *      DEBUGGER
          */
-        private Debugger _Debugger;
+        public Debugger _Debugger;
 
         /*
          *      SCENES
@@ -526,10 +526,10 @@ namespace Caieta
             Graphics.Draw(_destinationRender);
             Graphics.End();
 
-            base.Draw(gameTime);
-
             // Debug Console & Inspector
             _Debugger.Render();
+
+            base.Draw(gameTime);
         }
 
         #region Events

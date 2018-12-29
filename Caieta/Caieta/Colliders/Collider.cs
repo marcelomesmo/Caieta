@@ -4,8 +4,11 @@ using Microsoft.Xna.Framework;
 
 namespace Caieta
 {
-    public abstract class Collider
+    public abstract class Collider : Component
     {
+        /*
+         *      Size & Position
+         */
         public abstract float Width { get; set; }
         public abstract float Height { get; set; }
         public abstract float Top { get; set; }
@@ -13,11 +16,27 @@ namespace Caieta
         public abstract float Left { get; set; }
         public abstract float Right { get; set; }
 
+        public Vector2 Origin;
+
+        // Notes: Shortcut
+        public Vector2 AbsolutePosition
+        {
+            get { return Entity.Transform.Position - Origin; }
+        }
+
+        /*
+         *      Collision
+         */
         public bool IsTrigger = true;
 
-        public Vector2 LocalPosition;
+        public bool IsOverlapping(Entity entity)
+        {
+            var collision = false;
+            foreach (var collider in entity.GetAll<Collider>())
+                collision |= IsOverlapping(collider);
 
-        public Vector2 AbsolutePosition;
+            return collision;
+        }
 
         public bool IsOverlapping(Collider collider)
         {
@@ -41,16 +60,12 @@ namespace Caieta
                 throw new Exception("[Collider]: Collisions against the collider type are not implemented.");
         }
 
-        public abstract bool Collide(Vector2 point);
-        public abstract bool Collide(Rectangle rect);
-        public abstract bool Collide(Vector2 from, Vector2 to);
+        public abstract bool IsOverlapping(Rectangle rect);
         public abstract bool IsOverlapping(BoxCollider other_collider);
         /*public abstract bool Collide(Grid grid);
         public abstract bool Collide(Circle circle);
         public abstract bool Collide(ColliderList list);*/
         public abstract Collider Clone();
-        //public abstract void Render(Camera camera, Color color);
-        public abstract void Render(Transform parent);
 
         public float CenterX
         {
@@ -212,5 +227,78 @@ namespace Caieta
         {
             IsTrigger = !solid;
         }
+
+        #region Origin
+
+        public void SetOrigin(Animation.Anchor anchor)
+        {
+            Rectangle ClipRect = new Rectangle(0, 0, (int)Width, (int)Height);
+
+            switch (anchor)
+            {
+                case Animation.Anchor.BOTTOM_LEFT:
+                    Origin.X = ClipRect.Left;
+                    Origin.Y = ClipRect.Bottom;
+                    break;
+                case Animation.Anchor.BOTTOM:
+                    Origin.X = ClipRect.Center.X;
+                    Origin.Y = ClipRect.Bottom;
+                    break;
+                case Animation.Anchor.BOTTOM_RIGHT:
+                    Origin.X = ClipRect.Right;
+                    Origin.Y = ClipRect.Bottom;
+                    break;
+                case Animation.Anchor.TOP_LEFT:
+                    Origin.X = ClipRect.Left;
+                    Origin.Y = ClipRect.Top;
+                    break;
+                case Animation.Anchor.TOP:
+                    Origin.X = ClipRect.Center.X;
+                    Origin.Y = ClipRect.Top;
+                    break;
+                case Animation.Anchor.TOP_RIGHT:
+                    Origin.X = ClipRect.Right;
+                    Origin.Y = ClipRect.Top;
+                    break;
+                case Animation.Anchor.LEFT:
+                    Origin.X = ClipRect.Left;
+                    Origin.Y = ClipRect.Center.Y;
+                    break;
+                case Animation.Anchor.CENTER:
+                    Origin.X = ClipRect.Center.X;
+                    Origin.Y = ClipRect.Center.Y;
+                    break;
+                case Animation.Anchor.RIGHT:
+                    Origin.X = ClipRect.Right;
+                    Origin.Y = ClipRect.Center.Y;
+                    break;
+            }
+        }
+
+        public void SetOrigin(float x, float y)
+        {
+            Origin.X = x;
+            Origin.Y = y;
+        }
+
+        public void CenterOrigin()
+        {
+            Origin.X = Width / 2f;
+            Origin.Y = Height / 2f;
+        }
+
+        public void JustifyOrigin(Vector2 at)
+        {
+            Origin.X = Width * at.X;
+            Origin.Y = Height * at.Y;
+        }
+
+        public void JustifyOrigin(float x, float y)
+        {
+            Origin.X = Width * x;
+            Origin.Y = Height * y;
+        }
+
+        #endregion
     }
 }

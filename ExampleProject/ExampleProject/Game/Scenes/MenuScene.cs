@@ -32,7 +32,6 @@ namespace ExampleProject.Game.Scenes
             Layers["HUD"].SetGlobal();
             Add(new Layer("Objects"));
 
-            Bg.Add(new Solid(100, 200, 0, 0));
 
             Layers["Background"].Add(Bg);
 

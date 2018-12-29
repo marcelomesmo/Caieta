@@ -10,8 +10,10 @@ namespace Caieta
      */
     public class Debugger
     {
-        public DebugInspector Inspector;
-        public DebugConsole Console;
+        private DebugInspector Inspector;
+        private DebugConsole Console;
+
+        public bool IsOpen;
 
         public Debugger()
         {
@@ -29,6 +31,8 @@ namespace Caieta
         {
             Inspector.Update();
             Console.Update();
+
+            IsOpen = Inspector.IsOpen || Console.IsOpen;
         }
 
         internal void Render()

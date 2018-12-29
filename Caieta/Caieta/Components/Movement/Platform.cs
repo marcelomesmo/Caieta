@@ -8,15 +8,10 @@ namespace Caieta
     public class Platform : Component
     {
         /*
-         *      Position
-         */
-        public Transform Transform;
-
-        /*
          *      Movement
          */
-        public bool IsMoving;
         public Vector2 Velocity;
+
         /*
          *      (X) Horizontal Movement
          */
@@ -35,16 +30,26 @@ namespace Caieta
         public float JumpSustain;
 
         /*
+         *      Movement Verifiers
+         */
+        public bool IsMoving { get; private set; }
+        public bool IsJumping { get; private set; }
+        public bool IsFalling { get; private set; }
+        public bool IsOnFloor { get; private set; }
+        public bool IsByWall { get; private set; }
+
+        /*
          *      Controls
          */
         public bool DefaultControls;
+        public bool IgnoreInput;
 
         /*
-         *      Collisions
+         *      Events
          */
-        private Dictionary<string, BoxCollider> Colliders;
-        //private readonly BoxCollider Hitbox = new BoxCollider(8, 11, -4, -11);
-        //private readonly BoxCollider Duckbox = new BoxCollider(8, 6, -4, -6);
+        public Action OnJump;
+        public Action OnFall;
+        public Action OnLand;
 
         public Action OnMove;
         public Action OnStop;
@@ -63,20 +68,14 @@ namespace Caieta
             JumpSustain = 0;
 
             DefaultControls = false;
+            IgnoreInput = false;
 
-            Transform = new Transform();
-
-            Colliders = new Dictionary<string, BoxCollider>();
+            OnJump = null;
+            OnFall = null;
+            OnLand = null;
 
             OnMove = null;
-        }
-
-        public void AddCollider(string boxName, BoxCollider box)
-        {
-            if (!Colliders.ContainsKey(boxName))
-                Colliders.Add(boxName, box);
-            else
-                Debug.ErrorLog("[Platform]: Box Collider '"+ boxName + "' already exist.");
+            OnStop = null;
         }
 
         public override void Initialize()
@@ -88,12 +87,14 @@ namespace Caieta
         {
             base.Update();
 
+            //if(!IgnoreInput)
             if (DefaultControls)
             {
-                Vector2 previousPosition = Transform.Position;
+                Vector2 previousPosition = Entity.Transform.Position;
 
                 if (Input.Keyboard.IsMoving())
                 {
+                    // Make it only move if Left or Right
                     if (!IsMoving)
                         IsMoving = true;
 
@@ -136,10 +137,10 @@ namespace Caieta
                 // Prevent the player from running faster than his top speed.            
                 //velocity.X = MathHelper.Clamp(velocity.X, -MaxMoveSpeed, MaxMoveSpeed);
 
-                Transform.Position += Velocity * Engine.Instance.DeltaTime;
+                Entity.Transform.Position += Velocity * Engine.Instance.DeltaTime;
                 //Debug.Log(Transform);
 
-                foreach (BoxCollider box in Colliders.Values)
+                /*foreach (BoxCollider box in Colliders.Values)
                     box.Update(Transform);
 
                 // If the player is now colliding with the level, separate them.
@@ -156,11 +157,11 @@ namespace Caieta
                                     Transform.Position = previousPosition;
 
                                     // Trigger On Colision
-                                    /*if (OnCollision != null)
+                                    if (OnCollision != null)
                                     {
                                         OnColission(ent.Name);
                                         OnColission = null;
-                                    }*/
+                                    }
                                 }
                         }
                     }
@@ -171,16 +172,7 @@ namespace Caieta
                     Velocity.X = 0;
 
                 if (Transform.Position.Y == previousPosition.Y)
-                    Velocity.Y = 0;
-            }
-        }
-
-        public void Move(Vector2 MoveDirection)
-        {
-            if (Colliders.Count <= 0)
-            {
-                Transform.Position += MoveDirection * Engine.Instance.DeltaTime;
-                return;
+                    Velocity.Y = 0;*/
             }
         }
 
@@ -188,34 +180,54 @@ namespace Caieta
         {
             base.Render();
 
-            foreach(BoxCollider box in Colliders.Values)
+            // Notes: Could implement a predictable route and speed vectors here in the future.
+        }
+
+        #region Movement
+
+        public void Move(Vector2 MoveDirection)
+        {
+            // If there are no colliders: move indistinguible (?)
+            //if (Entity.GetAll<Collider>().Count <= 0)
+            //{
+                Entity.Transform.Position += MoveDirection * Engine.Instance.DeltaTime;
+              //  return;
+            //}
+        }
+        public void MoveX(int x)
+        {
+            Move(new Vector2(x, 0));
+        }
+        public void MoveY(int y)
+        {
+            Move(new Vector2(0, y));
+        }
+
+        // Notes: Need to implement this.
+        public void SimulateControl(InputDirection direction)
+        {
+            switch(direction)
             {
-                if (box.IsVisible)
-                    box.Render(Transform);
+                case InputDirection.LEFT:
+                    break;
+                case InputDirection.RIGHT:
+                    break;
+                // DoJump
+                case InputDirection.UP:
+                    break;
+                // Force fall from a jump-thru
+                case InputDirection.DOWN:
+                    break;
             }
         }
+
+        #endregion
 
         #region Utils
 
-        public void ShowColliders()
-        {
-            foreach (BoxCollider box in Colliders.Values)
-            {
-                box.IsVisible = true;
-            }
-        }
-
-        public void HideColliders()
-        {
-            foreach (BoxCollider box in Colliders.Values)
-            {
-                box.IsVisible = false;
-            }
-        }
-
         public override string ToString()
         {
-            return string.Format("[Platform]: Colliders: {0} Transform:\n {1} ", Colliders.Count, Transform);
+            return string.Format("[Platform]: Colliders: {0} Transform:\n {1} ", Entity.Transform);
         }
 
         #endregion

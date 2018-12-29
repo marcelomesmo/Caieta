@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Caieta.Components;
+using Microsoft.Xna.Framework;
 
 namespace Caieta.Entities
 {
@@ -15,7 +15,7 @@ namespace Caieta.Entities
         /*
          *      POSITION, ANGLE & SCALE
          */
-        //public Transform transform;
+        public Transform Transform;
 
         /*
          *      ACTIONS
@@ -33,6 +33,8 @@ namespace Caieta.Entities
         {
             Name = entityname;
             IsVisible = initial_visibility;
+
+            Transform = new Transform();
 
             Components = new List<Component>();
         }
@@ -85,9 +87,29 @@ namespace Caieta.Entities
 
         public void Add(Component component)
         {
+            // Check if a component is Unique and have already been added.
+            if (component is IUnique)
+            {
+                var typeOfcomponent = component.GetType();
+
+                Debug.Log("type of component : " + component.GetType());
+
+                foreach (var c in Components)
+                    if (c.GetType() == typeOfcomponent)
+                    {
+                        Debug.WarningLog("[Entity]: '" + Name + "' already have a '"+ typeOfcomponent + "' unique component.");
+                        return;
+                    }
+            }
+
+            // Add Component to this Entity
+            component.Entity = this;
             Components.Add(component);
+            component.Initialize();
+            // Notes: for future reference, instead of having a straight Initialize() we can add component to a _toAdd list and post-initialize all at the same time or in a specific order.
         }
 
+        // Return first
         public T Get<T>() where T : Component
         {
             foreach (var component in Components)
@@ -95,6 +117,44 @@ namespace Caieta.Entities
                     return component as T;
             return null;
         }
+
+        // Return all
+        public List<T> GetAll<T>() where T : Component
+        {
+            var list = new List<T>();
+
+            foreach (var component in Components)
+                if (component is T)
+                    list.Add( component as T );
+
+            return list;
+        }
+
+        // Check if a Component exists
+        public bool Has<T>() where T : Component
+        {
+            var comp = Get<T>();
+            if (comp == null)
+                return false;
+
+            return true;
+        }
+
+        #endregion
+
+        #region Tags & Collision
+
+        /*
+        public bool IsCollidable; IsTrigger;
+         
+        public string TagName;
+        private int _Flag;
+
+        public void SetCollisionFilter(string tag, params string[] tags)
+        {
+
+        }
+        */
 
         #endregion
     }

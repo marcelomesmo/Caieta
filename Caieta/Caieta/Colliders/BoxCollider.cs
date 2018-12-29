@@ -6,12 +6,6 @@ namespace Caieta
 {
     public class BoxCollider : Collider
     {
-        /*
-         *      VISIBILITY
-         */
-        public bool IsVisible;
-        public Color Color = Color.White;
-
         /* 
          *      SIZE & POSITION
          */
@@ -33,26 +27,26 @@ namespace Caieta
 
         public override float Left
         {
-            get { return LocalPosition.X; }
-            set { LocalPosition.X = value; }
+            get { return Origin.X; }
+            set { Origin.X = value; }
         }
 
         public override float Top
         {
-            get { return LocalPosition.Y; }
-            set { LocalPosition.Y = value; }
+            get { return Origin.Y; }
+            set { Origin.Y = value; }
         }
 
         public override float Right
         {
-            get { return LocalPosition.X + Width; }
-            set { LocalPosition.X = value - Width; }
+            get { return Origin.X + Width; }
+            set { Origin.X = value - Width; }
         }
 
         public override float Bottom
         {
-            get { return LocalPosition.Y + Height; }
-            set { LocalPosition.Y = value - Height; }
+            get { return Origin.Y + Height; }
+            set { Origin.Y = value - Height; }
         }
 
         #endregion
@@ -62,19 +56,17 @@ namespace Caieta
             _width = width;
             _height = height;
 
-            LocalPosition.X = x;
-            LocalPosition.Y = y;
+            // Notes: may need to invert this
+            //      Origin is based on Entity position.
+            //      A 0, 0 Origin would be Entity Origin.
+            //      A 5, 5 Origin would be centered in the Entity's 5, 5 position
+            Origin.X = -x;
+            Origin.Y = -y;
         }
         public BoxCollider(Rectangle rect) : this(rect.Width, rect.Height, rect.X, rect.Y) { }
-
-        public void Update(Transform parent)
+        public BoxCollider(Sprite sprite) : this(sprite.Width, sprite.Height)
         {
-            AbsolutePosition = parent.Position + LocalPosition;
-        }
-
-        public override void Render(Transform parent)
-        {
-            Graphics.DrawRect(AbsolutePosition.X, AbsolutePosition.Y, Width, Height, Color, 100, FillType.HOLLOW);
+            Origin = sprite.Origin;
         }
 
         #region Collisions
@@ -82,49 +74,9 @@ namespace Caieta
         /*
          *  Checking against other colliders
          */
-        /*public override bool Collide(Vector2 point)
+        public override bool IsOverlapping(Rectangle rect)
         {
-            return Collide.RectToPoint(AbsoluteLeft, AbsoluteTop, Width, Height, point);
-        }
-
-        public override bool Collide(Rectangle rect)
-        {
-            return AbsoluteRight > rect.Left && AbsoluteBottom > rect.Top && AbsoluteLeft < rect.Right && AbsoluteTop < rect.Bottom;
-        }
-
-        public override bool Collide(Vector2 from, Vector2 to)
-        {
-            return Collide.RectToLine(AbsoluteLeft, AbsoluteTop, Width, Height, from, to);
-        }
-
-        public override bool Collide(BoxCollider hitbox)
-        {
-            return Intersects(hitbox);
-        }
-
-        public bool Intersects(BoxCollider other_collider)
-        {
-            return AbsoluteLeft < other_collider.AbsoluteRight && AbsoluteRight > other_collider.AbsoluteLeft && AbsoluteBottom > other_collider.AbsoluteTop && AbsoluteTop < hitbox.AbsoluteBottom;
-        }
-
-        public bool Intersects(float x, float y, float width, float height)
-        {
-            return AbsoluteRight > x && AbsoluteBottom > y && AbsoluteLeft < x + width && AbsoluteTop < y + height;
-        }*/
-
-        public override bool Collide(Vector2 point)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Collide(Rectangle rect)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Collide(Vector2 from, Vector2 to)
-        {
-            throw new NotImplementedException();
+            return AbsolutePosition.X + Width > rect.Left && AbsolutePosition.Y + Height > rect.Top && AbsolutePosition.X < rect.Right && AbsolutePosition.Y < rect.Bottom;
         }
 
         public override bool IsOverlapping(BoxCollider other_collider)
@@ -137,19 +89,24 @@ namespace Caieta
             return AbsolutePosition.X < other_collider.AbsolutePosition.X + other_collider.Width && AbsolutePosition.X + Width > other_collider.AbsolutePosition.X && AbsolutePosition.Y + Height > other_collider.AbsolutePosition.Y && AbsolutePosition.Y < other_collider.AbsolutePosition.Y + other_collider.Height;
         }
 
+        public bool Intersects(float x, float y, float width, float height)
+        {
+            return AbsolutePosition.X + Width > x && AbsolutePosition.Y + Height > y && AbsolutePosition.X < x + width && AbsolutePosition.Y < y + height;
+        }
+
         #endregion
 
         #region Utils
 
         public override Collider Clone()
         {
-            return new BoxCollider(_width, _height, LocalPosition.X, LocalPosition.Y);
+            return new BoxCollider(_width, _height, Origin.X, Origin.Y);
         }
 
-        /*public override string ToString()
-         {
-             return string.Format("[BoxCollider]: {0} Origin: {1} Center: {2} Transform:\n {3} ", Name, Origin, Center, Transform);
-         }*/
+        public override string ToString()
+        {
+             return string.Format("[BoxCollider]: Absolute Position: {0} Origin: {1} Center: {2} Is trigger: {3} ", AbsolutePosition, Origin, Center, IsTrigger);
+        }
 
         #endregion
     }

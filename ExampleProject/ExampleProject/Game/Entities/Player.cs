@@ -1,6 +1,7 @@
 ﻿using System;
 using Caieta;
 using Caieta.Entities;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -9,6 +10,12 @@ namespace ExampleProject
     public class Player : Entity
     {
         Sprite sprite;
+
+        //private readonly BoxCollider Hitbox = new BoxCollider(8, 11, -4, -11);
+        //private readonly BoxCollider Duckbox = new BoxCollider(8, 6, -4, -6);
+
+        BoxCollider Hitbox = new BoxCollider(12, 16);
+        BoxCollider Anotherbox = new BoxCollider(5, 5, 5, 5);
 
         private float startX = 100, startY = 100;
 
@@ -19,22 +26,27 @@ namespace ExampleProject
 
         private void Player_OnCreate()
         {
+            Transform.Position = new Vector2(startX, startY);
 
             /*
              * Platform
              */
             Add(new Platform());
-
-            Get<Platform>().Transform.SetPosition(startX, startY);
-            Get<Platform>().AddCollider("hitbox1", new BoxCollider(24, 24, 0, 0));
-            Get<Platform>().AddCollider("hitbox2", new BoxCollider(5, 5, 5, 5));
             Get<Platform>().DefaultControls = true;
+
+            // Notes: Create these as objects to maintain reference inside object
+            //          (instead of using a dictionary with a string)
+            Hitbox.SetOrigin(Animation.Anchor.CENTER);
+
+            Add(Hitbox);
+            Add(Anotherbox);
+
+            //
 
             /*
              * Sprite
              */
             sprite = new Sprite();
-            sprite.Transform.SetPosition(startX, startY);
 
             var sheet1 = Engine.Instance.Content.Load<Texture2D>("Sheet/Sheet1");
             sprite.Add(new Animation("idle", sheet1, 1, 4, 300));
@@ -42,21 +54,24 @@ namespace ExampleProject
             var sheet2 = Engine.Instance.Content.Load<Texture2D>("Sheet/Sheet2");
             sprite.Add(new Animation("walk", sheet2, 1, 5, 300, 100, 50, 300, 300));
 
+            /*
+            sprite = new Sprite()
+                .Add(new Animation("idle", Resources.Get<Texture2D>("sheet1"), 1, 4, 300))
+                .Add(new Animation("walk", Resources.Get<Texture2D>("sheet2"), 1, 5, 300, 100, 50, 300, 300));
+                */
+
             sprite.SetAnimation("idle");
 
-            sprite.SetOrigin(Renderable.Anchor.BOTTOM_LEFT);
-
-            //Debug.Log(sprite);
-
-            sprite.Transform.PinTo(Get<Platform>().Transform);
+            //sprite.SetOrigin(Animation.Anchor.LEFT, Animation.AnchorPolicy.AllAnimations);
+            //sprite.SetOrigin(Animation.Anchor.TOP_LEFT);
+            //sprite.SetOrigin(Animation.Anchor.CENTER);
 
             Add(sprite);
 
+
+            Debug.Log("Player 1 " + sprite);
+
             sprite.OnFinish += OnFinish;
-
-
-            //Debug.Log(Get<Platform>());
-
 
             Debug.Log("[Player]: Created.");
         }
@@ -65,7 +80,7 @@ namespace ExampleProject
         {
             base.Update();
 
-            if(Input.Keyboard.Pressed(Keys.Left) && !sprite.IsMirrored)
+            if (Input.Keyboard.Pressed(Keys.Left) && !sprite.IsMirrored)
                 sprite.IsMirrored = true;
 
             if (Input.Keyboard.Pressed(Keys.Right) && sprite.IsMirrored)

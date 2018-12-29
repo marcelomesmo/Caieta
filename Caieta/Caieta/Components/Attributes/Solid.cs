@@ -2,13 +2,8 @@
 
 namespace Caieta
 {
-    public class Solid : Component
+    public class Solid : Component, IUnique
     {
-        /*
-         *      Position
-         */
-        public Transform Transform;
-
         /*
          *      Collision
          */
@@ -16,21 +11,9 @@ namespace Caieta
 
         public Solid(float width, float height, float x = 0, float y = 0)
         {
-            Transform = new Transform();
-
             box = new BoxCollider(width, height, x, y);
 
-            box.IsVisible = true;
-
             box.SetSolid(true);
-        }
-
-        public override void Render()
-        {
-            base.Render();
-
-            if (box.IsVisible)
-                box.Render(Transform);
         }
 
     }

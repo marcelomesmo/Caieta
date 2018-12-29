@@ -7,12 +7,8 @@ namespace Caieta
 {
     public class Sprite : Renderable
     {
-        public Texture2D Texture;
-
-        public Dictionary<string, Vector2> ImagePoint;
-
         public Dictionary<string, Animation> Animations;
-        private Animation _CurrentAnimation;
+        public Animation CurrentAnimation { get; private set; }
 
         public Action<string> OnFinish;
         public Action<string> OnFrameChange;
@@ -20,36 +16,34 @@ namespace Caieta
         public float AnimationTimer;
         public bool IgnoreTimeRate;
 
-        public Sprite(Texture2D texture, Rectangle sourceRect) : base(sourceRect)
+        public Sprite(Texture2D image, Rectangle sourceRect)
         {
-            Texture = texture;
-
-            ImagePoint = new Dictionary<string, Vector2>();
-
             Animations = new Dictionary<string, Animation>(StringComparer.OrdinalIgnoreCase);
 
-            _CurrentAnimation = null;
-            //_CurrentAnimationName = "";
-            /*OnFinish = null;
-            OnLoop = null;
+            if (image != null)
+            {
+                Animations.Add("default", new Animation("default", image));
+                Animations["default"].AdjustRect(sourceRect);
+                Animations["default"].CurrentState = Animation.LoopState.RemainOnFinalFrame;
+                SetAnimation("default");
+            }
+            else
+                CurrentAnimation = null;
+
+            OnFinish = null;
             OnFrameChange = null;
-            OnChange = null;*/
-            //IsAnimating = false;
 
             IgnoreTimeRate = false;
         }
-
-        public Sprite(Texture2D texture) : this(texture, new Rectangle(0, 0, texture.Width, texture.Height)) { }
-
         public Sprite(Texture2D texture, int x, int y, int width, int height) : this(texture, new Rectangle(x, y, width, height)) { }
-
-        public Sprite() : this(null, new Rectangle(0,0,0,0)) {  }
+        public Sprite(Texture2D texture) : this(texture, new Rectangle(0, 0, texture.Width, texture.Height)) { }
+        public Sprite() : this(null, new Rectangle(0,0,0,0)) { }
 
         public override void Update()
         {
             base.Update();
 
-            if (_CurrentAnimation != null && _CurrentAnimation.IsActive)
+            if (CurrentAnimation != null && CurrentAnimation.IsActive)
             {
                 // Update Current Animation
                 if (IgnoreTimeRate)
@@ -57,35 +51,28 @@ namespace Caieta
                 else
                     AnimationTimer += Engine.Instance.DeltaTime * 1000;
 
-                _CurrentAnimation.Update();
-
-                //Debug.Log("Current time " + AnimationTimer);
-
                 // Next Frame
-                if (AnimationTimer >= _CurrentAnimation.CurrentFrameDuration())
+                if (AnimationTimer >= CurrentAnimation.Duration)
                 {
-                    //Debug.Log("Next Frame at " + AnimationTimer);
-                    //OnFrameChange?.Invoke(_CurrentAnimation.Name);
+                    //OnFrameChange?.Invoke(CurrentAnimation.Name);
                     if (OnFrameChange != null)
-                        OnFrameChange(_CurrentAnimation.Name);
+                        OnFrameChange(CurrentAnimation.Name);
 
-                    _CurrentAnimation.CurrentFrame += _CurrentAnimation.FrameDirection;
+                    CurrentAnimation.CurrentFrame += CurrentAnimation.FrameDirection;
 
                     AnimationTimer = 0;
 
                     // End of Animation
-                    if(_CurrentAnimation.HasEnded())
+                    if(CurrentAnimation.HasEnded())
                     {
-                        _CurrentAnimation.TimesPlayed++;
+                        CurrentAnimation.TimesPlayed++;
 
                         //OnFinish?.Invoke(_CurrentAnimation.Name);
                         if (OnFinish != null)
-                            OnFinish(_CurrentAnimation.Name);
+                            OnFinish(CurrentAnimation.Name);
 
-                        _CurrentAnimation.CalculateNextFrame();
+                        CurrentAnimation.CalculateNextFrame();
                     }
-
-                    _CurrentAnimation.Update();
                 }
             }
         }
@@ -94,30 +81,35 @@ namespace Caieta
         {
             base.Render();
 
-            if (IsVisible)
-            {
-                if(Texture != null && _CurrentAnimation == null)
-                    Graphics.Draw(Texture, Transform.Position, ClipRect, Color, Transform.Rotation, Origin, Transform.Scale, Effects, 0);
-                else if(_CurrentAnimation != null) {
-                    Graphics.Draw(_CurrentAnimation.Sheet, Transform.Position, _CurrentAnimation.SpriteInSheet, Color, Transform.Rotation, Origin, Transform.Scale, Effects, 0);
-                }
-            }
+            if (IsVisible && CurrentAnimation != null)
+                Graphics.Draw(CurrentAnimation.Sheet, Entity.Transform.Position, CurrentAnimation.Frame, Color, Entity.Transform.Rotation, CurrentAnimation.Origin, Entity.Transform.Scale, Effects, 0);
         }
 
         public override void Unload()
         {
             ClearAnimations();
-            if(Texture != null) Texture.Dispose();
-            Texture = null;
+            //if(Texture != null) Texture.Dispose();
+            //Texture = null;
         }
 
         // NOTE Notes: Check if necessary later and why.
         public void Dispose()
         {
-            if (Texture != null) Texture.Dispose();
+            //if (Texture != null) Texture.Dispose();
         }
 
         #region Animations
+
+        public Animation Get(string name)
+        {
+            if (!Animations.ContainsKey(name))
+            {
+                Debug.WarningLog("[Sprite]: No Animation with name '" + name + "'. Animation name invalid or not declared.");
+                return CurrentAnimation;
+            }
+
+            return Animations[name];
+        }
 
         public void SetAnimation(string name)
         {
@@ -125,25 +117,25 @@ namespace Caieta
                 Debug.WarningLog("[Sprite]: No Animation with name '" + name + "'. Animation name invalid or not declared.");
             else
             {
-                _CurrentAnimation = Animations[name];
-                _CurrentAnimation.Start();
+                CurrentAnimation = Animations[name];
+                CurrentAnimation.Start();
             }
         }
 
         public void SetFrame(int frame)
         {
-            if (_CurrentAnimation != null)
-                _CurrentAnimation.CurrentFrame = frame;
+            if (CurrentAnimation != null)
+                CurrentAnimation.CurrentFrame = frame;
             else
                 Debug.WarningLog("[Sprite]: No current Animation while trying to SetFrame.");
         }
 
         public bool IsPlaying(string name)
         {
-            if (_CurrentAnimation == null)
+            if (CurrentAnimation == null)
                 return false;
 
-            if (_CurrentAnimation.Name == name)
+            if (CurrentAnimation.Name == name)
                 return true;
 
             return false;
@@ -151,10 +143,10 @@ namespace Caieta
 
         public bool CompareFrame(int frame)
         {
-            if (_CurrentAnimation == null)
+            if (CurrentAnimation == null)
                 return false;
 
-            if (_CurrentAnimation.CurrentFrame == frame)
+            if (CurrentAnimation.CurrentFrame == frame)
                 return true;
            
             return false;
@@ -162,72 +154,83 @@ namespace Caieta
 
         public Sprite Add(Animation animation)
         {
-            Animations.Add(animation.Name, animation);
+            if (Animations.ContainsKey(animation.Name))
+                Debug.ErrorLog("[Sprite]: Animation with name '" + animation.Name + "' already added.");
+            else
+                Animations.Add(animation.Name, animation);
 
             return this;
         }
 
         public void Pause()
         {
-            if (_CurrentAnimation != null)
-                _CurrentAnimation.IsActive = false;
+            if (CurrentAnimation != null)
+                CurrentAnimation.IsActive = false;
         }
 
         public void UnPause()
         {
-            if (_CurrentAnimation != null)
-                _CurrentAnimation.IsActive = true;
+            if (CurrentAnimation != null)
+                CurrentAnimation.IsActive = true;
         }
-
-        #endregion
-
-        #region Image Points
-
-        public Sprite Add(string name, Vector2 image_point)
-        {
-            ImagePoint.Add(name, image_point);
-
-            return this;
-        }
-
-        #endregion
-
-        #region Utils
-
-        public Sprite Clone()
-        {
-            return new Sprite(Texture, ClipRect)
-            {
-                Origin = Origin
-            };
-        }
-        /*
-        public Spritee GetSubtexture(int x, int y, int width, int height, Image applyTo = null)
-        {
-            if (applyTo == null)
-                return new Image(Texture, x, y, width, height);
-            else
-            {
-                applyTo.Texture = Texture;
-
-                //applyTo.ClipRect = GetRelativeRect(x, y, width, height);
-                applyTo.Width = width;
-                applyTo.Height = height;
-                //applyTo.Center = applyTo.Origin = new Vector2(Width, Height) * 0.5f;
-
-                return applyTo;
-            }
-        }*/
 
         private void ClearAnimations()
         {
             Animations.Clear();
         }
 
-        public Sprite GetSubtexture(Rectangle rect)
+        #endregion
+
+        #region Utils
+
+        /*public Sprite Clone()
         {
-            return new Sprite(Texture, rect);
+            if(Animations.Contains("default")
+            {
+                return new Sprite(CurrentAnimation.Sheet, CurrentAnimation.Frame)
+                {
+                    Origin = Origin
+                };
+            }
+            else
+            {
+                return new Sprite()
+                {
+                    Animations = Animations
+                };
+            }
+        }*/
+
+        public void SetOrigin(Animation.Anchor anchor, Animation.AnchorPolicy policy = Animation.AnchorPolicy.CurrentAnimation)
+        {
+            switch(policy)
+            {
+                case Animation.AnchorPolicy.CurrentAnimation:
+                    CurrentAnimation.SetOrigin(anchor);
+                    break;
+
+                case Animation.AnchorPolicy.AllAnimations:
+                    foreach (Animation anim in Animations.Values)
+                        anim.SetOrigin(anchor);
+                    break;
+            }
         }
+
+        public override string ToString()
+        {
+            var r = string.Format("[Sprite]: Visibility: {0} Current Animation: {1}\n  Animation List:", IsVisible, CurrentAnimation.Name);
+            foreach (Animation anim in Animations.Values)
+                r += "\n" + anim.ToString();
+
+            return r;
+        }
+
+        // Shortcuts
+        public Vector2 Origin => CurrentAnimation.Origin;
+
+        public int Width => CurrentAnimation.FrameWidth;
+
+        public int Height => CurrentAnimation.FrameHeight;
 
         #endregion
     }

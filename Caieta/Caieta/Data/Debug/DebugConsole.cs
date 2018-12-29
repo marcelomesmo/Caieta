@@ -41,13 +41,9 @@ namespace Caieta
             int screenWidth = Graphics.ViewWidth;
             int screenHeight = Graphics.ViewHeight;
 
-            Graphics.SpriteBatch.Begin();
-
             Graphics.DrawRect(10, 40, screenWidth - 20, screenHeight - 50, Color.Black, 80, FillType.FILL);
 
             Graphics.DrawText(">", new Vector2(20, screenHeight - 42), Color.White);
-
-            Graphics.End();
         }
     }
 }

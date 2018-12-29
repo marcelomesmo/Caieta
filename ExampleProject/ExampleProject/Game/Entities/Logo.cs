@@ -1,6 +1,7 @@
 ﻿using System;
 using Caieta;
 using Caieta.Entities;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace ExampleProject
@@ -17,10 +18,14 @@ namespace ExampleProject
         {
             base.Create();
 
-            var sprite = Engine.Instance.Content.Load<Texture2D>("SplashScene/Tapioca_logo");
+            Transform.SetPosition(Graphics.Width / 2, Graphics.Height / 2);
 
+            var sprite = Engine.Instance.Content.Load<Texture2D>("SplashScene/Tapioca_logo");
             Splash = new Sprite(sprite);
-            Splash.Transform.SetPosition(Graphics.Width/2, Graphics.Height/2);
+            // Splash = new Sprite(Resources.Get<Image>("logo"));
+            // Splash = Resources.Get<Sprite>("logo");
+
+            //Splash.SetOrigin(Renderable.Anchor.TOP_RIGHT);
 
             Add(Splash);
         }

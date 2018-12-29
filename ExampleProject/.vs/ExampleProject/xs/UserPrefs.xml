@@ -1,13 +1,13 @@
 ﻿<Properties StartupConfiguration="{905B6B3B-33B1-49FB-B691-AE30F88CB4F5}|Default">
   <MonoDevelop.Ide.ItemProperties.ExampleProject.Desktop PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="../Caieta/Caieta/Components/Movement/Platform.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="ExampleProject/Game/Entities/Player.cs">
     <Files>
-      <File FileName="../Caieta/Caieta/Components/Movement/Platform.cs" Line="145" Column="54" />
-      <File FileName="../Caieta/Caieta/Colliders/BoxCollider.cs" Line="62" Column="28" />
-      <File FileName="../Caieta/Caieta/Scenes/SceneManager.cs" Line="163" Column="10" />
-      <File FileName="../Caieta/Caieta/Colliders/Collider.cs" Line="214" Column="10" />
-      <File FileName="../Caieta/Caieta/Components/Attributes/Solid.cs" Line="9" Column="12" />
-      <File FileName="ExampleProject/Game/Scenes/MenuScene.cs" Line="33" Column="39" />
+      <File FileName="ExampleProject/Game/Entities/Player.cs" Line="86" Column="16" />
+      <File FileName="../Caieta/Caieta/Colliders/BoxCollider.cs" Line="64" Column="27" />
+      <File FileName="../Caieta/Caieta/Data/Debug/DebugInspector.cs" Line="104" Column="40" />
+      <File FileName="../Caieta/Caieta/Colliders/Collider.cs" Line="21" Column="27" />
+      <File FileName="../Caieta/Caieta/Components/Renderables/Sprites/Animation.cs" Line="307" Column="36" />
+      <File FileName="../Caieta/Caieta/Components/Renderables/Sprites/Sprite.cs" Line="221" Column="63" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

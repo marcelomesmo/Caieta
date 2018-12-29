@@ -14,7 +14,7 @@
     <Folder Include="$(MSBuildThisFileDirectory)Graphics\" />
     <Folder Include="$(MSBuildThisFileDirectory)Scenes\" />
     <Folder Include="$(MSBuildThisFileDirectory)Data\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Data\Util\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Data\Math\" />
     <Folder Include="$(MSBuildThisFileDirectory)Graphics\Renderer\" />
     <Folder Include="$(MSBuildThisFileDirectory)Entities\" />
     <Folder Include="$(MSBuildThisFileDirectory)Components\" />
@@ -28,12 +28,13 @@
     <Folder Include="$(MSBuildThisFileDirectory)Components\Movement\" />
     <Folder Include="$(MSBuildThisFileDirectory)Components\Attributes\" />
     <Folder Include="$(MSBuildThisFileDirectory)Colliders\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Entities\Attributes\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Engine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Graphics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\Input.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Data\Util\Calc.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Data\Math\Calc.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scenes\Scene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scenes\Layer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scenes\SceneManager.cs" />
@@ -53,11 +54,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Components\Renderables\Sprites\ScrollingSprite.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Renderables\Sprites\Sprite.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Renderables\Sprites\Animation.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Components\Renderables\Transform.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Movement\Platform.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Colliders\BoxCollider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Colliders\Collider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Attributes\Solid.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\Attributes\Transform.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\Attributes\IUnique.cs" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="$(MSBuildThisFileDirectory)Content\Caieta.mgcb" />

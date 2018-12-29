@@ -61,11 +61,6 @@ namespace Caieta
                 { FontSize.LARGE, Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontLARGE") },
                 { FontSize.EXTRALARGE, Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontEXTRALARGE") }
             };
-            /*DefaultFontVERYSMALL = Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontVERYSMALL");
-            DefaultFontSMALL = Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontSMALL");
-            DefaultFontMEDIUM = Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontMEDIUM");
-            DefaultFontLARGE = Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontLARGE");
-            DefaultFontEXTRALARGE = Engine.Instance.Content.Load<SpriteFont>("Fonts/DefaultFontEXTRALARGE");*/
 
             BaseAtlas = Engine.Instance.Content.Load<Texture2D>("Textures/Caieta-BaseAtlas");
 
@@ -116,33 +111,6 @@ namespace Caieta
                 throw new ArgumentException("[Graphics]: Default font size '" + size + "'. Name invalid or not declared.");
             else
                 SpriteBatch.DrawString(DefaultFont[size], text, Calc.Floor(position), color);
-
-            /*switch(size)
-            {
-                case FontSize.VERYSMALL:
-                    SpriteBatch.DrawString(DefaultFontVERYSMALL, text, Calc.Floor(position), color);
-                    break;
-
-                case FontSize.SMALL:
-                    SpriteBatch.DrawString(DefaultFontSMALL, text, Calc.Floor(position), color);
-                    break;
-
-                case FontSize.MEDIUM:
-                    SpriteBatch.DrawString(DefaultFontMEDIUM, text, Calc.Floor(position), color);
-                    break;
-
-                case FontSize.LARGE:
-                    SpriteBatch.DrawString(DefaultFontLARGE, text, Calc.Floor(position), color);
-                    break;
-
-                case FontSize.EXTRALARGE:
-                    SpriteBatch.DrawString(DefaultFontEXTRALARGE, text, Calc.Floor(position), color);
-                    break;
-
-                default:
-                    Debug.ErrorLog("[Graphics]: Invalid Font Size.");
-                    break;
-            }*/
         }
 
         // Draw SpriteFont Text
@@ -197,7 +165,16 @@ namespace Caieta
 
         #region Shapes
 
-        private static Rectangle rect;
+        private static Rectangle _rect;
+
+        public static void DrawPoint(Vector2 position, Color color, int opacity = 100)
+        {
+            SpriteBatch.Draw(Pixel, position, color * (opacity / 100f));
+        }
+    
+        // Draw Line
+
+        // Draw Circle
 
         public static void DrawRect(float x, float y, float width, float height, Color color, int opacity = 100, FillType fill = FillType.HOLLOW)
         {
@@ -210,12 +187,12 @@ namespace Caieta
                 // Draw Filled Rect
                 case FillType.FILL:
 
-                    rect.X = (int)x;
-                    rect.Y = (int)y;
-                    rect.Width = (int)width;
-                    rect.Height = (int)height;
+                    _rect.X = (int)x;
+                    _rect.Y = (int)y;
+                    _rect.Width = (int)width;
+                    _rect.Height = (int)height;
 
-                    SpriteBatch.Draw(Pixel, rect, color * (opacity/100f));
+                    SpriteBatch.Draw(Pixel, _rect, color * (opacity/100f));
                     //(Pixel.Texture, rect, Pixel.ClipRect, color);
 
                     break;
@@ -223,26 +200,26 @@ namespace Caieta
                 // Draw Hollow Rect
                 case FillType.HOLLOW:
 
-                    rect.X = (int)x;
-                    rect.Y = (int)y;
-                    rect.Width = (int)width;
-                    rect.Height = 1;
+                    _rect.X = (int)x;
+                    _rect.Y = (int)y;
+                    _rect.Width = (int)width;
+                    _rect.Height = 1;
 
-                    SpriteBatch.Draw(Pixel, rect, color);
+                    SpriteBatch.Draw(Pixel, _rect, color);
 
-                    rect.Y += (int)height - 1;
+                    _rect.Y += (int)height - 1;
 
-                    SpriteBatch.Draw(Pixel, rect, color);
+                    SpriteBatch.Draw(Pixel, _rect, color);
 
-                    rect.Y -= (int)height - 1;
-                    rect.Width = 1;
-                    rect.Height = (int)height;
+                    _rect.Y -= (int)height - 1;
+                    _rect.Width = 1;
+                    _rect.Height = (int)height;
 
-                    SpriteBatch.Draw(Pixel, rect, color);
+                    SpriteBatch.Draw(Pixel, _rect, color);
 
-                    rect.X += (int)width - 1;
+                    _rect.X += (int)width - 1;
 
-                    SpriteBatch.Draw(Pixel, rect, color);
+                    SpriteBatch.Draw(Pixel, _rect, color);
 
                     break;
 
