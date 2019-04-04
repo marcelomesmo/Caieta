@@ -21,6 +21,9 @@ namespace Caieta
         private GamePadState PreviousState;
         private GamePadState CurrentState;
 
+        public Vector2 Direction { get; private set; }
+        private const int _directionIncrement = 1;
+
         public bool InvertLeftStickY { get; set; }
         public bool InvertRightStickY { get; set; }
 
@@ -56,11 +59,16 @@ namespace Caieta
 
         internal void Update()
         {
+            Direction = new Vector2(0, 0);
+
             /*
              * Update GamePads
              */
             PreviousState = CurrentState;
-            CurrentState = Microsoft.Xna.Framework.Input.GamePad.GetState(PlayerIndex);
+            if (IsActive)
+                CurrentState = Microsoft.Xna.Framework.Input.GamePad.GetState(PlayerIndex);
+            else
+                CurrentState = new GamePadState();
 
             /*
              *  Check Gamepad State
@@ -166,8 +174,6 @@ namespace Caieta
         {
             string result = "";
 
-            IsActive = true;
-
             if (Hold(Buttons.A)) result += "A ";
             if (Hold(Buttons.B)) result += "B ";
             if (Hold(Buttons.Back)) result += "Back ";
@@ -183,16 +189,12 @@ namespace Caieta
 
             if (result.Equals("")) result = "-";
 
-            IsActive = false;
-
             return result;
         }
 
         public string GetPressedButton()
         {
             string result = "";
-
-            IsActive = true;
 
             if (Pressed(Buttons.A)) result += "A ";
             if (Pressed(Buttons.B)) result += "B ";
@@ -209,16 +211,12 @@ namespace Caieta
 
             if (result.Equals("")) result = "-";
 
-            IsActive = false;
-
             return result;
         }
 
         public string GetReleasedButton()
         {
             string result = "";
-
-            IsActive = true;
 
             if (Released(Buttons.A)) result += "A ";
             if (Released(Buttons.B)) result += "B ";
@@ -235,8 +233,6 @@ namespace Caieta
 
             if (result.Equals("")) result = "-";
 
-            IsActive = false;
-
             return result;
         }
 
@@ -246,25 +242,16 @@ namespace Caieta
 
         public bool Hold(Buttons button)
         {
-            if (!IsActive)
-                return false;
-
             return CurrentState.IsButtonDown(button);
         }
 
         public bool Pressed(Buttons button)
         {
-            if (!IsActive)
-                return false;
-
             return CurrentState.IsButtonDown(button) && !PreviousState.IsButtonDown(button);
         }
 
         public bool Released(Buttons button)
         {
-            if (!IsActive)
-                return false;
-
             return !CurrentState.IsButtonDown(button) && PreviousState.IsButtonDown(button);
         }
 
@@ -277,8 +264,8 @@ namespace Caieta
          */
         public Vector2 GetLeftStick(float deadzone = DEFAULT_DEADZONE)
         {
-            if (!IsActive)
-                return Vector2.Zero;
+            //if (!IsActive)
+            //    return Vector2.Zero;
 
             Vector2 ret = CurrentState.ThumbSticks.Left;
             if (ret.LengthSquared() < deadzone * deadzone)
@@ -290,8 +277,8 @@ namespace Caieta
 
         public Vector2 GetRightStick(float deadzone = DEFAULT_DEADZONE)
         {
-            if (!IsActive)
-                return Vector2.Zero;
+            //if (!IsActive)
+            //   return Vector2.Zero;
 
             Vector2 ret = CurrentState.ThumbSticks.Right;
             if (ret.LengthSquared() < deadzone * deadzone)
@@ -306,9 +293,6 @@ namespace Caieta
          */
         public bool LeftStickHold(InputDirection direction, float deadzone = DEFAULT_DEADZONE)
         {
-            if (!IsActive)
-                return false;
-
             switch (direction)
             {
                 case InputDirection.LEFT:
@@ -331,9 +315,6 @@ namespace Caieta
 
         public bool LeftStickReleased(InputDirection direction, float deadzone = DEFAULT_DEADZONE)
         {
-            if (!IsActive)
-                return false;
-
             switch (direction)
             {
                 case InputDirection.LEFT:
@@ -356,9 +337,6 @@ namespace Caieta
 
         public bool LeftStickPressed(InputDirection direction, float deadzone = DEFAULT_DEADZONE)
         {
-            if (!IsActive)
-                return false;
-
             switch (direction)
             {
                 case InputDirection.LEFT:
@@ -382,9 +360,6 @@ namespace Caieta
 
         public bool RightStickHold(InputDirection direction, float deadzone = DEFAULT_DEADZONE)
         {
-            if (!IsActive)
-                return false;
-
             switch (direction)
             {
                 case InputDirection.LEFT:
@@ -407,9 +382,6 @@ namespace Caieta
 
         public bool RightStickReleased(InputDirection direction, float deadzone = DEFAULT_DEADZONE)
         {
-            if (!IsActive)
-                return false;
-
             switch (direction)
             {
                 case InputDirection.LEFT:
@@ -432,9 +404,6 @@ namespace Caieta
 
         public bool RightStickPressed(InputDirection direction, float deadzone = DEFAULT_DEADZONE)
         {
-            if (!IsActive)
-                return false;
-
             switch (direction)
             {
                 case InputDirection.LEFT:
@@ -460,9 +429,6 @@ namespace Caieta
          */
         public InputDirection LeftStickDirection(float deadzone = DEFAULT_DEADZONE, float diagonalavoidance = DEFAULT_DIAGONAL_AVOIDANCE)
         {
-            if (!IsActive)
-                return InputDirection.NONE;
-
             // Get the length and prevent something from happening
             // if it's in our deadzone.
             var length = CurrentState.ThumbSticks.Left.Length();
@@ -506,9 +472,6 @@ namespace Caieta
 
         public InputDirection RightStickDirection(float deadzone = DEFAULT_DEADZONE, float diagonalavoidance = DEFAULT_DIAGONAL_AVOIDANCE)
         {
-            if (!IsActive)
-                return InputDirection.NONE;
-
             // Get the length and prevent something from happening
             // if it's in our deadzone.
             var length = CurrentState.ThumbSticks.Right.Length();
@@ -555,9 +518,6 @@ namespace Caieta
          */
         public float LeftStickHorizontal(float deadzone = DEFAULT_DEADZONE)
         {
-            if (!IsActive)
-                return 0;
-
             float horizontalDistance = CurrentState.ThumbSticks.Left.X;
             if (Math.Abs(horizontalDistance) < deadzone)
                 return 0;
@@ -567,9 +527,6 @@ namespace Caieta
 
         public float LeftStickVertical(float deadzone = DEFAULT_DEADZONE)
         {
-            if (!IsActive)
-                return 0;
-
             float verticalDistance = CurrentState.ThumbSticks.Left.Y;
             if (Math.Abs(verticalDistance) < deadzone)
                 return 0;
@@ -581,9 +538,6 @@ namespace Caieta
 
         public float RightStickHorizontal(float deadzone = DEFAULT_DEADZONE)
         {
-            if (!IsActive)
-                return 0;
-
             float horizontalDistance = CurrentState.ThumbSticks.Right.X;
             if (Math.Abs(horizontalDistance) < deadzone)
                 return 0;
@@ -593,9 +547,6 @@ namespace Caieta
 
         public float RightStickVertical(float deadzone = DEFAULT_DEADZONE)
         {
-            if (!IsActive)
-                return 0;
-
             float verticalDistance = CurrentState.ThumbSticks.Right.Y;
             if (Math.Abs(verticalDistance) < deadzone)
                 return 0;
@@ -611,66 +562,42 @@ namespace Caieta
 
         public float LeftTrigger()
         {
-            if (!IsActive)
-                return 0;
-
             return CurrentState.Triggers.Left;
         }
 
 
         public float RightTrigger()
         {
-            if (!IsActive)
-                return 0;
-
             return CurrentState.Triggers.Right;
         }
 
         public bool LeftTriggerHold(float threshold = DEFAULT_TRIGGER_THRESHOLD)
         {
-            if (!IsActive)
-                return false;
-
             return CurrentState.Triggers.Left >= threshold;
         }
 
         public bool LeftTriggerPressed(float threshold = DEFAULT_TRIGGER_THRESHOLD)
         {
-            if (!IsActive)
-                return false;
-
             return CurrentState.Triggers.Left >= threshold && PreviousState.Triggers.Left < threshold;
         }
 
         public bool LeftTriggerReleased(float threshold = DEFAULT_TRIGGER_THRESHOLD)
         {
-            if (!IsActive)
-                return false;
-
             return CurrentState.Triggers.Left < threshold && PreviousState.Triggers.Left >= threshold;
         }
 
         public bool RightTriggerHold(float threshold = DEFAULT_TRIGGER_THRESHOLD)
         {
-            if (!IsActive)
-                return false;
-
             return CurrentState.Triggers.Right >= threshold;
         }
 
         public bool RightTriggerPressed(float threshold = DEFAULT_TRIGGER_THRESHOLD)
         {
-            if (!IsActive)
-                return false;
-
             return CurrentState.Triggers.Right >= threshold && PreviousState.Triggers.Right < threshold;
         }
 
         public bool RightTriggerReleased(float threshold = DEFAULT_TRIGGER_THRESHOLD)
         {
-            if (!IsActive)
-                return false;
-
             return CurrentState.Triggers.Right < threshold && PreviousState.Triggers.Right >= threshold;
         }
 
@@ -768,6 +695,47 @@ namespace Caieta
                     Debug.ErrorLog("[GamePad]: DPad Released. Invalid direction '" + direction + "' for GamePad '" + PlayerIndex + "'.");
                     return false;
             }
+        }
+
+        /*
+         * Get DPad direction in InputDirection
+         */
+         // Notes: Should make this into a list?
+        public InputDirection DPadDirection()
+        {
+            if (DPadHold(InputDirection.RIGHT))
+                return InputDirection.RIGHT;
+            else if (DPadHold(InputDirection.LEFT))
+                return InputDirection.LEFT;
+
+            if (DPadHold(InputDirection.UP))
+                return InputDirection.UP;
+            else if (DPadHold(InputDirection.DOWN))
+                return InputDirection.DOWN;
+
+            return InputDirection.NONE;
+        }
+
+        #endregion
+
+        #region Direction
+
+        public bool IsMoving()
+        {
+            if (LeftStickDirection() != InputDirection.NONE)
+            {
+                Direction = new Vector2(LeftStickHorizontal() > 0 ? 1 : (LeftStickHorizontal() < 0 ? - 1 : 0), LeftStickVertical() > 0 ? 1 : (LeftStickVertical() < 0 ? -1 : 0));
+
+                return true;
+            }
+
+            if(DPadDirection() != InputDirection.NONE)
+            {
+                Direction = new Vector2(DPadHorizontal, DPadVertical);
+                return true;
+            }
+
+            return false;
         }
 
         #endregion

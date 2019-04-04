@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace Caieta
 {
@@ -8,6 +9,8 @@ namespace Caieta
         public bool IsEnabled = true;
         public bool IsOpen;
 
+        private Keyboard Keyboard;
+
         public DebugConsole()
         {
             IsOpen = false;
@@ -15,11 +18,15 @@ namespace Caieta
 
         internal void Initialize()
         {
+            Keyboard = new Keyboard();
 
         }
 
         internal void Update()
         {
+            // Update Inputs
+            Keyboard.Update();
+
             if (IsOpen)
                 UpdateOpen();
             else if (IsEnabled)
@@ -28,12 +35,22 @@ namespace Caieta
 
         private void UpdateOpen()
         {
+            if (Input.Keyboard.Pressed(Keys.OemTilde))
+            {
+                IsOpen = false;
 
+                Input.Enable();
+            }
         }
 
         private void UpdateClosed()
         {
+            if (Input.Keyboard.Pressed(Keys.OemTilde))
+            {
+                IsOpen = true;
 
+                Input.Disable();
+            }
         }
 
         internal void Render()

@@ -1,13 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Caieta.Audio;
+using Caieta.Entities;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Caieta
 {
     public class SceneManager
     {
+        public Camera Camera;
+
         private Dictionary<string, Scene> _SceneList;
-        private Scene _CurrScene;
+
+        public Scene CurrScene { get; private set; }
+
         private Scene _NextScene;
         private Dictionary<string, Layer> _GlobalLayers;
 
@@ -27,8 +35,10 @@ namespace Caieta
             // Check First Scene
             if (!_SceneList.ContainsKey(firstScene))
                 throw new ArgumentException("[SceneManager]: First scene '" + firstScene + "'. Name invalid or not declared.");
-            else _CurrScene = _NextScene = _SceneList[firstScene];
+            else CurrScene = _NextScene = _SceneList[firstScene];
 
+            // Game Camera
+            Camera = new Camera();
 
             Debug.LogLine();
 
@@ -40,72 +50,119 @@ namespace Caieta
         internal void Begin()
         {
             // Start First Scene
-            _CurrScene.Begin();
+            CurrScene.Begin();
         }
 
         internal void Update()
         {
             // Update Scene
-            if (_CurrScene != null)
+            if (CurrScene != null)
             {
-                _CurrScene.Update();
+                CurrScene.Update();
 
                 // Update Layers
-                if (!_CurrScene.Paused)
+                foreach (var _CurrLayer in CurrScene.Layers.Values)
                 {
-                    foreach (var _CurrLayer in _CurrScene.Layers.Values)
+                    // Layer movement obey Camera Parallax
+                    Engine.SceneManager.Camera.Parallax = new Vector2(_CurrLayer.Parallax.X / 100f, _CurrLayer.Parallax.Y / 100f);
+
+                    if (_CurrLayer.IsGlobal)
                     {
-                        if (_CurrLayer.IsGlobal)
-                        {
-                            if (!_GlobalLayers.ContainsKey(_CurrLayer.Name))
-                                Debug.ErrorLog("[SceneManager]: Global layer '" + _CurrLayer.Name + "' not found.");
-                            else
-                            {
-                                // Update Global Layer
-                                _GlobalLayers[_CurrLayer.Name].UpdateLists();
-                                _GlobalLayers[_CurrLayer.Name].Update();
-                            }
-                        }
+                        if (!_GlobalLayers.ContainsKey(_CurrLayer.Name))
+                            Debug.ErrorLog("[SceneManager]: Global layer '" + _CurrLayer.Name + "' not found.");
                         else
                         {
-                            // Update Local Layer
-                            _CurrLayer.UpdateLists();
-                            _CurrLayer.Update();
+                            // Update Global Layer
+                            _GlobalLayers[_CurrLayer.Name].UpdateLists();
+                            _GlobalLayers[_CurrLayer.Name].Update();
                         }
                     }
+                    else
+                    {
+                        // Update Local Layer
+                        _CurrLayer.UpdateLists();
+                        _CurrLayer.Update();
+                    }
+
+                    // Set Camera back to Default
+                    Engine.SceneManager.Camera.Parallax = Vector2.One;
                 }
 
-                _CurrScene.LateUpdate();
+                CurrScene.LateUpdate();
             }
 
             // Change Scenes
-            if (_CurrScene != _NextScene)
+            if (CurrScene != _NextScene)
             {
-                if (_CurrScene != null)
-                    _CurrScene.End();
+                if (CurrScene != null)
+                    CurrScene.End();
 
-                _CurrScene = _NextScene;
+                CurrScene = _NextScene;
 
                 OnSceneTransition();
 
-                if (_CurrScene != null)
-                    _CurrScene.Begin();
+                if (CurrScene != null)
+                    CurrScene.Begin();
             }
         }
 
         internal void Render()
         {
-            if (_CurrScene != null)
+            // Render Scene
+            if (CurrScene != null)
             {
-                _CurrScene.Render();
+                // Render Layers
+                foreach (var _CurrLayer in CurrScene.Layers.Values)
+                {
+                    if (_CurrLayer.IsVisible)
+                    {
+                        // Layer rendering obey Camera Parallax
+                        Engine.SceneManager.Camera.Parallax = new Vector2(_CurrLayer.Parallax.X / 100f, _CurrLayer.Parallax.Y / 100f);
+
+                        // Notes: We dont need to do this if current parallax is equal to last layer parallax. Could be a future optimization, but I rather believe It wont change much.
+                        // Open Batch for Current Layer
+                        if (Engine.IsPixelPerfect)
+                            Graphics.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null,/*Effect,*/ Engine.SceneManager.Camera.Matrix * Engine.ScreenMatrix);
+                        else
+                            Graphics.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null,/*Effect,*/ Engine.SceneManager.Camera.Matrix * Engine.ScreenMatrix);
+
+                        // Render Global Layer
+                        if (_CurrLayer.IsGlobal)
+                        {
+                            if (!_GlobalLayers.ContainsKey(_CurrLayer.Name))
+                                Debug.ErrorLog("[SceneManager]: Trying to Render invalid Global layer '" + _CurrLayer.Name + "' from within Scene '" + CurrScene.Name + "'.");
+                            else
+                                _GlobalLayers[_CurrLayer.Name].Render();
+                        }
+                        // Render Local Layer
+                        else
+                            _CurrLayer.Render();
+
+                        // Set Camera back to Default
+                        Engine.SceneManager.Camera.Parallax = Vector2.One;
+
+                        // Close Batch for Current Layer
+                        Graphics.SpriteBatch.End();
+                    }
+                }
+
+                // Render Scene on top of everything (?)
+                // Notes: Removed because every Render is now managed by the Layer.
+                //Graphics.SpriteBatch.Begin();
+                //CurrScene.Render();
+                //Graphics.SpriteBatch.End();
             }
         }
 
         // Called after a Scene ends, before the next Scene begins
         protected virtual void OnSceneTransition()
         {
-            GC.Collect();
+            GC.Collect();                       // Unload Garbage Collector on Scene transition
             GC.WaitForPendingFinalizers();
+
+            Input.Touch.CleanActions();         // Unload Input events on Scene transition
+            AudioManager.Unload();              // Unload SFX and Music on Scene transition
+            Camera.Reset();                     // Unload Camera and reset on Scene transition
 
             Engine.Instance.TimeRate = 1f;
         }
@@ -126,8 +183,8 @@ namespace Caieta
         /// <returns>The name.</returns>
         public string SceneName()
         {
-            if (_CurrScene != null)
-                return _CurrScene.Name;
+            if (CurrScene != null)
+                return CurrScene.Name;
             else
                 Debug.ErrorLog("[SceneManager]: First scene not loaded.");
 
@@ -136,12 +193,22 @@ namespace Caieta
 
         public List<Layer> SceneLayers()
         {
-            return _CurrScene.Layers.Values.ToList();
+            return CurrScene.Layers.Values.ToList();
         }
 
         public int ScenePopulation()
         {
-            return _CurrScene.Population();
+            return CurrScene.Population();
+        }
+
+        public List<Entity> SceneEntities()
+        {
+            var entities = new List<Entity>();
+
+            foreach(var l in CurrScene.Layers.Values)
+                entities.AddRange(l.Entities);
+
+            return entities;
         }
 
         public void AddGlobal(string name, Layer layer)
@@ -160,6 +227,16 @@ namespace Caieta
         public bool CheckGlobal(string name)
         {
             return _GlobalLayers.ContainsKey(name);
+        }
+
+        public void Pause()
+        {
+            CurrScene.Pause();
+        }
+
+        public void UnPause()
+        {
+            CurrScene.Resume();
         }
 
         #endregion

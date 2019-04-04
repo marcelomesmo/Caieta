@@ -2,19 +2,12 @@
 
 namespace Caieta
 {
-    public class Solid : Component, IUnique
+    public class Solid : BoxCollider, IUnique
     {
-        /*
-         *      Collision
-         */
-        public BoxCollider box;
-
-        public Solid(float width, float height, float x = 0, float y = 0)
+        public Solid(float width, float height, float x = 0, float y = 0) : base(width, height, x, y)
         {
-            box = new BoxCollider(width, height, x, y);
-
-            box.SetSolid(true);
+            // Notes: Set IsTrigger = true in BoxCollider to make Solid mandatory.
+            IsTrigger = false;
         }
-
     }
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SourceFile>/Users/marcelo/VS/Projects/ExampleProject/ExampleProject/Content/Sound/Music/Profectus_Theme_01.ogg</SourceFile>
+  <SourceTime>2018-12-16T16:59:12-03:00</SourceTime>
+  <DestFile>/Users/marcelo/VS/Projects/ExampleProject/ExampleProject/Content/bin/DesktopGL/Content/Sound/Music/Profectus_Theme_01.xnb</DestFile>
+  <DestTime>2019-01-15T11:07:12.570504-03:00</DestTime>
+  <Importer>OggImporter</Importer>
+  <ImporterTime>2018-09-23T18:56:40-03:00</ImporterTime>
+  <Processor>SongProcessor</Processor>
+  <ProcessorTime>2018-09-23T18:56:40-03:00</ProcessorTime>
+  <Parameters>
+    <Key>Quality</Key>
+    <Value>Best</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput>
+    <string>/Users/marcelo/VS/Projects/ExampleProject/ExampleProject/Content/bin/DesktopGL/Content/Sound/Music/Profectus_Theme_01.ogg</string>
+  </BuildOutput>
+</PipelineBuildEvent>

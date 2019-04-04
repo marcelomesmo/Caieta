@@ -18,23 +18,24 @@ namespace ExampleProject
 
             Transform.Position = new Vector2(Graphics.Width / 2, Graphics.Height / 2);
 
-            var bg = Engine.Instance.Content.Load<Texture2D>("BgResTest");
-            Add(new Sprite(bg));
-            // Add(new Sprite(Resources.Get<Image>("bg")));
+            //var bg = Engine.Instance.Content.Load<Texture2D>("BgResTest");
+            //Add(new Sprite(bg));
+            Add(new Sprite(Resources.Get<Texture2D>("BgResTest")));
 
             // Notes:
+            //Add(new BoxCollider(Get<Sprite>().Width, Get<Sprite>().Height, -Get<Sprite>().Origin.X, -Get<Sprite>().Origin.Y));
 
+            //Add(new BoxCollider(Get<Sprite>()));
+            Add(new BoxCollider(20, 20, -100, -50));
+            Add(new BoxCollider(30, 10, -50, -10));
+        }
 
-            //////
-            /// 
-            /// //
-            /// 
-            ///         A Origem do BoxCollider sendo 0,0 quer dizer que
-            ///         vai ser no ponto de origem do transform, ou seja, no centro.
-            /// 
-            /// 
-            ///         
-            Add(new BoxCollider(100, Get<Sprite>().Height, 0, 0));
+        public override void Update()
+        {
+            base.Update();
+
+            //Debug.Log("Bg Box: Pos " + Transform.Position.X + " (X) " + Transform.Position.Y + " (Y) " +
+            //                "Screen Pos " + Transform.ScreenPosition.X + " (X) " + Transform.ScreenPosition.Y + " (Y) ");
         }
     }
 }

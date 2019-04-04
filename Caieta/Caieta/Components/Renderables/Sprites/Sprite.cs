@@ -77,25 +77,33 @@ namespace Caieta
             }
         }
 
+        Vector2 DrawPosition;
         public override void Render()
         {
             base.Render();
 
+            if (Engine.IsPixelPerfect)
+                DrawPosition = new Vector2((float)Math.Round(Entity.Transform.Position.X), (float)Math.Round(Entity.Transform.Position.Y));
+            else
+                DrawPosition = Entity.Transform.Position;
+
             if (IsVisible && CurrentAnimation != null)
-                Graphics.Draw(CurrentAnimation.Sheet, Entity.Transform.Position, CurrentAnimation.Frame, Color, Entity.Transform.Rotation, CurrentAnimation.Origin, Entity.Transform.Scale, Effects, 0);
+                Graphics.Draw(CurrentAnimation.Sheet, DrawPosition, CurrentAnimation.Frame, Color * (Opacity/100f), Entity.Transform.Rotation, CurrentAnimation.Origin, Entity.Transform.Scale, Effects, 0);
         }
 
         public override void Unload()
         {
-            ClearAnimations();
+            /*
+             * Notes: In theory, we wont need to dispose this unless its not loaded from the ContentManager           
+            foreach (Animation anim in Animations.Values)
+            {
+                if (anim.Sheet != null) anim.Sheet.Dispose();
+                anim.Sheet = null;
+            }*/
             //if(Texture != null) Texture.Dispose();
             //Texture = null;
-        }
 
-        // NOTE Notes: Check if necessary later and why.
-        public void Dispose()
-        {
-            //if (Texture != null) Texture.Dispose();
+            Animations.Clear();
         }
 
         #region Animations
@@ -172,11 +180,6 @@ namespace Caieta
         {
             if (CurrentAnimation != null)
                 CurrentAnimation.IsActive = true;
-        }
-
-        private void ClearAnimations()
-        {
-            Animations.Clear();
         }
 
         #endregion

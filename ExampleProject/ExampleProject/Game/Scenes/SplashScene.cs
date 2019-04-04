@@ -12,6 +12,8 @@ namespace ExampleProject
         {
         }
 
+        Logo logo = new Logo("Splash");
+
         public override void Begin()
         {
             base.Begin(); 
@@ -20,7 +22,7 @@ namespace ExampleProject
             Add(new Layer("Default"));
 
             // Add entities to Layers
-            Layers["Default"].Add(new Logo("Splash"));
+            Layers["Default"].Add(logo);
 
             // Draw a Black background
             Graphics.ClearColor = Color.Black;
@@ -39,13 +41,39 @@ namespace ExampleProject
 
             if (Input.Keyboard.Pressed(Keys.A))
                 Engine.SceneManager.LoadScene("Menu");
+
+
+            Input.Touch.OnDoubleTap = () =>
+            {
+                Debug.Log("Double Tap 1");
+            };
+
+            Input.Touch.OnTouchStart = () =>
+            {
+                Debug.Log("Touch Start");
+            };
+
+            Input.Touch.OnTouchEnd = () =>
+            {
+                Debug.Log("Touch End");
+            };
+
         }
 
+        /*
         public override void Render()
         {
+            base.Render();
+
             Graphics.DrawText("SPLASH SCREEN", new Vector2(280, 220), Color.White);
 
-            base.Render();
+            var text = "LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM " +
+                "LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM " +
+                "LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM " +
+                "LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM LOREM IPSULUM ";
+
+            //Graphics.DrawTextJustified(text, new Vector2(100, 100), Color.White, new Vector2(0, 0));
         }
+        */
     }
 }

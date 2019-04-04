@@ -11,6 +11,7 @@ namespace Caieta.Entities
          */
         public string Name { get; private set; }
         public bool IsVisible;
+        public Layer Layer { get; private set; }
 
         /*
          *      POSITION, ANGLE & SCALE
@@ -54,8 +55,6 @@ namespace Caieta.Entities
 
         public virtual void Destroy()
         {
-            Debug.Log("[Entity]: Entity '" + Name + "' removed from Scene.");
-
             if (OnDestroy != null)
             {
                 Debug.Log("[Entity]: On Destroy entity trigger.");
@@ -63,6 +62,41 @@ namespace Caieta.Entities
                 OnDestroy();
                 OnDestroy = null;
             }
+            /*
+            Transform.Parent = null;
+
+            // Destroy any children we have
+            for (var i = Transform.Children.Count - 1; i >= 0; i--)
+            {
+                Transform.Children[i] = null;
+            }
+            Transform.Children.Clear();
+
+            Components.Clear();
+            // Notes: Add Components.Remove in order to call Component.OnRemoved. But I dont believe its necessary.
+            */
+            // Remove itself from the scene
+            Layer.Remove(this);
+            /*foreach (Layer l in Engine.SceneManager.SceneLayers())
+                if(l.Remove(this)) 
+                    break;*/
+        }
+
+        public void Removed()
+        {
+            Transform.Parent = null;
+
+            // Destroy any children we have
+            for (var i = Transform.Children.Count - 1; i >= 0; i--)
+            {
+                Transform.Children[i] = null;
+            }
+            Transform.Children.Clear();
+
+            Components.Clear();
+            // Notes: Add Components.Remove in order to call Component.OnRemoved. But I dont believe its necessary.
+
+            Debug.Log("[Entity]: Entity '" + Name + "' removed from Scene.");
         }
 
         public virtual void Update()
@@ -81,6 +115,11 @@ namespace Caieta.Entities
         {
             foreach (var component in Components)
                 component.Unload();
+        }
+
+        public virtual void Added(Layer layer)
+        {
+            Layer = layer;
         }
 
         #region Components
@@ -144,6 +183,22 @@ namespace Caieta.Entities
 
         #region Tags & Collision
 
+        public void MirrorColliders(bool mirror)
+        {
+            var collider_list = GetAll<Collider>();
+
+            foreach (Collider c in collider_list)
+                c.IsMirrored = mirror;
+        }
+
+        public void FlipColliders(bool flip)
+        {
+            var collider_list = GetAll<Collider>();
+
+            foreach (Collider c in collider_list)
+                c.IsFlipped = flip;
+        }
+
         /*
         public bool IsCollidable; IsTrigger;
          
@@ -156,6 +211,35 @@ namespace Caieta.Entities
         }
         */
 
+        #endregion
+
+        #region Utils
+            /*
+        public virtual Entity Clone()
+        {
+            var entity = Activator.CreateInstance(GetType()) as Entity;
+
+            entity.Name = Name;
+
+            entity.IsVisible = IsVisible;
+
+            // clone Components
+            for (var i = 0; i < Components.Count; i++)
+                entity.Add(Components[i].Clone());
+
+            entity.Transform = Transform;
+
+            // clone any children of the Entity.transform
+            for (var i = 0; i < entity.Transform.childCount; i++)
+            {
+                var child = entity.transform.getChild(i).entity;
+
+                var childClone = child.clone();
+                childClone.transform.copyFrom(child.transform);
+                childClone.transform.parent = transform;
+            }
+        }
+        */
         #endregion
     }
 }

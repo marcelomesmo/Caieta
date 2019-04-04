@@ -50,6 +50,10 @@
     <Compile Include="Game\Entities\Logo.cs" />
     <Compile Include="Game\Entities\Player.cs" />
     <Compile Include="Game\Entities\Background.cs" />
+    <Compile Include="Game\Entities\Floor.cs" />
+    <Compile Include="Game\Entities\Scenario.cs" />
+    <Compile Include="Game\Entities\Orb.cs" />
+    <Compile Include="Game\Entities\Dialogue.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
@@ -57,6 +61,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
@@ -109,11 +114,21 @@
       <Link>MonoGame.Framework.dll.config</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\Tiled\Profectus_Tileset_Red.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Tiled\untitled.tmx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Game\" />
     <Folder Include="Game\Scenes\" />
     <Folder Include="Game\Entities\" />
+    <Folder Include="Game\Data\" />
+    <Folder Include="x64\" />
+    <Folder Include="x86\" />
+    <Folder Include="Content\Tiled\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />

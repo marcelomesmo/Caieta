@@ -27,8 +27,13 @@ namespace Caieta
 
         internal void Update()
         {
+            Direction = new Vector2(0, 0);
+
             PreviousState = CurrentState;
-            CurrentState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
+            if (IsActive)
+                CurrentState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
+            else
+                CurrentState = new KeyboardState();
         }
 
         #region Utils
@@ -118,25 +123,16 @@ namespace Caieta
 
         public bool IsShiftDown()
         {
-            if (!IsActive)
-                return false;
-
             return CurrentState.IsKeyDown(Keys.LeftShift) || CurrentState.IsKeyDown(Keys.RightShift);
         }
 
         public bool IsAltDown()
         {
-            if (!IsActive)
-                return false;
-
             return CurrentState.IsKeyDown(Keys.LeftAlt) || CurrentState.IsKeyDown(Keys.RightAlt);
         }
 
         public bool IsControlDown()
         {
-            if (!IsActive)
-                return false;
-
 #if OSX
             return CurrentState.IsKeyDown(Keys.LeftWindows) || CurrentState.IsKeyDown(Keys.RightWindows);
 #endif
@@ -145,9 +141,6 @@ namespace Caieta
 
         public bool IsCommandDown()
         {
-            if (!IsActive)
-                return false;
-
             return CurrentState.IsKeyDown(Keys.LeftWindows) || CurrentState.IsKeyDown(Keys.RightWindows);
         }
 
@@ -157,25 +150,16 @@ namespace Caieta
 
         public bool Hold(Keys key)
         {
-            if (!IsActive)
-                return false;
-
             return CurrentState.IsKeyDown(key);
         }
 
         public bool Pressed(Keys key)
         {
-            if (!IsActive)
-                return false;
-
             return CurrentState.IsKeyDown(key) && !PreviousState.IsKeyDown(key);
         }
 
         public bool Released(Keys key)
         {
-            if (!IsActive)
-                return false;
-
             return !CurrentState.IsKeyDown(key) && PreviousState.IsKeyDown(key);
         }
 

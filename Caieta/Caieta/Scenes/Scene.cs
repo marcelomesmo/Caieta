@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Caieta.Entities;
+using Microsoft.Xna.Framework;
 
 namespace Caieta
 {
@@ -12,6 +14,15 @@ namespace Caieta
         public bool Paused { get; private set; }
         public float TimeActive { get; private set; }
         public float RawTimeActive { get; private set; }
+
+        public Rectangle Layout;
+        public int TileWidth = 16;
+        public int TileHeight = 16;
+
+        /*
+         *      LAYOUT SIZE
+         */
+        // public Vector2 SceneBounds;
 
         /*
          *      ID
@@ -29,6 +40,8 @@ namespace Caieta
         protected Scene()
         {
             Layers = new Dictionary<string, Layer>();
+
+            Layout = new Rectangle(0, 0, Graphics.Width, Graphics.Height);
         }
 
         /*
@@ -51,15 +64,6 @@ namespace Caieta
         {
             Debug.Log("[Scene]: Closing scene '" + Name + "'.");
 
-            foreach(var layer in Layers.Values)
-            {
-                if(!layer.IsGlobal)
-                {
-                    foreach (var ent in layer.Entities)
-                        ent.Unload();
-                }
-            }
-
             if (OnSceneEnd != null)
             {
                 Debug.Log("[Scene]: On Scene End trigger.");
@@ -67,6 +71,24 @@ namespace Caieta
                 OnSceneEnd();
                 OnSceneEnd = null;
             }
+
+            foreach (var layer in Layers.Values)
+            {
+                if (!layer.IsGlobal)
+                {
+                    Debug.Log("     Unloading layer '" + layer.Name + "'.");
+
+                    foreach (var ent in layer.Entities)
+                    {
+                        Debug.Log("          Unloading entity '" + ent.Name + "'.");
+                        ent.Unload();
+                    }
+
+                    layer.Unload();
+                }
+            }
+
+            Layers.Clear();
         }
 
         /*
@@ -85,16 +107,13 @@ namespace Caieta
         {
 
         }
-
-        public virtual void Render()
-        {
-            foreach (var _CurrLayer in Layers.Values)
+        /*
+         * Notes: Removed because not necessary. Every render is made inside the layers.     
+            public virtual void Render()
             {
-                if(_CurrLayer.IsVisible)
-                    _CurrLayer.Render();
-            }
-        }
 
+            }
+        */
         public virtual void Pause()
         {
             Paused = true;
@@ -119,7 +138,10 @@ namespace Caieta
             if (Engine.SceneManager.CheckGlobal(layer.Name))
                 layer.SetGlobal();
 
-            Layers.Add(layer.Name, layer);
+            if (Layers.ContainsKey(layer.Name))
+                Debug.ErrorLog("[Scene]: Layer '" + layer.Name + "' already added to Scene '" + Name + "'.");
+            else
+                Layers.Add(layer.Name, layer);
         }
 
         public void SetVisible(string layername, bool visibility)
@@ -145,6 +167,36 @@ namespace Caieta
 
             return pop;
         }
+
+        #endregion
+
+        #region Entities
+
+        /*
+        public void CreateObject(Entity type, string layer, int x, int y)
+        {
+            Entity ent = type.Clone();
+
+            ent.Transform.Position = new Microsoft.Xna.Framework.Vector2(x, y);
+
+            if (!Layers.ContainsKey(layer))
+                Debug.ErrorLog("[Scene]: Layer '" + layer + "' invalid or not declared.");
+            else
+                Layers[layer].Add(ent);
+        }
+
+        public void CreateObject(Entity type, string layer, string image_point)
+        {
+            if (!type.ImagePoint.ContainsKey(image_point))
+                Debug.ErrorLog("[Scene]: Image Point '" + image_point + "' invalid or not declared.");
+            else
+            {
+                Microsoft.Xna.Framework.Vector2 pos = type.ImagePoint[image_point];
+
+                CreateObject(type, layer, pos.X, pos.Y);
+            }
+        }
+        */
 
         #endregion
 

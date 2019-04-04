@@ -13,6 +13,16 @@ namespace Caieta
         public bool IsVisible;
 
         public Color Color = Color.White;
+        public float Opacity
+        {
+            get { return _opacity; }
+            set
+            {
+                MathHelper.Clamp(value, 0, 100);
+                _opacity = value;
+            }
+        }
+        private float _opacity = 100f;
         public SpriteEffects Effects = SpriteEffects.None;
         public bool IsMirrored
         {
@@ -49,7 +59,7 @@ namespace Caieta
 
         public override string ToString()
         {
-            return string.Format("[Renderable]: Visibility: {0} ", IsVisible);
+            return string.Format("[Renderable]: Visibility: {0} Mirrored: {1} Flipped: {2}", IsVisible, IsMirrored, IsFlipped);
         }
 
         #endregion

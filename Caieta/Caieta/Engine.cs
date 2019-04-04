@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using Caieta.Audio;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -125,6 +126,8 @@ namespace Caieta
         {
             Instance = this;
 
+            AudioManager.Initialize();
+
             // Notes: Send this to Initialize?
             _Debugger = new Debugger();
 
@@ -206,7 +209,11 @@ namespace Caieta
             Debug.Log("   folder " + ContentDirectory);
             Debug.LogBreak();
 
+#if WIN || MAC || LINUX
+            IsMouseVisible = true;
+#else
             IsMouseVisible = false;
+#endif
             IsFixedTimeStep = false;
             ExitOnEscapeKeypress = true;
 
@@ -214,7 +221,7 @@ namespace Caieta
         }
 
 
-        #region WindowEvents
+            #region WindowEvents
 
 #if !CONSOLE
         protected virtual void OnClientSizeChanged(object sender, EventArgs e)
@@ -366,6 +373,7 @@ namespace Caieta
             };
 
             Graphics.Resize(ViewWidth, ViewHeight);
+            SceneManager.Camera.Resize(ViewWidth, ViewHeight);
         }
 
         public static void SetWindowed(int width, int height)
@@ -411,11 +419,13 @@ namespace Caieta
 #endif
         }
 
-        #endregion
+            #endregion
 
         protected override void Initialize()
         {
             base.Initialize();
+
+            AudioManager.Initialize();
 
             Graphics.Initialize(Width, Height);
             Graphics.Resize(ViewWidth, ViewHeight);
@@ -440,12 +450,14 @@ namespace Caieta
         {
             base.UnloadContent();
 
-            /*if (ContentManager != null)
+            AudioManager.Unload();
+
+            if (Content != null)
             {
-                ContentManager.Unload();
-                ContentManager.Dispose();
-                ContentManager = null;
-            }*/
+                Content.Unload();
+                //Content.Dispose();
+                //Content = null;
+            }
         }
 
         // Run after LoadContent and before first Update
@@ -484,7 +496,7 @@ namespace Caieta
 
                 /*#if DEBUG
                      Window.Title = Title + " " + fpsFrameCount.ToString() + " fps - " + (GC.GetTotalMemory(false) / 1048576f).ToString("F") + " MB";
-                #endif*/
+#endif*/
 
                 FPS = fpsFrameCount;
                 fpsFrameCount = 0;
@@ -510,9 +522,13 @@ namespace Caieta
             GraphicsDevice.Clear(Graphics.ClearColor);  // Clear screen
 
             // Draw on RenderTarget
-            Graphics.Begin();
+            // Notes: Removed because now every Render creates its on SpriteBatch for each Layer.
+            //if(IsPixelPerfect)
+            //    Graphics.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null,/*Effect,*/ SceneManager.Camera.Matrix * Engine.ScreenMatrix);
+            //else
+            //    Graphics.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null,/*Effect,*/ SceneManager.Camera.Matrix * Engine.ScreenMatrix);
             SceneManager.Render();      // Render Scene
-            Graphics.End();
+            //Graphics.SpriteBatch.End();
 
             // Draw on ViewPort
             GraphicsDevice.SetRenderTarget(null);       // Render null
@@ -521,10 +537,9 @@ namespace Caieta
             GraphicsDevice.Clear(Graphics.LetterBoxColor);  // Clear screen
 
             // Draw RenderTarget to screen
-
             Graphics.SpriteBatch.Begin();
             Graphics.Draw(_destinationRender);
-            Graphics.End();
+            Graphics.SpriteBatch.End();
 
             // Debug Console & Inspector
             _Debugger.Render();

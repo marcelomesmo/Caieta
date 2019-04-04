@@ -27,8 +27,15 @@
     <Folder Include="$(MSBuildThisFileDirectory)Components\Renderables\Tiles\" />
     <Folder Include="$(MSBuildThisFileDirectory)Components\Movement\" />
     <Folder Include="$(MSBuildThisFileDirectory)Components\Attributes\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Colliders\" />
     <Folder Include="$(MSBuildThisFileDirectory)Entities\Attributes\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Audio\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Data\Resources\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Components\Colliders\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Scenes\Transitions\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Components\Utils\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Entities\Sprites\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Entities\Tiles\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Data\TiledSharp\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Engine.cs" />
@@ -49,17 +56,44 @@
     <Compile Include="$(MSBuildThisFileDirectory)Data\Debug\DebugInspector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Renderables\Renderable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Component.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Components\Renderables\Sprites\NineSlice.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Components\Renderables\Sprites\TiledBackground.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Components\Renderables\Sprites\ScrollingSprite.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Renderables\Sprites\Sprite.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Renderables\Sprites\Animation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Movement\Platform.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Colliders\BoxCollider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Colliders\Collider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Attributes\Solid.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Entities\Attributes\Transform.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Attributes\IUnique.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\Renderables\Tiles\Tile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Audio\AudioManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Audio\SFX.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Audio\Music.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Data\Resources\%28NOTUSED%29MyContentManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Data\Resources\Resources.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\Attributes\Touchable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\Colliders\BoxCollider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\Colliders\Collider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Camera.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scenes\Transitions\Transition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\Utils\Timer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scenes\Transitions\FadeIn.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\Attributes\FollowCamera.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scenes\Transitions\FadeOut.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\Sprites\NineSlice.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\Sprites\ScrollingBackground.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\Sprites\TiledBackground.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\Attributes\DestroyOutside.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\Tiles\TiledMap.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Data\TiledSharp\Group.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Data\TiledSharp\ImageLayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Data\TiledSharp\Layer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Data\TiledSharp\Map.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Data\TiledSharp\ObjectGroup.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Data\TiledSharp\TiledCore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Data\TiledSharp\Tileset.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\Tiles\TiledTile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\Movement\Bullet.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\Renderables\Text\Text.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\Utils\Tween.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\Utils\EaseFunction.cs" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="$(MSBuildThisFileDirectory)Content\Caieta.mgcb" />

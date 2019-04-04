@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Caieta.Entities;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Caieta
 {
@@ -18,16 +19,16 @@ namespace Caieta
             get { return parallax; }
             set
             {
-                // 0 if < 0. 100 if > 100. else value
-                parallax.X = value.X < 0 ? 0 : value.X > 0 ? 100 : value.X;
+                parallax.X = MathHelper.Clamp(value.X, 0, 100);
 
-                parallax.Y = value.Y < 0 ? 0 : value.Y > 0 ? 100 : value.Y;
+                parallax.Y = MathHelper.Clamp(value.Y, 0, 100);
 
-                Debug.Log("[Layer]: '" + Name + "' parallax set to " + parallax.X + ", " + parallax.Y +
+                /*Debug.Log("[Layer]: '" + Name + "' parallax set to " + parallax.X + ", " + parallax.Y +
                           " from within values " + value.X + ", " + value.Y + ".");
+                */
             }
         }
-        private Vector2 parallax = Vector2.Zero;
+        private Vector2 parallax;//Vector2.Zero;
 
         public List<Entity> Entities { get; private set; }
         private List<Entity> _toAdd { get; set; }
@@ -85,6 +86,7 @@ namespace Caieta
                         _current.Add(entity);           // Notes: Using this cause Entities.Contains(entity) is O(n).
                         Entities.Add(entity);
 
+                        entity.Added(this);
                         // Trigger Entity OnCreate
                         entity.Create();
                     }
@@ -105,7 +107,8 @@ namespace Caieta
                         Entities.Remove(entity);
 
                         // Trigger Entity OnDestroy
-                        entity.Destroy();
+                        //entity.Destroy();
+                        entity.Removed();
                     }
                 }
 
@@ -134,6 +137,17 @@ namespace Caieta
                     _entity.Render();
         }
 
+        public virtual void Unload()
+        {
+            Entities.Clear();
+            _toAdd.Clear();
+            _toRemove.Clear();
+
+            _current.Clear();
+            _adding.Clear();
+            _removing.Clear();
+        }
+
         #region Entities
 
         public void Add(Entity entity)
@@ -147,7 +161,7 @@ namespace Caieta
             }
         }
 
-        public void Remove(Entity entity)
+        public bool Remove(Entity entity)
         {
             // Check if we ain't removing an already toRemove entity
             // Check if we are   removing an         existing entity
@@ -155,7 +169,14 @@ namespace Caieta
             {
                 _removing.Add(entity);
                 _toRemove.Add(entity);
+
+                return true;
             }
+            else {
+                Debug.Log("[Layer]: Trying to remove entity '"+ entity.Name + "' from layer '" + Name + "'. Entity already removing or not found.");
+                return false;
+            }
+
         }
 
         // Notes: If necessary, create Add and Remove methods for 'IEnumerable<Entity>' and 'params Entity[]'

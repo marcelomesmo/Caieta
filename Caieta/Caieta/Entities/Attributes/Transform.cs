@@ -11,6 +11,9 @@ namespace Caieta
         public List<Transform> Children = new List<Transform>();
         // Notes: Where should I update children?
 
+        public Vector2 ScreenPosition => Vector2.Transform(_position, Engine.SceneManager.Camera.Matrix);
+        public Vector2 WorldPosition => Position;
+
         public Vector2 Position
         {
             get { return _position; }
@@ -38,10 +41,12 @@ namespace Caieta
 
         #region Domestic
 
+        /*
         public void SetPosition(Entity target, string image_point)
         {
 
         }
+        */
 
         #endregion
 

@@ -10,6 +10,8 @@ namespace ExampleProject
     {
         Sprite Splash;
 
+        BoxCollider Hitbox;
+
         public Logo(string entityname, bool initial_visibility = true) : base(entityname, initial_visibility)
         {
         }
@@ -20,21 +22,50 @@ namespace ExampleProject
 
             Transform.SetPosition(Graphics.Width / 2, Graphics.Height / 2);
 
-            var sprite = Engine.Instance.Content.Load<Texture2D>("SplashScene/Tapioca_logo");
-            Splash = new Sprite(sprite);
-            // Splash = new Sprite(Resources.Get<Image>("logo"));
+            Splash = new Sprite(Resources.Get<Texture2D>("SplashScene/Tapioca_logo"));
             // Splash = Resources.Get<Sprite>("logo");
 
             //Splash.SetOrigin(Renderable.Anchor.TOP_RIGHT);
-
             Add(Splash);
+
+            Hitbox = new BoxCollider(Splash);
+            Add(Hitbox);
         }
 
-        public override void Render()
+        public override void Update()
         {
-            base.Render();
+            base.Update();
 
-            //Graphics.Draw(sprite);
+            Hitbox.OnHold = () =>
+            {
+                Debug.Log("Hitbox Hold");
+            };
+
+            Hitbox.OnTap = () =>
+            {
+                Debug.Log("Hitbox Tap");
+            };
+
+            Hitbox.OnDoubleTap = () =>
+            {
+                Debug.Log("Hitbox Double Tap");
+            };
+
+            Hitbox.OnTouchedObject = () =>
+            {
+                Debug.Log("Hitbox Touched");
+                Destroy();
+            };
+
+            Hitbox.OnMouseEnter = () =>
+            {
+                Debug.Log("Hitbox Mouse Enter");
+            };
+
+            Hitbox.OnMouseExit = () =>
+            {
+                Debug.Log("Hitbox Mouse Exit");
+            };
         }
     }
 }
