@@ -187,7 +187,8 @@ namespace Caieta.Components.Utils
             Debug.Log("[Tween]: OnStart Tween trigger.");
             OnStart?.Invoke();
 
-           IsRunning = true;
+            // TODO:: THIS IS NOT ACESSING PARENT METHOD
+           //IsRunning = true;
 
             // TODO:: MUSICS ARE BUGGING TOO AND GOING OFF SCENES FROM SCENE TO SCENE
         }

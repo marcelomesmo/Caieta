@@ -1,11 +1,13 @@
 ﻿<Properties StartupConfiguration="{905B6B3B-33B1-49FB-B691-AE30F88CB4F5}|Default">
   <MonoDevelop.Ide.ItemProperties.ExampleProject.Desktop PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="../Caieta/Caieta/Components/Utils/Tween.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="ExampleProject/TestProgram.cs">
     <Files>
       <File FileName="ExampleProject/Game/Scenes/Fase1Scene.cs" Line="1" Column="1" />
-      <File FileName="../Caieta/Caieta/Components/Utils/Tween.cs" Line="192" Column="86" />
+      <File FileName="../Caieta/Caieta/Components/Utils/Tween.cs" Line="190" Column="57" />
       <File FileName="../Caieta/Caieta/Components/Utils/Timer.cs" Line="11" Column="33" />
       <File FileName="ExampleProject/Game/Entities/Orb.cs" Line="15" Column="10" />
+      <File FileName="ExampleProject/Content/Fonts/DefaultFont.spritefont" Line="14" Column="15" />
+      <File FileName="ExampleProject/TestProgram.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
