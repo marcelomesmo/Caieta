@@ -42,6 +42,7 @@ namespace Caieta.Audio
 
         public void Unload()
         {
+            Stop();
             _Musics.Clear();
         }
 

@@ -63,6 +63,7 @@ namespace Caieta
             Parallax = Vector2.One;
             Zoom = 1;
             Angle = 0;
+            UpdateMatrices();
         }
 
         public void CopyFrom(Camera other)

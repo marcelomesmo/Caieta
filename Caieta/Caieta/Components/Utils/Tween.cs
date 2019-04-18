@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 
 namespace Caieta.Components.Utils
 {
-    public enum TweenMode { Persist, OneShot, Loop, Yoyo };
+    public enum TweenMode { Persist, OneShot, Loop, Reverse, Yoyo };
     public enum TweenProperty { X, Y, /*Width, Height,*/ Scale, Angle, Opacity };
    
     public class Tween : Timer
@@ -23,7 +23,6 @@ namespace Caieta.Components.Utils
             get { return TargetTime; }
         }
         public float Percent { get; private set; }
-
 
         public Tween(TweenMode mode, TweenProperty property, float value, EaseFunction.Ease easer, float duration) : base(duration)
         {
@@ -56,28 +55,8 @@ namespace Caieta.Components.Utils
         {
             base.Initialize();
 
-            if (Entity != null)
-            {
-                _position = Entity.Transform.Position;
-                _scale = Entity.Transform.Scale;
-                _angle = Entity.Transform.Rotation;
-
-                if (Entity.Get<Sprite>() != null)
-                {
-                    _size = new Vector2(Entity.Get<Sprite>().Width, Entity.Get<Sprite>().Height);
-                    _opacity = Entity.Get<Sprite>().Opacity;
-                }
-                else if (/*Property == TweenProperty.Width || Property == TweenProperty.Height ||*/ Property == TweenProperty.Opacity)
-                {
-                    Debug.ErrorLog("[Tween]: Couldnt start Tween property '" + Property + "'. Entity Sprite is null.");
-                    return;
-                }
-            }
-            else
-            {
-                Debug.ErrorLog("[Tween]: Couldnt start Tween property '" + Property + "'. Entity is null.");
+            if (!InitProperties())
                 return;
-            }
 
             StartTween();
         }
@@ -89,10 +68,10 @@ namespace Caieta.Components.Utils
             // Update the percentage and eased percentage
             Percent = Math.Min(ElapsedTime, TargetTime) / TargetTime;
 
-            //if (Reverse)
-            //    Percent = 1 - Percent;
+            if (Reverse)
+                Percent = 1 - Percent;
 
-            Debug.Log("[Tween]: Tween Progress =>\n Clock Is Running " + IsRunning + "\n \tTarget Time: " + TargetTime + " Elapsed Time: " + ElapsedTime + " Percent: " + Percent + " Ease value: " + Eased);
+            //Debug.Log("[Tween]: Tween Progress =>\n Clock Is Running " + IsRunning + "\n \tTarget Time: " + TargetTime + " Elapsed Time: " + ElapsedTime + " Percent: " + Percent + " Ease value: " + Eased);
 
             if (Ease != null)
                 Eased = Ease(Percent);
@@ -144,7 +123,7 @@ namespace Caieta.Components.Utils
             //When finished...
             OnTime = () =>
             {
-                Debug.Log("[Tween]: OnFinish Tween trigger.");
+                //Debug.Log("[Tween]: OnFinish Tween trigger.");
                 OnFinish?.Invoke();
 
                 switch (Mode)
@@ -163,13 +142,20 @@ namespace Caieta.Components.Utils
 
                     // Loop, back and forth
                     case TweenMode.Loop:
+                        ReverseTarget();
+                        if (!InitProperties())
+                            return;
+                        StartTween();
+                        break;
+
+                    // Loop, reverse back
+                    case TweenMode.Reverse:
                         StartTween();
                         Reverse = !Reverse;
                         break;
 
                     // Loop, from the start
                     case TweenMode.Yoyo:
-                        Debug.Log("Test");
                         StartTween();
                         break;
 
@@ -184,13 +170,83 @@ namespace Caieta.Components.Utils
         {
             base.Start();
 
-            Debug.Log("[Tween]: OnStart Tween trigger.");
+            //Debug.Log("[Tween]: OnStart Tween trigger.");
             OnStart?.Invoke();
 
-            // TODO:: THIS IS NOT ACESSING PARENT METHOD
-           //IsRunning = true;
+            Eased = Percent = 0;
+        }
 
-            // TODO:: MUSICS ARE BUGGING TOO AND GOING OFF SCENES FROM SCENE TO SCENE
+        public bool InitProperties()
+        {
+            if (Entity != null)
+            {
+                _position = Entity.Transform.Position;
+                _scale = Entity.Transform.Scale;
+                _angle = Entity.Transform.Rotation;
+
+                if (Entity.Get<Sprite>() != null)
+                {
+                    _size = new Vector2(Entity.Get<Sprite>().Width, Entity.Get<Sprite>().Height);
+                    _opacity = Entity.Get<Sprite>().Opacity;
+                }
+                else if (/*Property == TweenProperty.Width || Property == TweenProperty.Height ||*/ Property == TweenProperty.Opacity)
+                {
+                    Debug.ErrorLog("[Tween]: Couldn't start Tween property '" + Property + "'. Entity Sprite is null.");
+                    return false;
+                }
+            }
+            else
+            {
+                Debug.ErrorLog("[Tween]: Couldn't start Tween property '" + Property + "'. Entity is null.");
+                return false;
+            }
+
+            return true;
+        }
+
+        public void ReverseTarget()
+        {
+            switch (Property)
+            {
+                case TweenProperty.X:
+                    if (Entity != null)
+                        TargetValue = _position.X;
+                    break;
+
+                case TweenProperty.Y:
+                    if (Entity != null)
+                        TargetValue = _position.Y;
+                    break;
+
+                case TweenProperty.Scale:
+                    if (Entity != null)
+                        TargetValue = _scale.X;
+                    break;
+
+                case TweenProperty.Angle:
+                    if (Entity != null)
+                        TargetValue = _angle;
+                    break;
+
+                case TweenProperty.Opacity:
+                    if (Entity != null && Entity.Get<Sprite>() != null)
+                        TargetValue = _opacity;
+                    break;
+
+                /*case TweenProperty.Position:
+                Entity.Transform.Position = Vector2.Lerp(_position, TargetPosition, Eased);
+                break;*/
+
+                /*case TweenProperty.Width:
+                    break;
+
+                case TweenProperty.Height:
+                    break;*/
+
+                default:
+                    Debug.Log("[Tween]: Invalid Tween Property '" + Property + "'.");
+                    break;
+            }
         }
 
         #region Utils

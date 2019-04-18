@@ -6,13 +6,13 @@ namespace Caieta.Components.Utils
     {
         public Action OnTime;
 
-        public bool IsRunning { get; private set; }
-        public bool IsPaused { get; private set; }
+        public bool IsRunning { get; protected set; }
+        public bool IsPaused { get; protected set; }
         public bool IsRepeating;
         public bool IgnoreTimeRate;
 
-        public float TargetTime { get; private set; }
-        public float ElapsedTime { get; private set; }
+        public float TargetTime { get; protected set; }
+        public float ElapsedTime { get; protected set; }
 
         public Timer(float time, bool repeat = false)
         {
@@ -41,14 +41,13 @@ namespace Caieta.Components.Utils
             {
                 ElapsedTime = TargetTime;   // Cap timer
 
-                //Debug.Log("[Timer]: On Time finished trigger.");
-
-                OnTime?.Invoke();
-
                 if (IsRepeating)
                     Start();
                 else
                     Stop();
+
+                OnTime?.Invoke();
+                //Debug.Log("[Timer]: On Time finished trigger.");
             }
 
         }
@@ -63,7 +62,7 @@ namespace Caieta.Components.Utils
         public void Start()
         {
             IsRunning = true;
-            ElapsedTime = 0f;
+            ElapsedTime = 0;
             Resume();
         }
 

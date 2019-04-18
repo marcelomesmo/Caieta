@@ -69,7 +69,6 @@ namespace ExampleProject.Game.Scenes
             AudioManager.SFX.Load("start");
             //Input.Touch.OnTap += OnTap;
 
-
             // Create objects from Tiled CollisionMask
             foreach (var tiled_obj in Scenario.GetCollisionMask())
             {
