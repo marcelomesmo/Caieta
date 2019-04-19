@@ -31,9 +31,27 @@ namespace Caieta
         }
         private Vector2 _position;
 
-        public Vector2 Scale = Vector2.One;
+        public Vector2 Scale
+        {
+            get => _scale;
+            set
+            {
+                _scale = value;
+                UpdateChildrenScale();
+            }
+        }
+        private Vector2 _scale = Vector2.One;
 
-        public float Rotation;
+        public float Rotation
+        {
+            get => _rotation;
+            set
+            {
+                _rotation = value;
+                UpdateChildrenRotation();
+            }
+        }
+        private float _rotation;
 
         public Transform()
         {

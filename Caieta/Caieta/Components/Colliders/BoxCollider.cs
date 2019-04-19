@@ -13,14 +13,14 @@ namespace Caieta
 
         public override float Width
         {
-            get { return _width; }
-            set { _width = value; }
+            get => _width * Entity.Transform.Scale.X;
+            set => _width = value;
         }
 
         public override float Height
         {
-            get { return _height; }
-            set { _height = value; }
+            get => _height * Entity.Transform.Scale.Y;
+            set => _height = value;
         }
         private float _width;
         private float _height;
@@ -64,7 +64,9 @@ namespace Caieta
             Origin.X = x;
             Origin.Y = y;
         }
+
         public BoxCollider(Rectangle rect) : this(rect.Width, rect.Height, rect.X, rect.Y) { }
+
         public BoxCollider(Sprite sprite) : this(sprite.Width, sprite.Height)
         {
             Origin = -sprite.Origin;
