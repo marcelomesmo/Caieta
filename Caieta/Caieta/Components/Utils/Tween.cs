@@ -8,43 +8,123 @@ namespace Caieta.Components.Utils
    
     public class Tween : Timer
     {
+        private bool hasTimeEnded;
+        private float initialValue;
+
         public Action OnStart;
         public Action OnFinish;
 
         public TweenMode Mode { get; private set; }
         public bool Reverse { get; private set; }
-
         public TweenProperty Property { get; private set; }
         public float Eased { get; private set; }
+
+        public bool HasReachedEnd
+        {
+            get
+            {
+                float endValue = TargetValue;
+
+                if (Reverse)
+                    endValue = initialValue;
+
+                return initialValue < TargetValue ? CurrentValue >= endValue : CurrentValue <= endValue;
+            }
+        }
+
+        public float CurrentValue
+        {
+            get
+            {
+                if (Entity == null) // TODO
+                    return 0;
+
+                switch (Property)
+                {
+                    case TweenProperty.X:
+                        return Entity.Transform.X;
+
+                    case TweenProperty.Y:
+                        return Entity.Transform.Y;
+
+                    case TweenProperty.Scale:
+                        return Entity.Transform.Scale.X * Entity.Transform.Scale.Y;
+
+                    case TweenProperty.Angle:
+                        return Entity.Transform.Rotation;
+
+                    case TweenProperty.Opacity:
+                        if (Entity.Get<Sprite>() != null)
+                            return Entity.Get<Sprite>().Opacity;
+                        break;
+
+                    default:
+                        Debug.Log("[Tween]: Invalid Tween Property '" + Property + "'.");
+                        break;
+                }
+
+                return 0;
+            }
+            private set
+            {
+                if (Entity == null) // TODO
+                    return;
+
+                switch (Property)
+                {
+                    case TweenProperty.X:
+                        Entity.Transform.X = MathHelper.Lerp(_position.X, TargetValue, value);
+                        break;
+
+                    case TweenProperty.Y:
+                        Entity.Transform.Y = MathHelper.Lerp(_position.Y, TargetValue, value);
+                        break;
+
+                    case TweenProperty.Scale:
+                        Entity.Transform.Scale = Vector2.Lerp(_scale, new Vector2(TargetValue, TargetValue), value);
+                        break;
+
+                    case TweenProperty.Angle:
+                        Entity.Transform.Rotation = MathHelper.Lerp(_angle, MathHelper.ToRadians(TargetValue), value);
+                        break;
+
+                    case TweenProperty.Opacity:
+                        if (Entity.Get<Sprite>() != null)
+                            Entity.Get<Sprite>().Opacity = MathHelper.Lerp(_opacity, TargetValue, value);
+                        break;
+
+                    default:
+                        Debug.Log("[Tween]: Invalid Tween Property '" + Property + "'.");
+                        break;
+                }
+            }
+        }
         public float TargetValue { get; private set; }
 
         public EaseFunction.Ease Ease;
-        public float Duration {
-            get { return TargetTime; }
-        }
+        public float Duration => TargetTime;
         public float Percent { get; private set; }
 
-        public Tween(TweenMode mode, TweenProperty property, float value, EaseFunction.Ease easer, float duration) : base(duration)
+        public Tween(TweenMode mode, TweenProperty property, float value, EaseFunction.Ease easer, float duration,
+            Action onStart = null, Action onFinish = null) : base(duration)
         {
-            OnStart = null;
-            OnFinish = null;
-
+            OnStart = onStart;
+            OnFinish = onFinish;
             Mode = mode;
             Reverse = false;
-
             Property = property;
             Eased = Percent = 0;
             TargetValue = value;
-
             Ease = easer;
+            OnTime = () => hasTimeEnded = true;
+
             if (duration <= 0)
                 Debug.Log("[Tween]: Duration must be a positive integer. Setting to 0 (zero).");
-
         }
 
-        /*
+        /*/
          *      Entity starting Properties
-         */
+        /*/
         private Vector2 _position;
         private Vector2 _scale;
         private float _angle;
@@ -65,8 +145,14 @@ namespace Caieta.Components.Utils
         {
             base.Update();
 
+            if (hasTimeEnded && HasReachedEnd)
+            {
+                Finish();
+                return;
+            }
+
             // Update the percentage and eased percentage
-            Percent = Math.Min(ElapsedTime, TargetTime) / TargetTime;
+            Percent = MathHelper.Clamp(Math.Min(ElapsedTime, TargetTime) / TargetTime, 0, 1);
 
             if (Reverse)
                 Percent = 1 - Percent;
@@ -78,101 +164,59 @@ namespace Caieta.Components.Utils
             else
                 Eased = Percent;
 
-            switch(Property)
+            CurrentValue = Eased;
+        }
+
+        private void Finish()
+        {
+            //Debug.Log("[Tween]: OnFinish Tween trigger.");
+            OnFinish?.Invoke();
+
+            switch (Mode)
             {
-                case TweenProperty.X:
-                    if(Entity != null)
-                        Entity.Transform.X = MathHelper.Lerp(_position.X, TargetValue, Eased);
+                // Stop on Finish, no repeat
+                case TweenMode.Persist:
+                    IsActive = false;
                     break;
 
-                case TweenProperty.Y:
+                // Stop and Destroy entity on Finish, no repeat
+                case TweenMode.OneShot:
+                    IsActive = false;
                     if (Entity != null)
-                        Entity.Transform.Y = MathHelper.Lerp(_position.Y, TargetValue, Eased);
+                        Entity.Destroy();
                     break;
 
-                /*case TweenProperty.Position:
-                    Entity.Transform.Position = Vector2.Lerp(_position, TargetPosition, Eased);
-                    break;*/
-
-                /*case TweenProperty.Width:
+                // Loop, back and forth
+                case TweenMode.Loop:
+                    TargetValue = initialValue;
+                    if (!InitProperties())
+                        return;
+                    StartTween();
                     break;
 
-                case TweenProperty.Height:
-                    break;*/
-
-                case TweenProperty.Scale:
-                    if (Entity != null)
-                        Entity.Transform.Scale = Vector2.Lerp(_scale, new Vector2(TargetValue, TargetValue), Eased);
+                // Loop, reverse back
+                case TweenMode.Reverse:
+                    StartTween();
+                    Reverse = !Reverse;
                     break;
 
-                case TweenProperty.Angle:
-                    if (Entity != null)
-                        Entity.Transform.Rotation = MathHelper.Lerp(_angle, MathHelper.ToRadians(TargetValue), Eased);
-                    break;
-
-                case TweenProperty.Opacity:
-                    if (Entity != null && Entity.Get<Sprite>() != null)
-                        Entity.Get<Sprite>().Opacity = MathHelper.Lerp(_opacity, TargetValue, Eased);
+                // Loop, from the start
+                case TweenMode.Yoyo:
+                    StartTween();
                     break;
 
                 default:
-                    Debug.Log("[Tween]: Invalid Tween Property '" + Property + "'.");
+                    Debug.Log("[Tween]: Invalid Tween Mode '" + Mode + "'.");
                     break;
             }
-
-            //When finished...
-            OnTime = () =>
-            {
-                //Debug.Log("[Tween]: OnFinish Tween trigger.");
-                OnFinish?.Invoke();
-
-                switch (Mode)
-                {
-                    // Stop on Finish, no repeat
-                    case TweenMode.Persist:
-                        IsActive = false;
-                        break;
-
-                    // Stop and Destroy entity on Finish, no repeat
-                    case TweenMode.OneShot:
-                        IsActive = false;
-                        if (Entity != null)
-                            Entity.Destroy();
-                        break;
-
-                    // Loop, back and forth
-                    case TweenMode.Loop:
-                        ReverseTarget();
-                        if (!InitProperties())
-                            return;
-                        StartTween();
-                        break;
-
-                    // Loop, reverse back
-                    case TweenMode.Reverse:
-                        StartTween();
-                        Reverse = !Reverse;
-                        break;
-
-                    // Loop, from the start
-                    case TweenMode.Yoyo:
-                        StartTween();
-                        break;
-
-                    default:
-                        Debug.Log("[Tween]: Invalid Tween Mode '" + Mode + "'.");
-                        break;
-                }
-            };
         }
 
         public void StartTween()
         {
-            base.Start();
-
+            hasTimeEnded = false;
+            Start();
             //Debug.Log("[Tween]: OnStart Tween trigger.");
             OnStart?.Invoke();
-
             Eased = Percent = 0;
         }
 
@@ -180,6 +224,7 @@ namespace Caieta.Components.Utils
         {
             if (Entity != null)
             {
+                initialValue = CurrentValue;
                 _position = Entity.Transform.Position;
                 _scale = Entity.Transform.Scale;
                 _angle = Entity.Transform.Rotation;
@@ -202,51 +247,6 @@ namespace Caieta.Components.Utils
             }
 
             return true;
-        }
-
-        public void ReverseTarget()
-        {
-            switch (Property)
-            {
-                case TweenProperty.X:
-                    if (Entity != null)
-                        TargetValue = _position.X;
-                    break;
-
-                case TweenProperty.Y:
-                    if (Entity != null)
-                        TargetValue = _position.Y;
-                    break;
-
-                case TweenProperty.Scale:
-                    if (Entity != null)
-                        TargetValue = _scale.X;
-                    break;
-
-                case TweenProperty.Angle:
-                    if (Entity != null)
-                        TargetValue = _angle;
-                    break;
-
-                case TweenProperty.Opacity:
-                    if (Entity != null && Entity.Get<Sprite>() != null)
-                        TargetValue = _opacity;
-                    break;
-
-                /*case TweenProperty.Position:
-                Entity.Transform.Position = Vector2.Lerp(_position, TargetPosition, Eased);
-                break;*/
-
-                /*case TweenProperty.Width:
-                    break;
-
-                case TweenProperty.Height:
-                    break;*/
-
-                default:
-                    Debug.Log("[Tween]: Invalid Tween Property '" + Property + "'.");
-                    break;
-            }
         }
 
         #region Utils
