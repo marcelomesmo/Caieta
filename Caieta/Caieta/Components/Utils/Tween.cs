@@ -8,9 +8,6 @@ namespace Caieta.Components.Utils
    
     public class Tween : Timer
     {
-        private bool hasTimeEnded;
-        private float initialValue;
-
         public Action OnStart;
         public Action OnFinish;
 
@@ -19,19 +16,7 @@ namespace Caieta.Components.Utils
         public TweenProperty Property { get; private set; }
         public float Eased { get; private set; }
 
-        public bool HasReachedEnd
-        {
-            get
-            {
-                float endValue = TargetValue;
-
-                if (Reverse)
-                    endValue = initialValue;
-
-                return initialValue < TargetValue ? CurrentValue >= endValue : CurrentValue <= endValue;
-            }
-        }
-
+        public float InitialValue { get; private set; }
         public float CurrentValue
         {
             get
@@ -116,7 +101,7 @@ namespace Caieta.Components.Utils
             Eased = Percent = 0;
             TargetValue = value;
             Ease = easer;
-            OnTime = () => hasTimeEnded = true;
+            OnTime = Finish;
 
             if (duration <= 0)
                 Debug.Log("[Tween]: Duration must be a positive integer. Setting to 0 (zero).");
@@ -145,11 +130,11 @@ namespace Caieta.Components.Utils
         {
             base.Update();
 
-            if (hasTimeEnded && HasReachedEnd)
-            {
-                Finish();
-                return;
-            }
+            //if (hasTimeEnded && HasReachedEnd)
+            //{
+            //    Finish();
+            //    return;
+            //}
 
             // Update the percentage and eased percentage
             Percent = MathHelper.Clamp(Math.Min(ElapsedTime, TargetTime) / TargetTime, 0, 1);
@@ -157,6 +142,11 @@ namespace Caieta.Components.Utils
             if (Reverse)
                 Percent = 1 - Percent;
 
+            Increment();
+        }
+
+        private void Increment()
+        {
             //Debug.Log("[Tween]: Tween Progress =>\n Clock Is Running " + IsRunning + "\n \tTarget Time: " + TargetTime + " Elapsed Time: " + ElapsedTime + " Percent: " + Percent + " Ease value: " + Eased);
 
             if (Ease != null)
@@ -169,6 +159,8 @@ namespace Caieta.Components.Utils
 
         private void Finish()
         {
+            Percent = 1;
+            Increment();
             //Debug.Log("[Tween]: OnFinish Tween trigger.");
             OnFinish?.Invoke();
 
@@ -188,7 +180,7 @@ namespace Caieta.Components.Utils
 
                 // Loop, back and forth
                 case TweenMode.Loop:
-                    TargetValue = initialValue;
+                    TargetValue = InitialValue;
                     if (!InitProperties())
                         return;
                     StartTween();
@@ -213,7 +205,6 @@ namespace Caieta.Components.Utils
 
         public void StartTween()
         {
-            hasTimeEnded = false;
             Start();
             //Debug.Log("[Tween]: OnStart Tween trigger.");
             OnStart?.Invoke();
@@ -224,7 +215,7 @@ namespace Caieta.Components.Utils
         {
             if (Entity != null)
             {
-                initialValue = CurrentValue;
+                InitialValue = CurrentValue;
                 _position = Entity.Transform.Position;
                 _scale = Entity.Transform.Scale;
                 _angle = Entity.Transform.Rotation;
