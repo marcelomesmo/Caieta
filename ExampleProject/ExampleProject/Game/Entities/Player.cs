@@ -182,6 +182,7 @@ namespace ExampleProject
                 Otherbox.IsFlipped = false;
             }
 
+            Platform platform = Get<Platform>();
             // Platform Movements
             Get<Platform>().OnMove = () =>
             {
@@ -209,16 +210,22 @@ namespace ExampleProject
             {
                 Debug.Log("[Player]: Action Fall.");
             };
+
+            if(platform.IsByWall["Left"])
+            {
+                Debug.Log("CARAI PAREDE ESQUERDA");
+            }
+            
         }
 
         public void OnFinish(string name)
         {
             /*
             if (name.Equals("idle"))
-                sprite.SetAnimation("walk");
-            else if (name.Equals("walk"))
+                sprite.SetAnimation("idle2");
+            else if (name.Equals("idle2"))
                 sprite.SetAnimation("idle");
-                */               
+                           */   
         }
 
         public override void Render()

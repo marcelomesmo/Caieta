@@ -3,8 +3,8 @@ using Microsoft.Xna.Framework;
 
 namespace Caieta.Components.Utils
 {
-    public enum TweenMode { Persist, OneShot, Loop, Reverse, Yoyo };
-    public enum TweenProperty { X, Y, /*Width, Height,*/ Scale, Angle, Opacity };
+    public enum TweenMode { Persist, OneShot, Loop, Yoyo, Restart };
+    public enum TweenProperty { X, Y, /*Position, Width, Height, Size,*/ Scale, Angle, Opacity };
    
     public class Tween : Timer
     {
@@ -12,7 +12,7 @@ namespace Caieta.Components.Utils
         public Action OnFinish;
 
         public TweenMode Mode { get; private set; }
-        public bool Reverse { get; private set; }
+        public bool IsReverse { get; private set; }
         public TweenProperty Property { get; private set; }
         public float Eased { get; private set; }
 
@@ -33,7 +33,7 @@ namespace Caieta.Components.Utils
                         return Entity.Transform.Y;
 
                     case TweenProperty.Scale:
-                        return Entity.Transform.Scale.X * Entity.Transform.Scale.Y;
+                        return Entity.Transform.Scale.X;
 
                     case TweenProperty.Angle:
                         return Entity.Transform.Rotation;
@@ -44,7 +44,7 @@ namespace Caieta.Components.Utils
                         break;
 
                     default:
-                        Debug.Log("[Tween]: Invalid Tween Property '" + Property + "'.");
+                        Debug.ErrorLog("[Tween]: Invalid Tween Property '" + Property + "'.");
                         break;
                 }
 
@@ -79,7 +79,7 @@ namespace Caieta.Components.Utils
                         break;
 
                     default:
-                        Debug.Log("[Tween]: Invalid Tween Property '" + Property + "'.");
+                        Debug.ErrorLog("[Tween]: Invalid Tween Property '" + Property + "'.");
                         break;
                 }
             }
@@ -90,31 +90,25 @@ namespace Caieta.Components.Utils
         public float Duration => TargetTime;
         public float Percent { get; private set; }
 
-        public Tween(TweenMode mode, TweenProperty property, float value, EaseFunction.Ease easer, float duration,
-            Action onStart = null, Action onFinish = null) : base(duration)
+        public Tween(TweenMode mode, TweenProperty property, float value, EaseFunction.Ease easer, float duration) : base(duration)
         {
-            OnStart = onStart;
-            OnFinish = onFinish;
+            OnStart = null;
+            OnFinish = null;
+
             Mode = mode;
-            Reverse = false;
+            IsReverse = false;
+
             Property = property;
-            Eased = Percent = 0;
             TargetValue = value;
+
             Ease = easer;
+            Eased = Percent = 0;
+
             OnTime = Finish;
 
             if (duration <= 0)
-                Debug.Log("[Tween]: Duration must be a positive integer. Setting to 0 (zero).");
+                Debug.Log("[Tween]: Duration must be a positive integer. Setting from '" + duration + "'to 0 (zero).");
         }
-
-        /*/
-         *      Entity starting Properties
-        /*/
-        private Vector2 _position;
-        private Vector2 _scale;
-        private float _angle;
-        private Vector2 _size;
-        private float _opacity;
 
         public override void Initialize()
         {
@@ -130,25 +124,20 @@ namespace Caieta.Components.Utils
         {
             base.Update();
 
-            //if (hasTimeEnded && HasReachedEnd)
-            //{
-            //    Finish();
-            //    return;
-            //}
-
             // Update the percentage and eased percentage
             Percent = MathHelper.Clamp(Math.Min(ElapsedTime, TargetTime) / TargetTime, 0, 1);
 
-            if (Reverse)
+            if (IsReverse)
                 Percent = 1 - Percent;
 
+            //Debug.Log("[Tween]: Tween Progress =>\n Clock Is Running " + IsRunning + "\n \tTarget Time: " + TargetTime + " Elapsed Time: " + ElapsedTime + " Percent: " + Percent + " Ease value: " + Eased);
+
+            // Update Tween value
             Increment();
         }
 
         private void Increment()
         {
-            //Debug.Log("[Tween]: Tween Progress =>\n Clock Is Running " + IsRunning + "\n \tTarget Time: " + TargetTime + " Elapsed Time: " + ElapsedTime + " Percent: " + Percent + " Ease value: " + Eased);
-
             if (Ease != null)
                 Eased = Ease(Percent);
             else
@@ -160,7 +149,10 @@ namespace Caieta.Components.Utils
         private void Finish()
         {
             Percent = 1;
+
+            // Update Tween value one last time to avoid skipping last iteration
             Increment();
+
             //Debug.Log("[Tween]: OnFinish Tween trigger.");
             OnFinish?.Invoke();
 
@@ -187,13 +179,13 @@ namespace Caieta.Components.Utils
                     break;
 
                 // Loop, reverse back
-                case TweenMode.Reverse:
+                case TweenMode.Yoyo:
                     StartTween();
-                    Reverse = !Reverse;
+                    IsReverse = !IsReverse;
                     break;
 
                 // Loop, from the start
-                case TweenMode.Yoyo:
+                case TweenMode.Restart:
                     StartTween();
                     break;
 
@@ -205,11 +197,22 @@ namespace Caieta.Components.Utils
 
         public void StartTween()
         {
-            Start();
+            base.Start();
+
             //Debug.Log("[Tween]: OnStart Tween trigger.");
             OnStart?.Invoke();
+
             Eased = Percent = 0;
         }
+
+        /*/
+         *      Entity starting Properties
+        /*/
+        private Vector2 _position;
+        private Vector2 _scale;
+        private float _angle;
+        private Vector2 _size;
+        private float _opacity;
 
         public bool InitProperties()
         {

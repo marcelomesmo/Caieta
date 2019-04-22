@@ -23,13 +23,13 @@ namespace ExampleProject
             Transform.SetPosition(Graphics.Width / 2, Graphics.Height / 2);
 
             Splash = new Sprite(Resources.Get<Texture2D>("SplashScene/Tapioca_logo"));
-            // Splash = Resources.Get<Sprite>("logo");
-
             //Splash.SetOrigin(Renderable.Anchor.TOP_RIGHT);
             Add(Splash);
 
             Hitbox = new BoxCollider(Splash);
             Add(Hitbox);
+
+            //Add(new BoxCollider(Splash));
         }
 
         public override void Update()

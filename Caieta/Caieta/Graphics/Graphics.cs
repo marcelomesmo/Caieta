@@ -48,6 +48,7 @@ namespace Caieta
             // Debug.Log("[Graphics]: Screen size " + ScreenWidth + " x " + ScreenHeight);
 
             Debug.Log("[Graphics]: Sucessfully init graphics.");
+            Debug.LogLine();
         }
 
         internal static void LoadContent(GraphicsDevice graphicsDevice)

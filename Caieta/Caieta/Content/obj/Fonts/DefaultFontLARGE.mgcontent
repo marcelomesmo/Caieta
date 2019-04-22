@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <SourceFile>/Users/marcelo/VS/Projects/Caieta/Caieta/Content/Fonts/DefaultFontLARGE.spritefont</SourceFile>
-  <SourceTime>2018-12-06T11:35:37.187409-03:00</SourceTime>
+  <SourceTime>2018-12-06T12:35:37.187409-02:00</SourceTime>
   <DestFile>/Users/marcelo/VS/Projects/Caieta/Caieta/Content/bin/Fonts/DefaultFontLARGE.xnb</DestFile>
-  <DestTime>2018-12-06T11:36:31.571688-03:00</DestTime>
+  <DestTime>2019-04-22T14:26:56.398486-03:00</DestTime>
   <Importer>FontDescriptionImporter</Importer>
   <ImporterTime>2018-09-23T18:56:40-03:00</ImporterTime>
   <Processor>FontDescriptionProcessor</Processor>

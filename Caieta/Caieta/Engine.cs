@@ -434,7 +434,8 @@ namespace Caieta
 
             _Debugger.Initialize();
 
-            Debug.Log("[Engine]: Sucessfully Initialize.");
+            Debug.Log("[Engine]: Sucessfully initialized.");
+            Debug.LogLine();
         }
 
         protected override void LoadContent()
@@ -443,7 +444,7 @@ namespace Caieta
 
             Graphics.LoadContent(GraphicsDevice);
 
-            Debug.Log("[Engine]: Sucessfully Load Content.");
+            Debug.Log("[Engine]: Sucessfully load Content.");
         }
 
         protected override void UnloadContent()
@@ -469,7 +470,7 @@ namespace Caieta
 
             Input.Enable();
 
-            Debug.Log("[Engine]: Sucessfully BeginRun.");
+            Debug.Log("[Engine]: Sucessfully Begin Run.");
         }
 
         protected override void Update(GameTime gameTime)
