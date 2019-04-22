@@ -493,12 +493,6 @@ namespace Caieta
             lastFpsUpdateTime += gameTime.ElapsedGameTime;      // ElapsedGameTime gives the time since last update
             if (lastFpsUpdateTime >= TimeSpan.FromSeconds(1))
             {
-                Window.Title = Title;
-
-                /*#if DEBUG
-                     Window.Title = Title + " " + fpsFrameCount.ToString() + " fps - " + (GC.GetTotalMemory(false) / 1048576f).ToString("F") + " MB";
-#endif*/
-
                 FPS = fpsFrameCount;
                 fpsFrameCount = 0;
                 lastFpsUpdateTime -= TimeSpan.FromSeconds(1);
