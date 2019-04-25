@@ -50,7 +50,11 @@ namespace Caieta
         internal void Begin()
         {
             // Start First Scene
-            CurrScene.Begin();
+            if (CurrScene != null)
+            {
+                CurrScene.Awake();
+                CurrScene.Start();
+            }
         }
 
         internal void Update()
@@ -102,7 +106,10 @@ namespace Caieta
                 OnSceneTransition();
 
                 if (CurrScene != null)
-                    CurrScene.Begin();
+                {
+                    CurrScene.Awake();
+                    CurrScene.Start();
+                }
             }
         }
 
@@ -209,6 +216,15 @@ namespace Caieta
                 entities.AddRange(l.Entities);
 
             return entities;
+        }
+
+        public void ForceUpdateGlobal(string name)
+        {
+            if (!_GlobalLayers.ContainsKey(name))
+                Debug.ErrorLog("[SceneManager]: Global layer '" + name + "' not found.");
+            else
+                // Update Global Layer
+                _GlobalLayers[name].UpdateLists();
         }
 
         public void AddGlobal(string name, Layer layer)

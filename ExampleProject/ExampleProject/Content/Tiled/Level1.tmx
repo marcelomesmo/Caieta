@@ -67,8 +67,8 @@
 </data>
  </layer>
  <objectgroup id="2" name="Collision">
-  <object id="2" name="Floor" x="48" y="208" width="336" height="14.9318"/>
-  <object id="12" type="Floor" x="48" y="32" width="16" height="176"/>
+  <object id="2" name="Floor" x="96" y="208" width="288" height="14.9318"/>
+  <object id="12" type="Floor" x="96" y="32" width="16" height="176"/>
   <object id="13" name="Floor" x="368" y="32" width="16" height="144"/>
  </objectgroup>
  <objectgroup id="8" name="CollisionMasks">

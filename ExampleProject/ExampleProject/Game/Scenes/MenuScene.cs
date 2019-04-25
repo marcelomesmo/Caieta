@@ -29,9 +29,9 @@ namespace ExampleProject.Game.Scenes
             Layout = new Rectangle(0, 0, 640, 360);
         }
 
-        public override void Begin()
+        public override void Awake()
         {
-            base.Begin();
+            base.Awake();
 
             Add(new Layer("Background"));
             Layers["Background"].Parallax = new Vector2(0, 0);

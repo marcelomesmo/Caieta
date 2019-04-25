@@ -23,7 +23,7 @@ namespace Caieta.Audio
 
         public void Load(string name)
         {
-            SFXs.Add(name, Engine.Instance.Content.Load<SoundEffect>("Sound/SFX/" + name));
+            SFXs.Add(name, Engine.Instance.Content.Load<SoundEffect>("Audio/SFX/" + name));
             _SoundInstance.Add(name, SFXs[name].CreateInstance());
         }
 

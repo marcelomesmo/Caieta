@@ -21,9 +21,9 @@ namespace ExampleProject.Game.Scenes
         FadeIn FadeIn;
         FadeOut FadeOut;
 
-        public override void Begin()
+        public override void Awake()
         {
-            base.Begin();
+            base.Awake();
 
             //Add(new Layer("HUD").SetGlobal(true));
             Add(new Layer("HUD"));
@@ -36,9 +36,7 @@ namespace ExampleProject.Game.Scenes
             FadeIn = new FadeIn(2000);
             Layers["TOP"].Add(FadeIn);
 
-            FadeIn.Start();
-            Pause();
-            FadeIn.OnFinish = Resume;
+
 
             // Fade Out Test
             FadeOut = new FadeOut(50);
@@ -46,6 +44,15 @@ namespace ExampleProject.Game.Scenes
 
             AudioManager.SFX.Load("Coleta");
             AudioManager.SFX.Load("Correndo_2_v2");
+        }
+
+        public override void Start()
+        {
+            base.Start();
+
+            FadeIn.Start();
+            Pause();
+            FadeIn.OnFinish = Resume;
         }
 
         public override void Update()
@@ -64,16 +71,6 @@ namespace ExampleProject.Game.Scenes
             };
 
         }
-
-        /*
-        public override void Render()
-        {
-            base.Render();
-
-            Graphics.DrawText("FASE1 SCREEN", new Vector2(Graphics.Width / 2, Graphics.Height / 2), Color.White, Text::Centered);
-
-        }
-        */
 
         public void LoadTextStart()
         {

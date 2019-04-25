@@ -33,29 +33,22 @@ namespace Caieta.Components.Renderables.Text
         //public VerticalOverflow V_Over;
         //public bool FitRect;
 
-
-        public Text(string text, string font = "")//, int size = 10)
+        public Text(string text, SpriteFont font)//, int size = 10)
         {
             Content = text;
 
-            if (font == "")
-                Font = Graphics.DefaultFont[FontSize.MEDIUM];
-            else
-                Font = Resources.Get<SpriteFont>(font);
-
+            Font = font;
             //Font_Size = size;
 
             H_Align = HorizontalAlign.Center;
             V_Align = VerticalAlign.Center;
-
-            UpdatePosition();
         }
 
         public override void Initialize()
         {
             base.Initialize();
 
-            //UpdatePosition();
+            UpdatePosition();
         }
 
         public void UpdatePosition()
@@ -128,7 +121,7 @@ namespace Caieta.Components.Renderables.Text
         {
             base.Render();
 
-            Graphics.DrawText(Font, Content, Entity.Transform.Position, Color, Origin, Entity.Transform.Scale, Entity.Transform.Rotation);
+            Graphics.DrawText(Font, Content, Entity.Transform.Position, Color * (Opacity/100f), Origin, Entity.Transform.Scale, Entity.Transform.Rotation);
         }
     }
 }

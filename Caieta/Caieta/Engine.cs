@@ -552,5 +552,14 @@ namespace Caieta
         }
 
         #endregion
+
+        #region Utils
+
+        public void Quit()
+        {
+            Exit();
+        }
+
+        #endregion
     }
 }

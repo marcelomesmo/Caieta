@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <SourceFile>/Users/marcelo/VS/Projects/ExampleProject/ExampleProject/Content/BgResTest.png</SourceFile>
-  <SourceTime>2018-11-16T21:22:41-03:00</SourceTime>
+  <SourceTime>2018-11-16T22:22:41-02:00</SourceTime>
   <DestFile>/Users/marcelo/VS/Projects/ExampleProject/ExampleProject/Content/bin/DesktopGL/BgResTest.xnb</DestFile>
-  <DestTime>2019-02-23T18:49:08.770543-03:00</DestTime>
+  <DestTime>2019-04-25T15:27:26.503147-03:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2018-09-23T18:56:40-03:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
