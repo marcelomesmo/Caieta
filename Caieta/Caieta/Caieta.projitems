@@ -96,6 +96,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Components\Utils\EaseFunction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Entities\Sprites\TextBox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scenes\Transitions\FadeIn.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\Sprites\Image.cs" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="$(MSBuildThisFileDirectory)Content\Caieta.mgcb" />

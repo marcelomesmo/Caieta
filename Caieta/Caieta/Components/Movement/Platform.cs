@@ -398,7 +398,7 @@ namespace Caieta
         public override string ToString()
         {
             return string.Format("[Platform]: Velocity: {0} Move Direction: {1} MaxSpeed: {2} Acceleration {3} Deceleration {4} Jump Strength: {5} Gravity {6} Max Fall Speed: {7} Jump Sustain: {8} Jump Control Power: {9} Double Jump: {10} Max Jump Ammount: {11} Can Jump Falling from Ledge: {12}\n    Is Moving {13} IsJumping {14} IsFalling {15} IsOnFloor {16} Is By Wall LEFT {17} Is By Wall RIGHT {18}\n Default Controls: {19} Ignore Input: {20}",
-            Velocity, MoveDirection, MaxSpeed, Acceleration, Deceleration, JumpStrength, Gravity, MaxFallSpeed, JumpSustain, JumpControlPower, DoubleJump, MAX_JUMP_COUNT, CanJumpWhileFalling, IsMoving, IsJumping, IsFalling, IsOnFloor, IsByWall["left"], IsByWall["right"], DefaultControls, IgnoreInput);
+            Velocity, MoveDirection, MaxSpeed, Acceleration, Deceleration, JumpStrength, Gravity, MaxFallSpeed, JumpSustain, JumpControlPower, DoubleJump, MAX_JUMP_COUNT, CanJumpWhileFalling, IsMoving, IsJumping, IsFalling, IsOnFloor, IsByWall["Left"], IsByWall["Right"], DefaultControls, IgnoreInput);
         }
 
         #endregion

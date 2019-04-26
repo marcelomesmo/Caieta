@@ -102,7 +102,8 @@ namespace Caieta.Entities
         public virtual void Update()
         {
             foreach (var component in Components)
-                component.Update();
+                if(component.IsActive)
+                    component.Update();
         }
 
         public virtual void Render()
@@ -126,26 +127,33 @@ namespace Caieta.Entities
 
         public void Add(Component component)
         {
-            // Check if a component is Unique and have already been added.
-            if (component is IUnique)
+            if(component != null)
             {
-                var typeOfcomponent = component.GetType();
+                // Check if a component is Unique and have already been added.
+                if (component is IUnique)
+                {
+                    var typeOfcomponent = component.GetType();
 
-                Debug.Log("type of component : " + component.GetType());
+                    Debug.Log("type of component : " + component.GetType());
 
-                foreach (var c in Components)
-                    if (c.GetType() == typeOfcomponent)
-                    {
-                        Debug.WarningLog("[Entity]: '" + Name + "' already have a '"+ typeOfcomponent + "' unique component.");
-                        return;
-                    }
+                    foreach (var c in Components)
+                        if (c.GetType() == typeOfcomponent)
+                        {
+                            Debug.WarningLog("[Entity]: '" + Name + "' already have a '" + typeOfcomponent + "' unique component.");
+                            return;
+                        }
+                }
+
+                // Add Component to this Entity
+                component.Entity = this;
+                Components.Add(component);
+                component.Initialize();
+                // Notes: for future reference, instead of having a straight Initialize() we can add component to a _toAdd list and post-initialize all at the same time or in a specific order.
+
             }
-
-            // Add Component to this Entity
-            component.Entity = this;
-            Components.Add(component);
-            component.Initialize();
-            // Notes: for future reference, instead of having a straight Initialize() we can add component to a _toAdd list and post-initialize all at the same time or in a specific order.
+            else {
+                Debug.ErrorLog("[Entity]: Trying to add component to '" + Name + "'. Component cant be 'null'.");
+            }
         }
 
         // Return first

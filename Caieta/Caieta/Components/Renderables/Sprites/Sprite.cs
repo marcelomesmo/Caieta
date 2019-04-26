@@ -67,9 +67,9 @@ namespace Caieta
                     {
                         CurrentAnimation.TimesPlayed++;
 
-                        //OnFinish?.Invoke(_CurrentAnimation.Name);
-                        if (OnFinish != null)
-                            OnFinish(CurrentAnimation.Name);
+                        OnFinish?.Invoke(CurrentAnimation.Name);
+                        //if (OnFinish != null)
+                         //   OnFinish(CurrentAnimation.Name);
 
                         CurrentAnimation.CalculateNextFrame();
                     }
@@ -204,7 +204,7 @@ namespace Caieta
             }
         }*/
 
-        public void SetOrigin(Animation.Anchor anchor, Animation.AnchorPolicy policy = Animation.AnchorPolicy.CurrentAnimation)
+        public void SetOrigin(Animation.Anchor anchor, Animation.AnchorPolicy policy = Animation.AnchorPolicy.AllAnimations)
         {
             switch(policy)
             {
@@ -215,6 +215,21 @@ namespace Caieta
                 case Animation.AnchorPolicy.AllAnimations:
                     foreach (Animation anim in Animations.Values)
                         anim.SetOrigin(anchor);
+                    break;
+            }
+        }
+
+        public void SetOrigin(Vector2 origin, Animation.AnchorPolicy policy = Animation.AnchorPolicy.AllAnimations)
+        {
+            switch (policy)
+            {
+                case Animation.AnchorPolicy.CurrentAnimation:
+                    CurrentAnimation.SetOrigin(origin.X, origin.Y);
+                    break;
+
+                case Animation.AnchorPolicy.AllAnimations:
+                    foreach (Animation anim in Animations.Values)
+                        anim.SetOrigin(origin.X, origin.Y);
                     break;
             }
         }

@@ -50,6 +50,11 @@ namespace Caieta
         public virtual void Awake()
         {
             Debug.Log("[Scene]: Awake scene '" + Name + "'.");
+        }
+
+        public virtual void Start()
+        {
+            Debug.Log("[Scene]: Start scene '" + Name + "'.");
 
             // Notes: Another solution would be create a new Start() function called after Begin().
             // First Update Entities
@@ -59,18 +64,13 @@ namespace Caieta
                 {
                     //foreach (var ent in layer.Entities)
                     //{
-                        //ent.Awake();
+                    //ent.Awake();
                     //}
                     layer.UpdateLists();
                 }
                 else
                     Engine.SceneManager.ForceUpdateGlobal(layer.Name);
             }
-        }
-
-        public virtual void Start()
-        {
-            Debug.Log("[Scene]: Start scene '" + Name + "'.");
 
             // Trigger OnSceneStart after everything is loaded and every entity is added.
             if (OnSceneStart != null)

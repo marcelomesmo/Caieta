@@ -7,7 +7,7 @@ namespace Caieta
     {
         public Entity Entity;
 
-        public bool IsActive;
+        public bool IsActive = true;
         /*{
             get { return IsActive; }
             set
