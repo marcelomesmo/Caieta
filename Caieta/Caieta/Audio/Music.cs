@@ -29,7 +29,7 @@ namespace Caieta.Audio
 
         public void Load(string name)
         {
-            _Musics.Add(name, Engine.Instance.Content.Load<Song>("Sound/Music/" + name));
+            _Musics.Add(name, Engine.Instance.Content.Load<Song>("Audio/Music/" + name));
         }
 
         public void Unload(string name)

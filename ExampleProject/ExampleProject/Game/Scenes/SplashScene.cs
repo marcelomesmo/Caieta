@@ -14,9 +14,9 @@ namespace ExampleProject
 
         Logo logo = new Logo("Splash");
 
-        public override void Begin()
+        public override void Awake()
         {
-            base.Begin(); 
+            base.Awake(); 
 
             // Create Layers
             Add(new Layer("Default"));

@@ -74,7 +74,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Camera.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scenes\Transitions\Transition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Utils\Timer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Scenes\Transitions\FadeIn.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scenes\Transitions\Fade.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Attributes\FollowCamera.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Scenes\Transitions\FadeOut.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Entities\Sprites\NineSlice.cs" />
@@ -94,6 +94,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Components\Renderables\Text\Text.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Utils\Tween.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Utils\EaseFunction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\Sprites\TextBox.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Scenes\Transitions\FadeIn.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\Sprites\Image.cs" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="$(MSBuildThisFileDirectory)Content\Caieta.mgcb" />

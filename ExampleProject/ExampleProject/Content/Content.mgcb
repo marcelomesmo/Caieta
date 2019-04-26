@@ -13,6 +13,54 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Audio/Music/mus_rmx_01_forsakencity_intro.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Audio/Music/mus_rmx_01_forsakencity_intro.ogg
+
+#begin Audio/Music/Profectus_Theme_01.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Audio/Music/Profectus_Theme_01.ogg
+
+#begin Audio/SFX/Coleta.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/SFX/Coleta.wav
+
+#begin Audio/SFX/Correndo_2_v2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/SFX/Correndo_2_v2.wav
+
+#begin Audio/SFX/Morrendo.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/SFX/Morrendo.wav
+
+#begin Audio/SFX/Pulo.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/SFX/Pulo.wav
+
+#begin Audio/SFX/respawn.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/SFX/respawn.wav
+
+#begin Audio/SFX/start.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/SFX/start.wav
+
 #begin ball.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -132,54 +180,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sheet/Sheet2.png
-
-#begin Sound/Music/mus_rmx_01_forsakencity_intro.ogg
-/importer:OggImporter
-/processor:SongProcessor
-/processorParam:Quality=Best
-/build:Sound/Music/mus_rmx_01_forsakencity_intro.ogg
-
-#begin Sound/Music/Profectus_Theme_01.ogg
-/importer:OggImporter
-/processor:SongProcessor
-/processorParam:Quality=Best
-/build:Sound/Music/Profectus_Theme_01.ogg
-
-#begin Sound/SFX/Coleta.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound/SFX/Coleta.wav
-
-#begin Sound/SFX/Correndo_2_v2.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound/SFX/Correndo_2_v2.wav
-
-#begin Sound/SFX/Morrendo.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound/SFX/Morrendo.wav
-
-#begin Sound/SFX/Pulo.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound/SFX/Pulo.wav
-
-#begin Sound/SFX/respawn.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound/SFX/respawn.wav
-
-#begin Sound/SFX/start.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:Sound/SFX/start.wav
 
 #begin SplashScene/Tapioca_logo.png
 /importer:TextureImporter

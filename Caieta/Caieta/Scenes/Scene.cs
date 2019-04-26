@@ -47,10 +47,32 @@ namespace Caieta
         /*
          * Trigger Actions for OnSceneStart and OnSceneEnd
          */
-        public virtual void Begin()
+        public virtual void Awake()
         {
-            Debug.Log("[Scene]: Starting scene '" + Name + "'.");
+            Debug.Log("[Scene]: Awake scene '" + Name + "'.");
+        }
 
+        public virtual void Start()
+        {
+            Debug.Log("[Scene]: Start scene '" + Name + "'.");
+
+            // Notes: Another solution would be create a new Start() function called after Begin().
+            // First Update Entities
+            foreach (var layer in Layers.Values)
+            {
+                if (!layer.IsGlobal)
+                {
+                    //foreach (var ent in layer.Entities)
+                    //{
+                    //ent.Awake();
+                    //}
+                    layer.UpdateLists();
+                }
+                else
+                    Engine.SceneManager.ForceUpdateGlobal(layer.Name);
+            }
+
+            // Trigger OnSceneStart after everything is loaded and every entity is added.
             if (OnSceneStart != null)
             {
                 Debug.Log("[Scene]: On Scene Start trigger.");

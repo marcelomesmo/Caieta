@@ -43,7 +43,7 @@ namespace Caieta
         {
             base.Update();
 
-            if (CurrentAnimation != null && CurrentAnimation.IsActive)
+            if (CurrentAnimation != null && CurrentAnimation.IsPlaying)
             {
                 // Update Current Animation
                 if (IgnoreTimeRate)
@@ -67,9 +67,9 @@ namespace Caieta
                     {
                         CurrentAnimation.TimesPlayed++;
 
-                        //OnFinish?.Invoke(_CurrentAnimation.Name);
-                        if (OnFinish != null)
-                            OnFinish(CurrentAnimation.Name);
+                        OnFinish?.Invoke(CurrentAnimation.Name);
+                        //if (OnFinish != null)
+                         //   OnFinish(CurrentAnimation.Name);
 
                         CurrentAnimation.CalculateNextFrame();
                     }
@@ -125,6 +125,13 @@ namespace Caieta
                 Debug.WarningLog("[Sprite]: No Animation with name '" + name + "'. Animation name invalid or not declared.");
             else
             {
+                // Stop others
+                foreach(Animation anim in Animations.Values)
+                {
+                    if (anim.Name != name)
+                        anim.Stop();
+                }
+                // Start new
                 CurrentAnimation = Animations[name];
                 CurrentAnimation.Start();
             }
@@ -173,13 +180,13 @@ namespace Caieta
         public void Pause()
         {
             if (CurrentAnimation != null)
-                CurrentAnimation.IsActive = false;
+                CurrentAnimation.IsPlaying = false;
         }
 
         public void UnPause()
         {
             if (CurrentAnimation != null)
-                CurrentAnimation.IsActive = true;
+                CurrentAnimation.IsPlaying = true;
         }
 
         #endregion
@@ -204,7 +211,7 @@ namespace Caieta
             }
         }*/
 
-        public void SetOrigin(Animation.Anchor anchor, Animation.AnchorPolicy policy = Animation.AnchorPolicy.CurrentAnimation)
+        public void SetOrigin(Animation.Anchor anchor, Animation.AnchorPolicy policy = Animation.AnchorPolicy.AllAnimations)
         {
             switch(policy)
             {
@@ -215,6 +222,21 @@ namespace Caieta
                 case Animation.AnchorPolicy.AllAnimations:
                     foreach (Animation anim in Animations.Values)
                         anim.SetOrigin(anchor);
+                    break;
+            }
+        }
+
+        public void SetOrigin(Vector2 origin, Animation.AnchorPolicy policy = Animation.AnchorPolicy.AllAnimations)
+        {
+            switch (policy)
+            {
+                case Animation.AnchorPolicy.CurrentAnimation:
+                    CurrentAnimation.SetOrigin(origin.X, origin.Y);
+                    break;
+
+                case Animation.AnchorPolicy.AllAnimations:
+                    foreach (Animation anim in Animations.Values)
+                        anim.SetOrigin(origin.X, origin.Y);
                     break;
             }
         }

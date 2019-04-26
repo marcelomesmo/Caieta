@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <SourceFile>/Users/marcelo/VS/Projects/ExampleProject/ExampleProject/Content/SplashScene/Tapioca_logo.png</SourceFile>
-  <SourceTime>2018-12-13T10:40:06-03:00</SourceTime>
+  <SourceTime>2018-12-13T11:40:06-02:00</SourceTime>
   <DestFile>/Users/marcelo/VS/Projects/ExampleProject/ExampleProject/Content/bin/DesktopGL/Content/SplashScene/Tapioca_logo.xnb</DestFile>
-  <DestTime>2018-12-13T11:09:04.999017-03:00</DestTime>
+  <DestTime>2019-04-25T15:27:40.523006-03:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2018-09-23T18:56:40-03:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

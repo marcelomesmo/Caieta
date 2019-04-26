@@ -19,10 +19,11 @@ namespace Caieta.Scenes.Transitions
 
             if (Progress < 100)
             {
-                Progress = (int)((Timer.ElapsedTime / Timer.TargetTime) * 100f);
+                Progress = Timer.TargetTime == 0f ? 100 : (int)((Timer.ElapsedTime / Timer.TargetTime) * 100f);
 
-                if(Timer.IsRunning)
+                /*if(Timer.IsRunning)
                     Debug.Log("[FadeOut]: Progress: expected " + (Timer.ElapsedTime / Timer.TargetTime) * 100f + " real " + Progress + "%");
+                    */                   
             }
         }
 

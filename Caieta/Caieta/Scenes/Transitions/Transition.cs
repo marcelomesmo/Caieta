@@ -16,6 +16,13 @@ namespace Caieta.Scenes.Transitions
             Timer = new Timer(time);
             Timer.IgnoreTimeRate = true;
 
+            Timer.OnTime = () =>
+            {
+                OnFinish?.Invoke();
+
+                Debug.Log("[Transition]: Finished Transition '" + Name + "'.");
+            };
+
             Add(Timer);
         }
 
@@ -26,23 +33,6 @@ namespace Caieta.Scenes.Transitions
             Progress = 0;
 
             Debug.Log("[Transition]: Started Transition '" + Name + "'. Time to finish: " + Timer.TargetTime + "ms");
-        }
-
-        public override void Update()
-        {
-            base.Update();
-
-            Timer.OnTime = () =>
-            {
-                OnFinish?.Invoke();
-
-                Debug.Log("[Transition]: Finished Transition '" + Name + "'.");
-            };
-        }
-
-        public override void Render()
-        {
-            base.Render();
         }
     }
 }

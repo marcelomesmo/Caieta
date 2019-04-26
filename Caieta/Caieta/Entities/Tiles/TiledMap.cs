@@ -10,6 +10,8 @@ namespace Caieta
     public class TiledMap : Entity
     {
         TmxMap Map;
+        public int Width { get; private set; }
+        public int Height { get; private set; }
         public int TileWidth { get; private set; }
         public int TileHeight { get; private set; }
 
@@ -21,14 +23,20 @@ namespace Caieta
         public TiledMap(string name, string map, bool initial_visibility = true) : base(name, initial_visibility)
         {
             // Load Map
+            // Notes: Remember to check file: Copy to Output folder.
             Map = new TmxMap(map);
 
+            Width = Map.Width;
+            Height = Map.Height;
             TileWidth = Map.TileWidth;
             TileHeight = Map.TileHeight;
 
             // Load TileSet
+            // Notes: Check if this System.IO can break compatibility.
             var tileset_path = "Tiled/" + System.IO.Path.GetFileNameWithoutExtension(Map.Tilesets[0].Image.Source);
             Tileset = Resources.Get<Texture2D>(tileset_path);
+            if (Tileset == null)
+                Debug.ErrorLog("[TileMap]: Couldn't find tileset at '" + tileset_path + "'. Make sure it's in the Tiled/ folder.");
 
             TilesetTilesWide = Tileset.Width / TileWidth;
             TilesetTilesHigh = Tileset.Height / TileHeight;
