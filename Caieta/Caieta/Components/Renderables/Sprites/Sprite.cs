@@ -43,7 +43,7 @@ namespace Caieta
         {
             base.Update();
 
-            if (CurrentAnimation != null && CurrentAnimation.IsActive)
+            if (CurrentAnimation != null && CurrentAnimation.IsPlaying)
             {
                 // Update Current Animation
                 if (IgnoreTimeRate)
@@ -125,6 +125,13 @@ namespace Caieta
                 Debug.WarningLog("[Sprite]: No Animation with name '" + name + "'. Animation name invalid or not declared.");
             else
             {
+                // Stop others
+                foreach(Animation anim in Animations.Values)
+                {
+                    if (anim.Name != name)
+                        anim.Stop();
+                }
+                // Start new
                 CurrentAnimation = Animations[name];
                 CurrentAnimation.Start();
             }
@@ -173,13 +180,13 @@ namespace Caieta
         public void Pause()
         {
             if (CurrentAnimation != null)
-                CurrentAnimation.IsActive = false;
+                CurrentAnimation.IsPlaying = false;
         }
 
         public void UnPause()
         {
             if (CurrentAnimation != null)
-                CurrentAnimation.IsActive = true;
+                CurrentAnimation.IsPlaying = true;
         }
 
         #endregion

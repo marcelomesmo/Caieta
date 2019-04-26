@@ -7,6 +7,11 @@ namespace Caieta
     {
 
         #region operations
+        /* XNA MathHelper has it already
+        public static int Clamp(int value, int min, int max)
+        {
+            return (value < min) ? min : (value > max) ? max : value;
+        }*/
 
         // Floor Vector2 to explicit (int) cast Vector2
         public static Vector2 Floor(this Vector2 val)

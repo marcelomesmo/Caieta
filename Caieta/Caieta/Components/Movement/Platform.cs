@@ -225,8 +225,9 @@ namespace Caieta
 
                 // Trigger On Fall
                 OnFall?.Invoke();
+                //Debug.Log("[Platform]: On Fall trigger.");
 
-                if(!CanJumpWhileFalling) _JumpCount = MAX_JUMP_COUNT;
+                if (!CanJumpWhileFalling) _JumpCount = MAX_JUMP_COUNT;
             }
 
             /* 
@@ -293,7 +294,7 @@ namespace Caieta
                                     if (previousPosition.Y + c.Origin.Y + c.Height < ec.AbsolutePosition.Y)
                                     {
                                         // Collide on Y
-                                        //previousPosition.Y = ec.AbsolutePosition.Y - 1;
+                                        //previousPosition.Y = ec.AbsolutePosition.Y - c.AbsolutePosition.Y - 1;
                                         Entity.Transform.Position = new Vector2(Entity.Transform.Position.X, previousPosition.Y);
 
                                         IsOnFloor = true;
@@ -317,6 +318,16 @@ namespace Caieta
                                         //previousPosition.Y = ec.AbsolutePosition.Y + ec.Height + 1;
                                         Entity.Transform.Position = new Vector2(Entity.Transform.Position.X, previousPosition.Y);
                                         //Debug.Log("[Platform]: Hit Roof.");
+                                    }
+                                    // Is inside Collider
+                                    else {
+                                        //Debug.Log("[Platform]: Collider is inside enemy collider. Trying to push it out.");
+
+                                        // if(CloserToTop)
+                                        previousPosition.Y = ec.AbsolutePosition.Y - c.Height - c.Origin.Y - 0.1f;
+                                        Entity.Transform.Position = new Vector2(Entity.Transform.Position.X, previousPosition.Y);
+                                        // else if(CloserToBottom)
+                                        // TODO Push Platform collider out of body.
                                     }
                                 }
 

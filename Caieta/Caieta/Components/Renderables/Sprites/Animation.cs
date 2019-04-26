@@ -6,7 +6,7 @@ namespace Caieta
 {
     public class Animation
     {
-        public bool IsActive;
+        public bool IsPlaying;
 
         public enum Anchor { BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT, LEFT, CENTER, RIGHT, TOP_LEFT, TOP, TOP_RIGHT }
         public enum AnchorPolicy { CurrentAnimation, AllAnimations }
@@ -142,14 +142,16 @@ namespace Caieta
 
         public void Start()
         {
-            IsActive = true;
+            IsPlaying = true;
             CurrentFrame = 0;
+            TimesPlayed = 0;
         }
 
         public void Stop()
         {
-            IsActive = false;
+            IsPlaying = false;
             CurrentFrame = 0;
+            TimesPlayed = 0;
         }
 
         #region Fluent Setters
@@ -261,7 +263,7 @@ namespace Caieta
 
         public override string ToString()
         {
-            return string.Format("[Animation]: '{0}' Total Frames: {1} Width: {2} Height: {3} Origin (Local Offset): {4} Center: {5} Active: {6} using Sheet: {7}", Name, TotalFrames, FrameWidth, FrameHeight, Origin, Center, IsActive, Sheet);
+            return string.Format("[Animation]: '{0}' Total Frames: {1} Width: {2} Height: {3} Origin (Local Offset): {4} Center: {5} Playing: {6} using Sheet: {7}", Name, TotalFrames, FrameWidth, FrameHeight, Origin, Center, IsPlaying, Sheet);
         }
 
         #endregion
