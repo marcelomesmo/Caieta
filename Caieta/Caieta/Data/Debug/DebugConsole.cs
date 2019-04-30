@@ -55,8 +55,8 @@ namespace Caieta
 
         internal void Render()
         {
-            int screenWidth = Graphics.ViewWidth;
-            int screenHeight = Graphics.ViewHeight;
+            int screenWidth = Graphics.Width;
+            int screenHeight = Graphics.Height;
 
             Graphics.DrawRect(10, 40, screenWidth - 20, screenHeight - 50, Color.Black, 80, FillType.FILL);
 

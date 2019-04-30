@@ -11,6 +11,8 @@ namespace Caieta.Components.Utils
         public bool IsRepeating;
         public bool IgnoreTimeRate;
 
+        public int TimesPlayed;
+
         public float TargetTime { get; protected set; }
         public float ElapsedTime { get; protected set; }
 
@@ -41,6 +43,8 @@ namespace Caieta.Components.Utils
             {
                 ElapsedTime = TargetTime;   // Cap timer
 
+                TimesPlayed++;
+
                 if (IsRepeating)
                     Start();
                 else
@@ -69,6 +73,7 @@ namespace Caieta.Components.Utils
         public void Stop()
         {
             IsRunning = false;
+            TimesPlayed = 0;
         }
 
         public void Pause()

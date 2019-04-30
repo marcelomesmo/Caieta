@@ -184,6 +184,19 @@ namespace Caieta
                 _NextScene = _SceneList[scenename];
         }
 
+        public void RestartScene()
+        {
+            if (CurrScene != null)
+            {
+                CurrScene.End();
+
+                OnSceneTransition();
+
+                CurrScene.Awake();
+                CurrScene.Start();
+            }
+        }
+
         /// <summary>
         /// Return current scene name.
         /// </summary>

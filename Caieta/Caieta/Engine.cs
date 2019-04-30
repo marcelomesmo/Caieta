@@ -18,6 +18,13 @@ namespace Caieta
             PixelPerfect,
             BestFit
         }*/
+        /*public enum FullScreenPolicy
+        {
+            ExclusiveFullScreen,
+            FullScreenWindow,
+            MaximizedWindow,
+            Windowed
+        }*/
 
         public static Engine Instance { get; private set; }
 
@@ -475,6 +482,10 @@ namespace Caieta
 
         protected override void Update(GameTime gameTime)
         {
+            // TODO RESIZING BUG
+            //if (_resizing)
+            //    return;
+
             RawDeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             DeltaTime = RawDeltaTime * TimeRate;
 

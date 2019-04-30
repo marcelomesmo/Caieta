@@ -16,13 +16,13 @@ namespace Caieta
         public float AnimationTimer;
         public bool IgnoreTimeRate;
 
-        public Sprite(Texture2D image, Rectangle sourceRect)
+        public Sprite(Texture2D texture, Rectangle sourceRect)
         {
             Animations = new Dictionary<string, Animation>(StringComparer.OrdinalIgnoreCase);
 
-            if (image != null)
+            if (texture != null)
             {
-                Animations.Add("default", new Animation("default", image));
+                Animations.Add("default", new Animation("default", texture));
                 Animations["default"].AdjustRect(sourceRect);
                 Animations["default"].CurrentState = Animation.LoopState.RemainOnFinalFrame;
                 SetAnimation("default");
@@ -37,6 +37,7 @@ namespace Caieta
         }
         public Sprite(Texture2D texture, int x, int y, int width, int height) : this(texture, new Rectangle(x, y, width, height)) { }
         public Sprite(Texture2D texture) : this(texture, new Rectangle(0, 0, texture.Width, texture.Height)) { }
+        public Sprite(string texture_path) : this(Resources.Get<Texture2D>(texture_path)) { }
         public Sprite() : this(null, new Rectangle(0,0,0,0)) { }
 
         public override void Update()

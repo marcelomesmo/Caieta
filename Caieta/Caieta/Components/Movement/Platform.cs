@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Caieta.Components.Attributes;
 using Caieta.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -8,11 +9,18 @@ namespace Caieta
 {
     public class Platform : Component
     {
+        public Collider ColliderBelow { get; set; }
+
         /*
          *      Movement
          */
         public Vector2 Velocity;
         public Vector2 MoveDirection;
+
+        public Vector2 Force;
+        private float _ForceTime;
+        private float _ForceTotalTime;
+        private bool _ApplyForce;
 
         /*
          *      (X) Horizontal Movement
@@ -27,6 +35,7 @@ namespace Caieta
         public float JumpStrength;
         public float Gravity;
         public float MaxFallSpeed;
+        public float WallSlideSpeed;
 
         public bool CanJump;
         public float JumpSustain;
@@ -34,9 +43,13 @@ namespace Caieta
         public float JumpControlPower;
 
         public bool DoubleJump; // Notes: Turn ON DoubleJump and change JumpCount to allow for multiple jumps.
-        private int _JumpCount;
+        public int JumpCount;
         public int MAX_JUMP_COUNT = 2;
         public bool CanJumpWhileFalling; // Notes: Turn ON to allow player to jump while falling from ledges.
+
+        public bool CanSlide;
+        public bool WallJump;
+        public float WallJumpStrength;
 
         /*
          *      Movement Verifiers
@@ -44,6 +57,7 @@ namespace Caieta
         public bool IsMoving { get; private set; }
         public bool IsJumping { get; private set; }
         public bool IsFalling { get; private set; }
+        public bool IsSliding { get; private set; }
         public bool IsOnFloor { get; private set; }
         public Dictionary<string, bool> IsByWall { get; private set; }
 
@@ -69,14 +83,19 @@ namespace Caieta
             Acceleration = 1000; //1500;
             Deceleration = 1000; //1500;
 
+            _ForceTime = 0;
+            _ForceTotalTime = 200;
+
             JumpStrength = -105; //650;
             Gravity = 300; //900; //1500;
             MaxFallSpeed = 160; //1000;
+            WallSlideSpeed = 80;
+            WallJumpStrength = JumpStrength / 2;
 
             CanJump = true;
             DoubleJump = false;
             CanJumpWhileFalling = false;
-            _JumpCount = 0;
+            JumpCount = 0;
             JumpSustain = 0; //100f;
             _JumpTime = 0;
 
@@ -98,6 +117,17 @@ namespace Caieta
         public override void Initialize()
         {
             base.Initialize();
+        }
+
+        public void ApplyForceX(float force)
+        {
+            Force.X = force;
+            _ApplyForce = true;
+        }
+        public void ApplyForceY(float force)
+        {
+            Force.Y = force;
+            _ApplyForce = true;
         }
 
         public override void Update()
@@ -127,6 +157,18 @@ namespace Caieta
                 //Debug.Log("[Platform]: Move Direction " + MoveDirection.X + " " + MoveDirection.Y + " (X,Y)");
             }
 
+            /*
+             *  FORCE CONTROLS
+             */
+            if(_ApplyForce && _ForceTime < _ForceTotalTime)
+                _ForceTime += Engine.Instance.DeltaTime * 1000;
+
+            if(_ForceTime >= _ForceTotalTime)
+            {
+                _ForceTime = 0;
+                _ApplyForce = false;
+            }
+
             /* 
              *      HORIZONTAL MOVEMENT
              */
@@ -154,6 +196,15 @@ namespace Caieta
                 }
             }
 
+            // Apply strenght on opposite axis while sliding
+            if (IsSliding)
+            {
+                if (IsByWall["Left"])
+                    Velocity.X += -Acceleration * Engine.Instance.DeltaTime;
+                if (IsByWall["Right"])
+                    Velocity.X += Acceleration * Engine.Instance.DeltaTime;
+            }
+
             Velocity.X += MoveDirection.X * Acceleration * Engine.Instance.DeltaTime;
             // Prevent the player from running faster than his top speed.  
             Velocity.X = MathHelper.Clamp(Velocity.X, -MaxSpeed, MaxSpeed);
@@ -163,21 +214,35 @@ namespace Caieta
              */
             // Notes: Can only jump if player has released the buttons.
             // Jump check
-            if(MoveDirection.Y == 0)
+            if (MoveDirection.Y == 0)
                 CanJump = true;
 
             // Jump
             if (MoveDirection.Y == -1 && CanJump &&
-                (IsOnFloor || (DoubleJump && _JumpCount < MAX_JUMP_COUNT)) )
+                (IsOnFloor || (DoubleJump && JumpCount < MAX_JUMP_COUNT) || IsSliding))
             {
                 CanJump = false;
 
+                if (IsSliding)
+                {
+                    if (JumpCount > 0)
+                        JumpCount--;
+
+                    if (IsByWall["Left"])
+                        ApplyForceX(MaxSpeed);
+                    else
+                        ApplyForceX(-MaxSpeed);
+
+                    ApplyForceY(-MaxSpeed);
+                }
+
                 // Notes: Add double jump and max jump here
-                _JumpCount++;
+                JumpCount++;
                 //Debug.Log("[Platform]: Double Jump: " + DoubleJump + " Jump count: " + _JumpCount);
 
                 IsJumping = true;
                 IsOnFloor = false;
+                ColliderBelow = null;
 
                 // Trigger On Jump
                 OnJump?.Invoke();
@@ -200,7 +265,7 @@ namespace Caieta
                     _JumpTime = 0.0f;
 
                     // Fall
-                    if(Velocity.Y > 0)
+                    if (Velocity.Y > 0)
                     {
                         IsJumping = false;
                         IsFalling = true;
@@ -212,8 +277,40 @@ namespace Caieta
                 }
             }
 
+            /*
+             *  WALL SLIDE
+             */
+            if (!IsByWall["Left"] && !IsByWall["Right"] && IsSliding)
+            {
+                Debug.Log("[Platform]: Stop sliding.");
+                IsSliding = false;
+            }
+
+            if (CanSlide && IsFalling && !IsSliding && !IsOnFloor && (IsByWall["Left"] || IsByWall["Right"]))
+            {
+                Debug.Log("[Platform]: Start sliding.");
+                IsSliding = true;
+            }
+
+            if (IsSliding && MoveDirection.Y == -1 && WallJump && (IsByWall["Left"] && MoveDirection.X == 1) || (IsByWall["Right"] && MoveDirection.X == -1))
+            {
+                IsJumping = true;
+                IsOnFloor = false;
+                IsSliding = false;
+                ColliderBelow = null;
+
+                // Trigger On Jump
+                OnJump?.Invoke();
+                Debug.Log("[Platform]: On Wall Jump trigger.");
+
+                Velocity.Y = WallJumpStrength;
+            }
+
+            IsByWall["Left"] = false;
+            IsByWall["Right"] = false;
+
             // Apply Gravity
-            Velocity.Y = MathHelper.Clamp(Velocity.Y + Gravity * Engine.Instance.DeltaTime, -MaxFallSpeed, MaxFallSpeed);
+            Velocity.Y = MathHelper.Clamp(Velocity.Y + Gravity * Engine.Instance.DeltaTime, IsSliding ? -WallSlideSpeed : - MaxFallSpeed, IsSliding ? WallSlideSpeed : MaxFallSpeed);
             // Prevent the player from falling faster than gravity;
 
             // Notes: Raycast check if falling from ledges.
@@ -221,13 +318,14 @@ namespace Caieta
             if (Velocity.Y > MaxFallSpeed/4 && IsOnFloor && !IsJumping)
             {
                 IsOnFloor = false;
+                ColliderBelow = null;
                 IsFalling = true;
 
                 // Trigger On Fall
                 OnFall?.Invoke();
                 //Debug.Log("[Platform]: On Fall trigger.");
 
-                if (!CanJumpWhileFalling) _JumpCount = MAX_JUMP_COUNT;
+                if (!CanJumpWhileFalling) JumpCount = MAX_JUMP_COUNT;
             }
 
             /* 
@@ -239,13 +337,13 @@ namespace Caieta
             // If there are no colliders: move indistinguible (??)
             if (Colliders.Count <= 0)
             {
-                Entity.Transform.Position += MoveDirection * Velocity * Engine.Instance.DeltaTime;
+                Entity.Transform.Position += MoveDirection * (Force + Velocity) * Engine.Instance.DeltaTime;
                 return;
             }
 
             // Try to move Entity
             Vector2 previousPosition = Entity.Transform.Position;
-            Entity.Transform.Position += Velocity * Engine.Instance.DeltaTime;
+            Entity.Transform.Position += (Force + Velocity) * Engine.Instance.DeltaTime;
             //Entity.Transform.Position = new Vector2((float)Math.Round(Entity.Transform.Position.X), (float)Math.Round(Entity.Transform.Position.Y));
             //Debug.Log(Transform);
 
@@ -277,6 +375,44 @@ namespace Caieta
                             // Notes: We can know exactly which collider hit the entity,
                             //          but this way we cant know which collider we collided with.
 
+                            // Check if its one way platform
+                            if (!c.IsTrigger && ent.Name.Equals("One Way Platform"))
+                            {
+                                //Debug.Log("One way plat hit");
+                                //ec.IsTrigger = true;
+
+                                // If on bounds of object & not on floor
+                                if (previousPosition.X + c.Origin.X + c.Width > ec.AbsolutePosition.X &&
+                                    previousPosition.X + c.Origin.X < ec.AbsolutePosition.X + ec.Width)
+                                {
+                                    // Will only collide from top and if not holding down
+                                    if (previousPosition.Y + c.Origin.Y + c.Height < ec.AbsolutePosition.Y)
+                                    {
+                                        if(!Input.Keyboard.Hold(Keys.Down) || IgnoreInput)
+                                        {
+                                            // Collide on Y
+                                            //previousPosition.Y = ec.AbsolutePosition.Y - c.AbsolutePosition.Y - 1;
+                                            Entity.Transform.Position = new Vector2(Entity.Transform.Position.X, previousPosition.Y);
+
+                                            IsOnFloor = true;
+                                            ColliderBelow = ec;
+
+                                            // Trigger On Landed
+                                            if (IsFalling || IsJumping)
+                                            {
+                                                JumpCount = 0;
+
+                                                IsJumping = false;
+                                                IsFalling = false;
+
+                                                OnLand?.Invoke();
+                                                //Debug.Log("[Platform]: On Land trigger.");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             // Notes: Check these ones only if ec Collider is Solid
                             //          i.e: if(c is Solid && ec is Solid).
                             // Prevent Movement if both colliders are solid
@@ -287,7 +423,7 @@ namespace Caieta
                                 // Notes: Make this proportional to the ec Collider position.
 
                                 // If on bounds of object & not on floor
-                                if(previousPosition.X + c.Origin.X + c.Width > ec.AbsolutePosition.X &&
+                                if (previousPosition.X + c.Origin.X + c.Width > ec.AbsolutePosition.X &&
                                     previousPosition.X + c.Origin.X < ec.AbsolutePosition.X + ec.Width)
                                 {
                                     // Check if collision was from Top
@@ -298,11 +434,12 @@ namespace Caieta
                                         Entity.Transform.Position = new Vector2(Entity.Transform.Position.X, previousPosition.Y);
 
                                         IsOnFloor = true;
+                                        ColliderBelow = ec;
 
                                         // Trigger On Landed
                                         if (IsFalling || IsJumping)
                                         {
-                                            _JumpCount = 0;
+                                            JumpCount = 0;
 
                                             IsJumping = false;
                                             IsFalling = false;
@@ -320,7 +457,8 @@ namespace Caieta
                                         //Debug.Log("[Platform]: Hit Roof.");
                                     }
                                     // Is inside Collider
-                                    else {
+                                    else
+                                    {
                                         //Debug.Log("[Platform]: Collider is inside enemy collider. Trying to push it out.");
 
                                         // if(CloserToTop)
@@ -331,8 +469,10 @@ namespace Caieta
                                     }
                                 }
 
+                                bool isOnSameLevel = ColliderBelow != null && 
+                                    ColliderBelow.AbsolutePosition.Y == ec.AbsolutePosition.Y;
                                 // Check if collision was from Left
-                                if (previousPosition.X + c.Origin.X > ec.AbsolutePosition.X + ec.Width)
+                                if (previousPosition.X + c.Origin.X > ec.AbsolutePosition.X + ec.Width && !isOnSameLevel)
                                 {
                                     //previousPosition.X = ec.AbsolutePosition.X + ec.Width + 1;
                                     Entity.Transform.Position = new Vector2(previousPosition.X, Entity.Transform.Position.Y);
@@ -340,7 +480,7 @@ namespace Caieta
                                     //Debug.Log("[Platform]: Hit Wall Left.");
                                 }
                                 // Check if collision was from Right
-                                else if (previousPosition.X + c.Origin.X + c.Width < ec.AbsolutePosition.X)
+                                else if (previousPosition.X + c.Origin.X + c.Width < ec.AbsolutePosition.X && !isOnSameLevel)
                                 {
                                     //previousPosition.X = ec.AbsolutePosition.X - 1;
                                     Entity.Transform.Position = new Vector2(previousPosition.X, Entity.Transform.Position.Y);
@@ -368,6 +508,8 @@ namespace Caieta
 
             // Clean Direction for next Update
             MoveDirection = new Vector2(0,0);
+            if (!_ApplyForce)
+                Force = new Vector2(0, 0);
         }
 
         public override void Render()

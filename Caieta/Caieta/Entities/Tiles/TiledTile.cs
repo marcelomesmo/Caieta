@@ -9,6 +9,8 @@ namespace Caieta
         public Vector2 Position;
         public Rectangle ClipRect;
 
+        public int TilesetNum;
+
         TiledMap Parent;
 
         public TiledTile(TiledMap parent)
@@ -21,7 +23,7 @@ namespace Caieta
             base.Render();
 
             Graphics.Draw(
-                Parent.Tileset,
+                Parent.Tileset[TilesetNum],
                 new Rectangle((int)Position.X, (int)Position.Y, Parent.TileWidth, Parent.TileHeight),
                 ClipRect,
                 Color * Opacity,

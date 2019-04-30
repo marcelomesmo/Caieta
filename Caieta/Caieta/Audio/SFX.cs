@@ -39,7 +39,7 @@ namespace Caieta.Audio
                 _SoundInstance[name].IsLooped = loop;
                 _SoundInstance[name].Play();
 
-                Debug.Log("[SFX]: Play '" + name + "' : looping " + loop + ".");
+                //Debug.Log("[SFX]: Play '" + name + "' : looping " + loop + ".");
             }
         }
 
@@ -51,7 +51,7 @@ namespace Caieta.Audio
             {
                 SFXs[name].Play(volume, pitch, pan);
 
-                Debug.Log("[SFX]: Play *pure* SFX '" + name + "' : volume " + volume + " : pitch " + pitch + " : pan " + pan + ".");
+                //Debug.Log("[SFX]: Play *pure* SFX '" + name + "' : volume " + volume + " : pitch " + pitch + " : pan " + pan + ".");
             }
         }
 
@@ -64,7 +64,7 @@ namespace Caieta.Audio
                 var volume = MathHelper.Clamp(value, 0, 1);
                 _SoundInstance[name].Volume = volume;
 
-                Debug.Log("[SFX]: Changed '" + name + "' individual volume to " + volume + ".");
+                //Debug.Log("[SFX]: Changed '" + name + "' individual volume to " + volume + ".");
             }
         }
 
@@ -77,7 +77,7 @@ namespace Caieta.Audio
                 var pitch = MathHelper.Clamp(value, -1, 1);
                 _SoundInstance[name].Pitch = pitch;
 
-                Debug.Log("[SFX]: Changed '" + name + "' individual pitch to " + pitch + ".");
+                //Debug.Log("[SFX]: Changed '" + name + "' individual pitch to " + pitch + ".");
             }
         }
 
@@ -90,7 +90,7 @@ namespace Caieta.Audio
                 var pan = MathHelper.Clamp(value, -1, 1);
                 _SoundInstance[name].Pan = pan;
 
-                Debug.Log("[SFX]: Changed '" + name + "' individual pan to " + pan + ".");
+                //Debug.Log("[SFX]: Changed '" + name + "' individual pan to " + pan + ".");
             }
         }
 
@@ -102,7 +102,7 @@ namespace Caieta.Audio
             {
                 _SoundInstance[name].Stop();
 
-                Debug.Log("[SFX]: Stop SFX '" + name + "'.");
+                //Debug.Log("[SFX]: Stop SFX '" + name + "'.");
             }
         }
 
@@ -114,7 +114,7 @@ namespace Caieta.Audio
             {
                 _SoundInstance[name].Pause();
 
-                Debug.Log("[SFX]: Pause SFX '" + name + "'.");
+                //Debug.Log("[SFX]: Pause SFX '" + name + "'.");
             }
         }
 
@@ -126,7 +126,7 @@ namespace Caieta.Audio
             {
                 _SoundInstance[name].Resume();
 
-                Debug.Log("[SFX]: Resume SFX '" + name + "'.");
+                //Debug.Log("[SFX]: Resume SFX '" + name + "'.");
             }
         }
 
@@ -146,11 +146,14 @@ namespace Caieta.Audio
         {
             Volume = MathHelper.Clamp(volume, 0, 100);
             SoundEffect.MasterVolume = (Volume / 100f) * (AudioManager.MasterVolume / 100f);
-            Debug.Log("[SFX]: Volume " + Volume + "% set to " + (Volume / 100f) + ". Master Volume at " + AudioManager.MasterVolume + ".");
+            //Debug.Log("[SFX]: Volume " + Volume + "% set to " + (Volume / 100f) + ". Master Volume at " + AudioManager.MasterVolume + ".");
         }
 
         public void Unload()
         {
+            foreach (SoundEffectInstance sei in _SoundInstance.Values)
+                sei.Stop();
+
             _SoundInstance.Clear();
             SFXs.Clear();
         }
