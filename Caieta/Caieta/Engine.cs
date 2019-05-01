@@ -512,8 +512,8 @@ namespace Caieta
             // Skip Update
             if (IsFixedTimeStep && _TimeStep > 0)
                 _TimeStep = Math.Max(_TimeStep - RawDeltaTime, 0);
-            // Update current scene
-            else
+            // Update current scene. Skip Update on screen resize
+            else if (!_resizing)
                 SceneManager.Update();
 
             // Debug Console & Inspector

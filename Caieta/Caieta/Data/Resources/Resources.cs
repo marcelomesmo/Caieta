@@ -19,7 +19,6 @@ namespace Caieta
             }
         }
 
-
         // Peguei esse codigo de Adriano e sai correndo
         /*
         public static T LoadDeserializedJsonFile<T>(string fileName)
