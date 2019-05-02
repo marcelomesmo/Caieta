@@ -151,8 +151,8 @@ namespace Caieta.Audio
 
         public void Unload()
         {
-            foreach (SoundEffectInstance sei in _SoundInstance.Values)
-                sei.Stop();
+            foreach (SoundEffectInstance sfx in _SoundInstance.Values)
+                sfx.Stop();
 
             _SoundInstance.Clear();
             SFXs.Clear();

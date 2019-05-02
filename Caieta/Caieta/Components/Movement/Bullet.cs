@@ -45,7 +45,7 @@ namespace Caieta
          *      Travel
          */
         public float MaxTravelDistance;
-        private float _TravelDistance;
+        private float _travelDistance;
 
         /*
          *      Properties
@@ -190,10 +190,10 @@ namespace Caieta
             /*
              *      TRAVEL DISTANCE
              */            
-            _TravelDistance += (float)Math.Sqrt(Math.Pow(Entity.Transform.Position.X - PrevPosition.X, 2) + Math.Pow(Entity.Transform.Position.Y - PrevPosition.Y, 2));
+            _travelDistance += (float)Math.Sqrt(Math.Pow(Entity.Transform.Position.X - PrevPosition.X, 2) + Math.Pow(Entity.Transform.Position.Y - PrevPosition.Y, 2));
             //Debug.Log("Travel distance: " + _TravelDistance);
 
-            if (_TravelDistance >= MaxTravelDistance)
+            if (_travelDistance >= MaxTravelDistance)
                 Entity.Destroy();
             // Notes: Entity will always be destroyed after travel distance. Is this the intended behaviour we want?
         }
