@@ -18,6 +18,13 @@ namespace Caieta
             PixelPerfect,
             BestFit
         }*/
+        /*public enum FullScreenPolicy
+        {
+            ExclusiveFullScreen,
+            FullScreenWindow,
+            MaximizedWindow,
+            Windowed
+        }*/
 
         public static Engine Instance { get; private set; }
 
@@ -475,6 +482,10 @@ namespace Caieta
 
         protected override void Update(GameTime gameTime)
         {
+            // TODO RESIZING BUG
+            //if (_resizing)
+            //    return;
+
             RawDeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             DeltaTime = RawDeltaTime * TimeRate;
 
@@ -501,8 +512,8 @@ namespace Caieta
             // Skip Update
             if (IsFixedTimeStep && _TimeStep > 0)
                 _TimeStep = Math.Max(_TimeStep - RawDeltaTime, 0);
-            // Update current scene
-            else
+            // Update current scene. Skip Update on screen resize
+            else if (!_resizing)
                 SceneManager.Update();
 
             // Debug Console & Inspector

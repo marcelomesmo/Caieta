@@ -44,7 +44,8 @@ namespace Caieta
         /*
          *      Travel
          */
-        public float TravelDistance { get; private set; }
+        public float MaxTravelDistance;
+        private float _travelDistance;
 
         /*
          *      Properties
@@ -68,7 +69,7 @@ namespace Caieta
             MaxFallSpeed = 200;
             Gravity = 0;
 
-            TravelDistance = 0;
+            MaxTravelDistance = 1000;
 
             Bounce = false;
             RotateEntityToAngle = false;
@@ -111,10 +112,6 @@ namespace Caieta
             // Move Entity
             Entity.Transform.Position += Velocity * Engine.Instance.DeltaTime;
 
-            // Calculate Travel Distance
-            TravelDistance += (float)Math.Sqrt(Math.Pow(Entity.Transform.Position.X - PrevPosition.X, 2) + Math.Pow(Entity.Transform.Position.Y - PrevPosition.Y, 2));
-            //Debug.Log("Travel distance: " + TravelDistance);
-
             // If there are no colliders: move indistinguible (??)
             if (Colliders.Count <= 0)
                 return;
@@ -145,7 +142,7 @@ namespace Caieta
                             // if(PreviousPosition !c.IsOverlapping(ec))
                             // Trigger On Colision
                             c.OnCollision?.Invoke(ent);
-                            Debug.Log("[Bullet]: '" + Entity.Name + "' On Collision trigger with '" + ent.Name + "'.");
+                            //Debug.Log("[Bullet]: '" + Entity.Name + "' On Collision trigger with '" + ent.Name + "'.");
                             // Notes: We can know exactly which collider hit the entity,
                             //          but this way we cant know which collider we collided with.
 
@@ -189,7 +186,16 @@ namespace Caieta
 
                 }
             }
-                      
+
+            /*
+             *      TRAVEL DISTANCE
+             */            
+            _travelDistance += (float)Math.Sqrt(Math.Pow(Entity.Transform.Position.X - PrevPosition.X, 2) + Math.Pow(Entity.Transform.Position.Y - PrevPosition.Y, 2));
+            //Debug.Log("Travel distance: " + _TravelDistance);
+
+            if (_travelDistance >= MaxTravelDistance)
+                Entity.Destroy();
+            // Notes: Entity will always be destroyed after travel distance. Is this the intended behaviour we want?
         }
 
         public override void Render()

@@ -8,6 +8,7 @@ namespace Caieta.Entities.Sprites
     public class Image : Entity
     {
         public Sprite DisplayImage;
+        public BoxCollider Collider;
         private string _ImagePath;
 
         public Image(string entityname, string image_path = "", bool initial_visibility = true) : base(entityname, initial_visibility)
@@ -27,6 +28,12 @@ namespace Caieta.Entities.Sprites
             }
 
             Add(DisplayImage);
+
+            if (DisplayImage != null)
+                Collider = new BoxCollider(DisplayImage);
+
+            Add(Collider);
+
         }
 
 

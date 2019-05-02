@@ -5,7 +5,7 @@ namespace Caieta.Components.Utils
 {
     public enum TweenMode { Persist, OneShot, Loop, Yoyo, Restart };
     public enum TweenProperty { X, Y, /*Position, Width, Height, Size,*/ Scale, Angle, Opacity };
-   
+
     public class Tween : Timer
     {
         public Action OnStart;
@@ -105,6 +105,9 @@ namespace Caieta.Components.Utils
             Eased = Percent = 0;
 
             OnTime = Finish;
+
+            if (Mode == TweenMode.Loop || Mode == TweenMode.Yoyo || Mode == TweenMode.Restart)
+                IsRepeating = true;
 
             if (duration <= 0)
                 Debug.Log("[Tween]: Duration must be a positive integer. Setting from '" + duration + "'to 0 (zero).");

@@ -16,7 +16,7 @@ namespace Caieta
         public int TileHeight { get; private set; }
 
         // TODO Notes: Later add support to multiple Tilesets (i.e. solid, environment, props, etc).
-        public Texture2D Tileset { get; private set; }
+        public Texture2D[] Tileset { get; private set; }
         public int TilesetTilesWide { get; private set; }
         public int TilesetTilesHigh { get; private set; }
 
@@ -31,15 +31,24 @@ namespace Caieta
             TileWidth = Map.TileWidth;
             TileHeight = Map.TileHeight;
 
-            // Load TileSet
-            // Notes: Check if this System.IO can break compatibility.
-            var tileset_path = "Tiled/" + System.IO.Path.GetFileNameWithoutExtension(Map.Tilesets[0].Image.Source);
-            Tileset = Resources.Get<Texture2D>(tileset_path);
-            if (Tileset == null)
-                Debug.ErrorLog("[TileMap]: Couldn't find tileset at '" + tileset_path + "'. Make sure it's in the Tiled/ folder.");
+            Tileset = new Texture2D[Map.Tilesets.Count];
 
-            TilesetTilesWide = Tileset.Width / TileWidth;
-            TilesetTilesHigh = Tileset.Height / TileHeight;
+            // Load TileSets
+            var tileset_count = 0;
+            foreach(TmxTileset tileset in Map.Tilesets)
+            {
+                // Notes: Check if this System.IO can break compatibility.
+                var tileset_path = "Tiled/" + System.IO.Path.GetFileNameWithoutExtension(Map.Tilesets[tileset_count].Image.Source);
+                //Debug.Log(tileset_path);
+                Tileset[tileset_count] = Resources.Get<Texture2D>(tileset_path);
+                tileset_count++;
+                //Debug.Log(tileset_path + " Loaded");
+                if (Tileset == null)
+                    Debug.ErrorLog("[TileMap]: Couldn't find tileset at '" + tileset_path + "'. Make sure it's in the Tiled/ folder.");
+            }
+
+            TilesetTilesWide = Tileset[0].Width / TileWidth;
+            TilesetTilesHigh = Tileset[0].Height / TileHeight;
         }
 
         public override void Create()
@@ -48,7 +57,12 @@ namespace Caieta
 
             Debug.Log("[Tilemap]: Loading map. Width: '" + Map.Width + "' Height: '" + Map.Height + "'.");
 
-            Debug.Log("[Tilemap]: Loading tileset '" + Map.Tilesets[0].Name + "' path '" + Tileset.Name + "'.");
+            var tileset_count = 0;
+            foreach(TmxTileset tileset in Map.Tilesets)
+            {
+                Debug.Log("[Tilemap]: Loading tileset '" + Map.Tilesets[tileset_count].Name + "' path '" + Tileset[tileset_count].Name + "'.");
+                tileset_count++;
+            }
             Debug.Log("   Tiles wide: " + TilesetTilesWide + " Tiles high:" + TilesetTilesHigh + ".");
 
             // Load Tiles
@@ -56,6 +70,7 @@ namespace Caieta
             for (var layer = 0; layer < Map.Layers.Count; layer++)
             {
                 Debug.Log("[Tilemap]: Layer '" + Map.Layers[layer].Name + "' contain " + Map.Layers[layer].Tiles.Count + " tiles.");
+                Debug.Log("    Will load from tileset '" + Tileset[layer < tileset_count ? layer : 0].Name + "' [" + layer + "]["+ tileset_count+"].");
 
                 for (var tile = 0; tile < Map.Layers[layer].Tiles.Count; tile++)
                 {
@@ -68,10 +83,10 @@ namespace Caieta
                         TiledTile Tile = new TiledTile(this);
                         Tile.Opacity = (float)Map.Layers[layer].Opacity * 100;
 
-                        int tileFrame = gid - 1;
+                        int tileFrame = gid - Map.Tilesets[layer < tileset_count ? layer : 0].FirstGid;
                         int column = tileFrame % TilesetTilesWide;
                         int row = (int)Math.Floor((double)tileFrame / (double)TilesetTilesWide);
-                        //Debug.Log("     tileframe " + tileFrame + " c: " + column + " r: " + row);
+                        //Debug.Log("     gid "+ gid + " tileframe " + tileFrame + " c: " + column + " r: " + row);
 
                         float tile_x = ((tile % Map.Width) * TileWidth);
                         float tile_y = ((float)Math.Floor(tile / (double)Map.Width) * TileHeight);
@@ -88,6 +103,7 @@ namespace Caieta
 
                         Tile.Position = position;
                         Tile.ClipRect = tilesetRec;
+                        Tile.TilesetNum = layer < tileset_count ? layer : 0;
 
                         Add(Tile);
                     }

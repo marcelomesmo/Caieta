@@ -47,9 +47,11 @@ namespace Caieta
         public int TimesPlayed;
         private int _countTo = 1;   // How many times to repeat
 
-        public Animation(string name, Texture2D sheet, int rows, int columns, float duration, params float[] dur)
+        // Create animation using all frames on a sheet.
+        public Animation(string name, Texture2D sheet, int rows, int columns, float duration, params float[] dur) : 
+        this(name, sheet, sheet.Width / columns, sheet.Height / rows, 1, rows * columns, duration, dur)
         {
-            Name = name;
+            /*Name = name;
 
             Sheet = sheet;
             Rows = rows;
@@ -86,20 +88,15 @@ namespace Caieta
                 else if (i < dur.Length)
                     FrameDuration[i] = dur[i];       // Get duration from duration list
                 else
-                    FrameDuration[i] = duration;     // Extra frames has default duration
-                /*
-                if (dur.Length != 0 && i > 0 && i < dur.Length)
-                    FrameDuration[i] = dur[i];
-                else
-                    FrameDuration[i] = duration;
-                */                   
-            }
+                    FrameDuration[i] = duration;     // Extra frames has default duration                  
+            }*/
         }
+        //public Animation(string name, Texture2D sheet, int rows, int columns, float duration, params float[] dur) : this(name, sheet, rows, columns, 0) { }
         // Create single sprite animation
         public Animation(string name, Texture2D sheet) : this(name, sheet, 1, 1, 0) { }
         // Create single sprite animation from a sheet given start position and quantity of frames
-        /*public Animation(string name, Texture2D sheet, int sprite_width, int sprite_height, int pos_start, int frames, float duration, params[] float dur) : this(name, sheet, 1, 1, 0) 
-         { 
+        public Animation(string name, Texture2D sheet, int sprite_width, int sprite_height, int pos_start, int frames_total, float duration, params float[] dur)
+        { 
             Name = name;
 
             Sheet = sheet;
@@ -113,12 +110,12 @@ namespace Caieta
             Origin = Center = new Vector2(FrameWidth * 0.5f, FrameHeight * 0.5f);
 
             CurrentFrame = 0;
-            TotalFrames = frames;
+            TotalFrames = frames_total;
             FrameDirection = 1;
 
             Frames = new Rectangle[TotalFrames];
             int _FrameRow, _FrameColumn;
-            Duration = new float[TotalFrames];
+            FrameDuration = new float[TotalFrames];
             // Fills Duration list
             for (int i = 0; i < TotalFrames; i++)
             {
@@ -126,19 +123,32 @@ namespace Caieta
                 _FrameRow = (i + pos_start-1) / Columns;
                 _FrameColumn = (i + pos_start-1) % Columns;
 
-                Frames[i] = new Rectangle(FrameWidth * _FrameColumn, FrameHeight * _FrameRow, FrameWidth, FrameHeight); 
+                Frames[i] = new Rectangle(FrameWidth * _FrameColumn, FrameHeight * _FrameRow, FrameWidth, FrameHeight);
 
                 // Set Frame duration
                 // Notes: This could be shortcutted to: i < dur.Length ? Duration[i] = dur[i] : Duration[i] = duration;
                 //          But I rather leave it like that for the sake of readability.
                 if (dur.Length == 0)
-                    Duration[i] = duration;     // All frames have the same duration
+                    FrameDuration[i] = duration;     // All frames have the same duration
+                else if (i == 0)
+                    FrameDuration[i] = duration;     // First-frame has "duration"
                 else if (i < dur.Length)
-                    Duration[i] = dur[i];       // Get duration from duration list
+                    FrameDuration[i] = dur[i];       // Get duration from duration list
                 else
-                    Duration[i] = duration;     // Extra frames has default duration
+                    FrameDuration[i] = duration;     // Extra frames has default duration
+                /*
+                if (dur.Length != 0 && i > 0 && i < dur.Length)
+                 FrameDuration[i] = dur[i];
+                else
+                 FrameDuration[i] = duration;
+                */
             }
-    }*/
+        }
+        public Animation(string name, string sheet_path, int rows, int columns, float duration, params float[] dur) 
+        : this(name, Resources.Get<Texture2D>(sheet_path), rows, columns, duration, dur) { }
+        public Animation(string name, string sheet_path) : this(name, Resources.Get<Texture2D>(sheet_path), 1, 1, 0) { }
+        public Animation(string name, string sheet_path, int sprite_width, int sprite_height, int pos_start, int frames_total, float duration, params float[] dur)
+        : this(name, Resources.Get<Texture2D>(sheet_path), sprite_width, sprite_height, pos_start, frames_total, duration, dur) { }
 
         public void Start()
         {

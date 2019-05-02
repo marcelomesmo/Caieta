@@ -51,7 +51,7 @@ namespace TiledSharp
             else
             {
                 // TODO: Check for existence of file
-
+                // Notes: Set file to Copy to Output
                 xDoc = XDocument.Load(filepath);
                 TmxDirectory = Path.GetDirectoryName(filepath);
             }
