@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Caieta.Components.Attributes;
 using Caieta.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -110,26 +111,39 @@ namespace Caieta
                 }
             }
 
-            // Load Solid Objects
+            // Load Solid Objects and Platforms
             if (Map.ObjectGroups.Contains("Collision"))
             {
-                Debug.Log("[Tilemap]: Map '" + Name + "'. Loading collision mask 'Solid'.");
+                // Debug.Log("[Tilemap]: Map '" + Name + "'. Loading collision mask 'Collision' for solids and platforms.");
 
-                foreach (var objectMap in Map.ObjectGroups["Collision"].Objects)
+                foreach (var mapObject in Map.ObjectGroups["Collision"].Objects)
                 {
-                    //string name = objectMap.Name + "_" + objectMap.Id;
-
                     // Notes: Only support basic (rectangle) shapes
-                    if (objectMap.ObjectType == TmxObjectType.Basic)
+                    if (mapObject.ObjectType == TmxObjectType.Basic)
                     {
-                        // Create Collision Hitbox
-                        BoxCollider Collider = new BoxCollider((float)objectMap.Width, (float)objectMap.Height, (float)objectMap.X, (float)objectMap.Y);
+                        //BoxCollider Collider = new BoxCollider((float)mapObject.Width, (float)mapObject.Height, (float)mapObject.X, (float)mapObject.Y);
+                        BoxCollider Collider;
+
+                        if (mapObject.Name.Equals("OneWayPlatform"))
+                        {
+                            try
+                            {
+                                var _errorCheck = mapObject.Properties["FallDown"];
+                            }
+                            catch(Exception e)
+                            {
+                                Debug.ErrorLog("[TiledMap]: OneWayPlatform without property 'FallDown' at position X: " + mapObject.X + " Y: " + mapObject.Y + ".");
+                            }
+                            Collider = new OneWayPlatform(mapObject.Properties["FallDown"] == "true" ? true : false, (float)mapObject.Width, (float)mapObject.Height, (float)mapObject.X, (float)mapObject.Y);
+                        }
+                        else
+                            Collider = new Solid((float)mapObject.Width, (float)mapObject.Height, (float)mapObject.X, (float)mapObject.Y);
 
                         Add(Collider);
                     }
                     /*else if (objectMap.ObjectType == TmxObjectType.Polygon)
                     {
-                        //todo
+                        //TODO
                     }*/
                 }
 

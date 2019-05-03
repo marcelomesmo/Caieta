@@ -43,66 +43,26 @@ namespace Caieta
         public int TotalFrames { get; private set; }
         public int FrameDirection { get; private set; }
         private float[] FrameDuration;
+        private int FirstFrame;
+        private int LastFrame;
 
         public int TimesPlayed;
         private int _countTo = 1;   // How many times to repeat
 
         // Create animation using all frames on a sheet.
         public Animation(string name, Texture2D sheet, int rows, int columns, float duration, params float[] dur) : 
-        this(name, sheet, sheet.Width / columns, sheet.Height / rows, 1, rows * columns, duration, dur)
-        {
-            /*Name = name;
-
-            Sheet = sheet;
-            Rows = rows;
-            Columns = columns;
-
-            FrameWidth = Sheet.Width / Columns;    // Width - Single Sprite
-            FrameHeight = Sheet.Height / Rows;     // Height - Single Sprite
-
-            Origin = Center = new Vector2(FrameWidth * 0.5f, FrameHeight * 0.5f);
-
-            CurrentFrame = 0;
-            TotalFrames = Rows * Columns;
-            FrameDirection = 1;
-
-            Frames = new Rectangle[TotalFrames];
-            int _FrameRow, _FrameColumn;
-            FrameDuration = new float[TotalFrames];
-            // Fills Duration list
-            for (int i = 0; i < TotalFrames; i++)
-            {
-                // Set & Calculate Frame position in Sprite Sheet
-                _FrameRow = i / Columns;
-                _FrameColumn = i % Columns;
-
-                Frames[i] = new Rectangle(FrameWidth * _FrameColumn, FrameHeight * _FrameRow, FrameWidth, FrameHeight);
-
-                // Set Frame duration
-                // Notes: This could be shortcutted to: i < dur.Length ? Duration[i] = dur[i] : Duration[i] = duration;
-                //          But I rather leave it like that for the sake of readability.
-                if (dur.Length == 0)
-                    FrameDuration[i] = duration;     // All frames have the same duration
-                else if (i == 0)
-                    FrameDuration[i] = duration;     // First-frame has "duration"
-                else if (i < dur.Length)
-                    FrameDuration[i] = dur[i];       // Get duration from duration list
-                else
-                    FrameDuration[i] = duration;     // Extra frames has default duration                  
-            }*/
-        }
-        //public Animation(string name, Texture2D sheet, int rows, int columns, float duration, params float[] dur) : this(name, sheet, rows, columns, 0) { }
+        this(name, sheet, sheet.Width / columns, sheet.Height / rows, 1, rows * columns, duration, dur) { }
         // Create single sprite animation
         public Animation(string name, Texture2D sheet) : this(name, sheet, 1, 1, 0) { }
         // Create single sprite animation from a sheet given start position and quantity of frames
-        public Animation(string name, Texture2D sheet, int sprite_width, int sprite_height, int pos_start, int frames_total, float duration, params float[] dur)
+        public Animation(string name, Texture2D sheet, int spriteWidth, int spriteHeight, int frameStart, int frameEnd, float duration, params float[] dur)
         { 
             Name = name;
 
             Sheet = sheet;
                        
-            FrameWidth = sprite_width;  
-            FrameHeight = sprite_height;
+            FrameWidth = spriteWidth;  
+            FrameHeight = spriteHeight;
                        
             Rows = Sheet.Height / FrameHeight;
             Columns = Sheet.Width / FrameWidth;
@@ -110,7 +70,14 @@ namespace Caieta
             Origin = Center = new Vector2(FrameWidth * 0.5f, FrameHeight * 0.5f);
 
             CurrentFrame = 0;
-            TotalFrames = frames_total;
+            FirstFrame = frameStart;
+            LastFrame = frameEnd;
+            if(frameEnd < frameStart)
+            {
+                Debug.ErrorLog("[Animation]: Invalid frame position for animation '" + name + "'. Starting at: " + FirstFrame + " and trying to finish at: " + LastFrame + ". Setting Frame End to Frame Start.");
+                frameEnd = frameStart;
+            }
+            TotalFrames = frameEnd - frameStart + 1;
             FrameDirection = 1;
 
             Frames = new Rectangle[TotalFrames];
@@ -120,8 +87,8 @@ namespace Caieta
             for (int i = 0; i < TotalFrames; i++)
             {
                 // Set & Calculate Frame position in Sprite Sheet
-                _FrameRow = (i + pos_start-1) / Columns;
-                _FrameColumn = (i + pos_start-1) % Columns;
+                _FrameRow = (i + FirstFrame - 1) / Columns;
+                _FrameColumn = (i + FirstFrame - 1) % Columns;
 
                 Frames[i] = new Rectangle(FrameWidth * _FrameColumn, FrameHeight * _FrameRow, FrameWidth, FrameHeight);
 
@@ -147,8 +114,8 @@ namespace Caieta
         public Animation(string name, string sheet_path, int rows, int columns, float duration, params float[] dur) 
         : this(name, Resources.Get<Texture2D>(sheet_path), rows, columns, duration, dur) { }
         public Animation(string name, string sheet_path) : this(name, Resources.Get<Texture2D>(sheet_path), 1, 1, 0) { }
-        public Animation(string name, string sheet_path, int sprite_width, int sprite_height, int pos_start, int frames_total, float duration, params float[] dur)
-        : this(name, Resources.Get<Texture2D>(sheet_path), sprite_width, sprite_height, pos_start, frames_total, duration, dur) { }
+        public Animation(string name, string sheet_path, int spriteWidth, int spriteHeight, int frameStart, int frameEnd, float duration, params float[] dur)
+        : this(name, Resources.Get<Texture2D>(sheet_path), spriteWidth, spriteHeight, frameStart, frameEnd, duration, dur) { }
 
         public void Start()
         {
@@ -231,24 +198,25 @@ namespace Caieta
                 case LoopState.RepeatCount:
                     if(TimesPlayed >= _countTo)
                     {
-                        CurrentFrame = TotalFrames - 1;
                         Stop();
+                        CurrentFrame = TotalFrames - 1;
                     }
                     break;
 
                 case LoopState.PingPong:
+                    // Notes: We need to double skip last frame to avoid duplicanting.
                     // Pong
                     if (CurrentFrame < 0)
                     {
-                        CurrentFrame = 1; //0;
+                        CurrentFrame = 1; // 1 instead of 0 to avoid duplicate
                         FrameDirection = 1;
                     }
+                    // Ping
                     else
                     {
-                        CurrentFrame = TotalFrames - 2; //1;
+                        CurrentFrame = TotalFrames - 2; // -2 instead of -1 to avoid duplicate
                         FrameDirection = -1;
                     }
-                    // Notes: We need to double skip last frame to avoid duplicanting.
 
                     break;
 

@@ -133,6 +133,16 @@ namespace Caieta
                     foreach (var ent in layer.Entities)
                     {
                         /*
+                         * Draw Platform Raycast
+                         */
+                        Platform platform = ent.Get<Platform>();
+                        if (platform != null)
+                        {
+                            Graphics.DrawLine(ent.Transform.Position, platform.LeftRay, Color.White);
+                            Graphics.DrawLine(ent.Transform.Position, platform.RightRay, Color.White);
+                        }
+
+                        /*
                          * Draw Entity Colliders
                          */
                         foreach (var col in ent.GetAll<Collider>())
@@ -243,6 +253,17 @@ namespace Caieta
                                 , new Vector2(screenWidth - 130, 130 + (20 * draw_space)), Color.White, FontSize.VERYSMALL);
 
                             draw_space++;
+
+                            Platform platform = ent.Get<Platform>();
+                            if (platform != null)
+                            {
+                                Graphics.DrawText("Vel   X: " + platform.Velocity.X + " Y: " + platform.Velocity.Y, new Vector2(250, 70), Color.White, FontSize.VERYSMALL);
+                                Graphics.DrawText("Dir   X: " + platform.MoveDirection.X + " Y: " + platform.MoveDirection.Y, new Vector2(250, 80), Color.White, FontSize.VERYSMALL);
+                                Graphics.DrawText("Force X: " + platform.Force.X + " Y: " + platform.Force.Y, new Vector2(250, 90), Color.White, FontSize.VERYSMALL);
+                                Graphics.DrawText("Moving: " + platform.IsMoving + " On Floor: " + platform.IsOnFloor, new Vector2(250, 100), Color.White, FontSize.VERYSMALL);
+                                Graphics.DrawText("Jumping: " + platform.IsJumping + " Falling: " + platform.IsFalling + " Jump Count: " + platform.JumpCount, new Vector2(250, 110), Color.White, FontSize.VERYSMALL);
+                                Graphics.DrawText("Sliding: " + platform.IsSliding + " Left Wall: " + platform.IsByWallLeft + " Right Wall: " + platform.IsByWallRight, new Vector2(250, 120), Color.White, FontSize.VERYSMALL);
+                            }
                         }
                     }
                     draw_space++;

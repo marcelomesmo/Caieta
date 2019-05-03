@@ -9,8 +9,6 @@ namespace Caieta
 {
     public class Platform : Component
     {
-        public Collider ColliderBelow { get; set; }
-
         /*
          *      Movement
          */
@@ -35,21 +33,22 @@ namespace Caieta
         public float JumpStrength;
         public float Gravity;
         public float MaxFallSpeed;
-        public float WallSlideSpeed;
 
         public bool CanJump;
         public float JumpSustain;
         private float _JumpTime;
         public float JumpControlPower;
-
-        public bool DoubleJump; // Notes: Turn ON DoubleJump and change JumpCount to allow for multiple jumps.
-        public int JumpCount;
-        public int MAX_JUMP_COUNT = 2;
         public bool CanJumpWhileFalling; // Notes: Turn ON to allow player to jump while falling from ledges.
 
+        public bool CanDoubleJump; // Notes: Turn ON DoubleJump and change MAX_JUMP_COUNT to allow for multiple jumps.
+        public int JumpCount;
+        public int MAX_JUMP_COUNT = 2;
+
         public bool CanSlide;
-        public bool WallJump;
+        public float MaxSlideSpeed;
+        public bool CanWallJump;
         public float WallJumpStrength;
+
 
         /*
          *      Movement Verifiers
@@ -59,7 +58,8 @@ namespace Caieta
         public bool IsFalling { get; private set; }
         public bool IsSliding { get; private set; }
         public bool IsOnFloor { get; private set; }
-        public Dictionary<string, bool> IsByWall { get; private set; }
+        public bool IsByWallLeft { get; private set; }
+        public bool IsByWallRight { get; private set; }
 
         /*
          *      Controls
@@ -77,23 +77,28 @@ namespace Caieta
         public Action OnMove;
         public Action OnStop;
 
+        /*
+         *      Colliders
+         */
+        private List<Collider> Colliders;
+
         public Platform()
         {
-            MaxSpeed = 90; //330;
+            MaxSpeed = 160; //330;
             Acceleration = 1000; //1500;
-            Deceleration = 1000; //1500;
+            Deceleration = 750; //1500;
 
             _ForceTime = 0;
             _ForceTotalTime = 200;
 
-            JumpStrength = -105; //650;
-            Gravity = 300; //900; //1500;
-            MaxFallSpeed = 160; //1000;
-            WallSlideSpeed = 80;
-            WallJumpStrength = JumpStrength / 2;
+            JumpStrength = -190; //650;
+            Gravity = 500; //900; //1500;
+            MaxFallSpeed = 1000; //1000;
+            MaxSlideSpeed = 500;
+            WallJumpStrength = JumpStrength;
 
             CanJump = true;
-            DoubleJump = false;
+            CanDoubleJump = false;
             CanJumpWhileFalling = false;
             JumpCount = 0;
             JumpSustain = 0; //100f;
@@ -109,15 +114,252 @@ namespace Caieta
             OnMove = null;
             OnStop = null;
 
-            IsByWall = new Dictionary<string, bool>();
-            IsByWall.Add("Left", false);
-            IsByWall.Add("Right", false);
+            IsByWallLeft = false;
+            IsByWallRight = false;
         }
 
-        public override void Initialize()
+        public override void Update()
         {
-            base.Initialize();
+            base.Update();
+
+            ApplyDefaultControls();
+
+            ApplyForce();
+
+            ApplyHorizontalMove();
+
+            Velocity.X += MoveDirection.X * Acceleration * Engine.Instance.DeltaTime;
+            // Prevent the player from running faster than his top speed.  
+            Velocity.X = MathHelper.Clamp(Velocity.X, -MaxSpeed, MaxSpeed);
+
+            DoJump();
+
+            DoFall();
+
+            DoSlide();
+
+            // Prevent the player from falling faster than gravity;
+            Velocity.Y = MathHelper.Clamp(Velocity.Y + Gravity * Engine.Instance.DeltaTime, IsSliding ? -MaxSlideSpeed : - MaxFallSpeed, IsSliding ? MaxSlideSpeed : MaxFallSpeed);
+
+            Colliders = Entity.GetAll<Collider>();
+
+            // If there are no colliders: move indistinguible
+            if (Colliders.Count <= 0)
+            {
+                Entity.Transform.Position += MoveDirection * (Force + Velocity) * Engine.Instance.DeltaTime;
+                return;
+            }
+
+            hasWallLeft = false;
+            hasWallRight = false;
+
+            HandleCollisions();
+
+            // Clean Wall connection if no raycast found
+            if(!hasWallLeft)
+                IsByWallLeft = false;
+            if(!hasWallRight)
+                IsByWallRight = false;
+
+            // Clean Wall connection if moving left or right
+            if (Velocity.X > 0 && IsByWallLeft)
+                IsByWallLeft = false;
+            if (Velocity.X < 0 && IsByWallRight)
+                IsByWallRight = false;
+
+            // Clean Direction for next Update
+            MoveDirection = new Vector2(0,0);
+            if (!_ApplyForce)
+                Force = new Vector2(0, 0);
         }
+
+        public override void Render()
+        {
+            base.Render();
+
+            // Notes: Could implement a predictable route, raycast and speed vectors here in the future.
+
+            // Raycast
+            //Graphics.DrawLine(Entity.Transform.Position, LeftRay, Color.White);
+        }
+
+        #region Collisions
+        Vector2 previousPosition;
+        bool hasWallLeft, hasWallRight;
+        private void HandleCollisions()
+        {
+            // Try to move Entity
+            previousPosition = Entity.Transform.Position;
+            Entity.Transform.Position += (Force + Velocity) * Engine.Instance.DeltaTime;
+
+            // Check collision for each collider
+            foreach (Collider collider in Colliders)
+            {
+                // Check collision with other entities
+                // Notes: Should get neighbors here
+                foreach (var neighbor in Engine.SceneManager.SceneEntities())
+                {
+                    // Notes: Add ignore tag here.
+                    // Ignore Tag
+
+                    // Ignore Self
+                    if (neighbor.Name == Entity.Name)
+                        continue;
+
+                    var neighborColliders = neighbor.GetAll<Collider>();
+
+                    foreach (Collider otherCollider in neighborColliders)
+                    {
+                        if (collider.IsOverlapping(otherCollider))
+                        {
+                            collider.OnCollision?.Invoke(neighbor);
+                            //Debug.Log("[Platform]: On Collision trigger with '" + neighbor.Name + "'.");
+
+                            CheckOneWayPlatform(collider, otherCollider);
+
+                            CheckSolid(collider, otherCollider);
+
+                            // If the collision stopped us from moving, reset the velocity to zero.
+                            if (Entity.Transform.Position.X == previousPosition.X)
+                                Velocity.X = 0;
+
+                            if (Entity.Transform.Position.Y == previousPosition.Y)
+                                Velocity.Y = 0;
+                        }
+
+                        if (!collider.IsTrigger && !otherCollider.IsTrigger)
+                            CastRays(collider, otherCollider);
+                    }
+                }
+            }
+        }
+
+        private void CheckOneWayPlatform(Collider collider, Collider otherCollider)
+        {
+            // Check if its one way platform
+            if (!collider.IsTrigger && otherCollider.GetType() == typeof(OneWayPlatform))
+            {
+                // If on bounds of object & not on floor
+                if (previousPosition.X + collider.Origin.X + collider.Width > otherCollider.AbsolutePosition.X &&
+                    previousPosition.X + collider.Origin.X < otherCollider.AbsolutePosition.X + otherCollider.Width)
+                {
+                    // Will only collide from top and if not holding down
+                    if (previousPosition.Y + collider.Origin.Y + collider.Height < otherCollider.AbsolutePosition.Y)
+                    {
+                        OneWayPlatform oneway = (OneWayPlatform)otherCollider;
+                        if (!Input.Keyboard.Hold(Keys.Down) || IgnoreInput || oneway.FallDown == false)
+                        {
+                            // Collide on Y
+                            Entity.Transform.Position = new Vector2(Entity.Transform.Position.X, previousPosition.Y);
+
+                            IsOnFloor = true;
+
+                            // Trigger On Landed
+                            if (IsFalling || IsJumping)
+                            {
+                                JumpCount = 0;
+
+                                IsJumping = false;
+                                IsFalling = false;
+                                IsSliding = false;
+
+                                OnLand?.Invoke();
+                                //Debug.Log("[Platform]: On Land trigger.");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void CheckSolid(Collider collider, Collider otherCollider)
+        {
+            // Prevent Movement if both colliders are solid
+            if (!collider.IsTrigger && !otherCollider.IsTrigger)
+            {
+                // If on bounds of object & not on floor
+                if (previousPosition.X + collider.Origin.X + collider.Width > otherCollider.AbsolutePosition.X &&
+                    previousPosition.X + collider.Origin.X < otherCollider.AbsolutePosition.X + otherCollider.Width)
+                {
+                    // Check if collision was from Top
+                    if (previousPosition.Y + collider.Origin.Y + collider.Height < otherCollider.AbsolutePosition.Y)
+                    {
+                        Entity.Transform.Position = new Vector2(Entity.Transform.Position.X, previousPosition.Y);
+
+                        IsOnFloor = true;
+                        if (IsFalling || IsJumping)
+                        {
+                            JumpCount = 0;
+
+                            IsJumping = false;
+                            IsFalling = false;
+                            IsSliding = false;
+
+                            OnLand?.Invoke();
+                            //Debug.Log("[Platform]: On Land trigger.");
+                        }
+                    }
+                    // Collide from Bottom
+                    else if (previousPosition.Y + collider.Origin.Y > otherCollider.AbsolutePosition.Y + otherCollider.Height)
+                    {
+                        Entity.Transform.Position = new Vector2(Entity.Transform.Position.X, previousPosition.Y);
+                        //Debug.Log("[Platform]: Hit Roof.");
+                    }
+                    // Is inside Collider
+                    else
+                    {
+                        // Closer to Top
+                        //if (Math.Abs(previousPosition.Y - otherCollider.AbsolutePosition.Y) < Math.Abs(previousPosition.Y - otherCollider.AbsolutePosition.Y + otherCollider.Height))
+                        previousPosition.Y = otherCollider.AbsolutePosition.Y - collider.Height - collider.Origin.Y - 0.1f;
+                        // CloserToBottom
+                        //else
+                        //    previousPosition.Y = otherCollider.AbsolutePosition.Y + otherCollider.Height + 0.1f;
+
+                        Entity.Transform.Position = new Vector2(Entity.Transform.Position.X, previousPosition.Y);
+                    }
+                }
+
+                // Check if collision was from Left
+                if (previousPosition.X + collider.Origin.X > otherCollider.AbsolutePosition.X + otherCollider.Width)
+                {
+                    Entity.Transform.Position = new Vector2(previousPosition.X, Entity.Transform.Position.Y);
+                    IsByWallLeft = true;
+                    //Debug.Log("[Platform]: Hit Wall Left.");
+                }
+                // Check if collision was from Right
+                else if (previousPosition.X + collider.Origin.X + collider.Width < otherCollider.AbsolutePosition.X)
+                {
+                    Entity.Transform.Position = new Vector2(previousPosition.X, Entity.Transform.Position.Y);
+                    IsByWallRight = true;
+                    //Debug.Log("[Platform]: Hit Wall Right.");
+                }
+            }
+        }
+
+        public Vector2 LeftRay, RightRay;
+        private void CastRays(Collider collider, Collider otherCollider)
+        {
+            // Raycast left and right and see if theres still a collision there
+            LeftRay = new Vector2(collider.AbsolutePosition.X - 2, Entity.Transform.Position.Y);
+            if (otherCollider.IsOverlapping(LeftRay))
+            {
+                IsByWallLeft = true;
+                hasWallLeft = true;
+                Debug.Log("Ray hit left");
+            }
+
+            RightRay = new Vector2(collider.AbsolutePosition.X + collider.Width + 2, Entity.Transform.Position.Y);
+            if (otherCollider.IsOverlapping(RightRay))
+            {
+                IsByWallRight = true;
+                hasWallRight = true;
+                Debug.Log("Ray hit right");
+            }
+        }
+
+        #endregion
+
+        #region Applying extra Force
 
         public void ApplyForceX(float force)
         {
@@ -130,399 +372,175 @@ namespace Caieta
             _ApplyForce = true;
         }
 
-        public override void Update()
+        private void ApplyForce()
         {
-            base.Update();
-
-            /* 
-             *      DEFAULT CONTROLS
-             */
-            if (DefaultControls && !IgnoreInput)
-            {
-                if (Input.Keyboard.IsMoving())
-                {
-                    MoveDirection = Input.Keyboard.Direction;
-                }
-
-                if (Input.GamePads[0].IsMoving())
-                {
-                    MoveDirection = Input.GamePads[0].Direction;
-                }
-
-                if (Input.Keyboard.Hold(Keys.Space) || Input.GamePads[0].Hold(Buttons.A))
-                {
-                    MoveDirection.Y = -1;
-                }
-
-                //Debug.Log("[Platform]: Move Direction " + MoveDirection.X + " " + MoveDirection.Y + " (X,Y)");
-            }
-
-            /*
-             *  FORCE CONTROLS
-             */
-            if(_ApplyForce && _ForceTime < _ForceTotalTime)
+            if (_ApplyForce && _ForceTime < _ForceTotalTime)
                 _ForceTime += Engine.Instance.DeltaTime * 1000;
 
-            if(_ForceTime >= _ForceTotalTime)
+            if (_ForceTime >= _ForceTotalTime)
             {
                 _ForceTime = 0;
                 _ApplyForce = false;
             }
+        }
 
-            /* 
-             *      HORIZONTAL MOVEMENT
-             */
+        #endregion
+
+        #region Movement
+
+        private void ApplyDefaultControls()
+        {
+            if (DefaultControls && !IgnoreInput)
+            {
+                if (Input.Keyboard.IsMoving())
+                    MoveDirection = Input.Keyboard.Direction;
+
+                if (Input.GamePads[0].IsMoving())
+                    MoveDirection = Input.GamePads[0].Direction;
+
+                if (Input.Keyboard.Hold(Keys.Space) || Input.GamePads[0].Hold(Buttons.A))
+                    MoveDirection.Y = -1;
+
+                //Debug.Log("[Platform]: Move Direction " + MoveDirection.X + " " + MoveDirection.Y + " (X,Y)");
+            }
+        }
+
+        private void ApplyHorizontalMove()
+        {
             if (MoveDirection.X != 0 && !IsMoving)
             {
                 IsMoving = true;
 
-                // Trigger On Movement
                 OnMove?.Invoke();
-                //Debug.Log("[Platform]: On Move trigger.");
+                Debug.Log("[Platform]: On Move trigger.");
             }
             else if (MoveDirection.X == 0)
             {
                 if (Velocity.X > 0)
                     Velocity.X -= Deceleration * Engine.Instance.DeltaTime;
-                else if (Velocity.X < 0)
+                else if (Velocity.X < 0 || (Velocity.X == 0 && IsMoving))
                 {
                     Velocity.X = 0;
 
                     IsMoving = false;
 
-                    // Trigger On Stop
                     OnStop?.Invoke();
-                    //Debug.Log("[Platform]: On Stop trigger.");
+                    Debug.Log("[Platform]: On Stop trigger.");
                 }
+                /*else
+                {
+                    if(IsMoving)
+                    {
+                        IsMoving = false;
+
+                        OnStop?.Invoke();
+                        Debug.Log("[Platform]: On Stop trigger.");
+                    }
+                }*/
             }
+        }
 
-            // Apply strenght on opposite axis while sliding
-            if (IsSliding)
-            {
-                if (IsByWall["Left"])
-                    Velocity.X += -Acceleration * Engine.Instance.DeltaTime;
-                if (IsByWall["Right"])
-                    Velocity.X += Acceleration * Engine.Instance.DeltaTime;
-            }
-
-            Velocity.X += MoveDirection.X * Acceleration * Engine.Instance.DeltaTime;
-            // Prevent the player from running faster than his top speed.  
-            Velocity.X = MathHelper.Clamp(Velocity.X, -MaxSpeed, MaxSpeed);
-
-            /* 
-             *      VERTICAL MOVEMENT
-             */
+        private void DoJump()
+        {
             // Notes: Can only jump if player has released the buttons.
             // Jump check
             if (MoveDirection.Y == 0)
                 CanJump = true;
 
-            // Jump
             if (MoveDirection.Y == -1 && CanJump &&
-                (IsOnFloor || (DoubleJump && JumpCount < MAX_JUMP_COUNT) || IsSliding))
+                (IsOnFloor || (CanDoubleJump && JumpCount < MAX_JUMP_COUNT)
+                && !IsSliding))
             {
                 CanJump = false;
 
-                if (IsSliding)
-                {
-                    if (JumpCount > 0)
-                        JumpCount--;
-
-                    if (IsByWall["Left"])
-                        ApplyForceX(MaxSpeed);
-                    else
-                        ApplyForceX(-MaxSpeed);
-
-                    ApplyForceY(-MaxSpeed);
-                }
-
-                // Notes: Add double jump and max jump here
                 JumpCount++;
-                //Debug.Log("[Platform]: Double Jump: " + DoubleJump + " Jump count: " + _JumpCount);
 
                 IsJumping = true;
                 IsOnFloor = false;
-                ColliderBelow = null;
 
-                // Trigger On Jump
                 OnJump?.Invoke();
-                //Debug.Log("[Platform]: On Jump trigger.");
+                Debug.Log("[Platform]: On Jump trigger.");
 
                 Velocity.Y = JumpStrength;
             }
+        }
 
+        private void DoFall()
+        {
             if (IsJumping)
             {
-                _JumpTime += Engine.Instance.DeltaTime * 1000;
+                //if(JumpSustain > 0)
+                    _JumpTime += Engine.Instance.DeltaTime * 1000;
 
                 // If we are in the ascent of the jump
+                // Fully override the vertical velocity with a power curve that gives players more control over the top of the jump
                 if (_JumpTime > 0.0f && _JumpTime <= JumpSustain && MoveDirection.Y == -1)
-                    // Fully override the vertical velocity with a power curve that gives players more control over the top of the jump
                     Velocity.Y = JumpStrength * (_JumpTime / JumpSustain);
                 else
                 {
                     // Reached the apex of the jump
                     _JumpTime = 0.0f;
 
-                    // Fall
                     if (Velocity.Y > 0)
                     {
                         IsJumping = false;
                         IsFalling = true;
 
-                        // Trigger On Fall
                         OnFall?.Invoke();
                         //Debug.Log("[Platform]: On Fall trigger.");
                     }
                 }
             }
 
-            /*
-             *  WALL SLIDE
-             */
-            if (!IsByWall["Left"] && !IsByWall["Right"] && IsSliding)
-            {
-                Debug.Log("[Platform]: Stop sliding.");
-                IsSliding = false;
-            }
-
-            if (CanSlide && IsFalling && !IsSliding && !IsOnFloor && (IsByWall["Left"] || IsByWall["Right"]))
-            {
-                Debug.Log("[Platform]: Start sliding.");
-                IsSliding = true;
-            }
-
-            if (IsSliding && MoveDirection.Y == -1 && WallJump && (IsByWall["Left"] && MoveDirection.X == 1) || (IsByWall["Right"] && MoveDirection.X == -1))
-            {
-                IsJumping = true;
-                IsOnFloor = false;
-                IsSliding = false;
-                ColliderBelow = null;
-
-                // Trigger On Jump
-                OnJump?.Invoke();
-                Debug.Log("[Platform]: On Wall Jump trigger.");
-
-                Velocity.Y = WallJumpStrength;
-            }
-
-            IsByWall["Left"] = false;
-            IsByWall["Right"] = false;
-
-            // Apply Gravity
-            Velocity.Y = MathHelper.Clamp(Velocity.Y + Gravity * Engine.Instance.DeltaTime, IsSliding ? -WallSlideSpeed : - MaxFallSpeed, IsSliding ? WallSlideSpeed : MaxFallSpeed);
-            // Prevent the player from falling faster than gravity;
-
             // Notes: Raycast check if falling from ledges.
             // Fall Threshold = MaxFall / 4
-            if (Velocity.Y > MaxFallSpeed/4 && IsOnFloor && !IsJumping)
+            if (Velocity.Y > MaxFallSpeed / 10 && IsOnFloor && !IsJumping)
             {
                 IsOnFloor = false;
-                ColliderBelow = null;
                 IsFalling = true;
 
-                // Trigger On Fall
                 OnFall?.Invoke();
                 //Debug.Log("[Platform]: On Fall trigger.");
 
                 if (!CanJumpWhileFalling) JumpCount = MAX_JUMP_COUNT;
             }
-
-            /* 
-             *      MOVE PLAYER
-             */
-            // Notes: Could make this into a private later to optimize/improve performance.
-            var Colliders = Entity.GetAll<Collider>();
-
-            // If there are no colliders: move indistinguible (??)
-            if (Colliders.Count <= 0)
-            {
-                Entity.Transform.Position += MoveDirection * (Force + Velocity) * Engine.Instance.DeltaTime;
-                return;
-            }
-
-            // Try to move Entity
-            Vector2 previousPosition = Entity.Transform.Position;
-            Entity.Transform.Position += (Force + Velocity) * Engine.Instance.DeltaTime;
-            //Entity.Transform.Position = new Vector2((float)Math.Round(Entity.Transform.Position.X), (float)Math.Round(Entity.Transform.Position.Y));
-            //Debug.Log(Transform);
-
-            /* 
-            *      HANDLE COLLISIONS
-            */
-            // Check collision for each collider
-            foreach (Collider c in Colliders)
-            {
-                // Check collision with other entities
-                foreach (var ent in Engine.SceneManager.SceneEntities())
-                {
-                    // Notes: Add ignore tag here.
-                    // Ignore Tag
-
-                    // Ignore Self
-                    if (ent.Name == Entity.Name)
-                        continue;
-
-                    var ent_colliders = ent.GetAll<Collider>();
-                     
-                    foreach (Collider ec in ent_colliders)
-                    {
-                        if (c.IsOverlapping(ec))
-                        {
-                            // Trigger On Colision
-                            c.OnCollision?.Invoke(ent);
-                            //Debug.Log("[Platform]: On Collision trigger with '" + ent.Name + "'.");
-                            // Notes: We can know exactly which collider hit the entity,
-                            //          but this way we cant know which collider we collided with.
-
-                            // Check if its one way platform
-                            if (!c.IsTrigger && ent.Name.Equals("One Way Platform"))
-                            {
-                                //Debug.Log("One way plat hit");
-                                //ec.IsTrigger = true;
-
-                                // If on bounds of object & not on floor
-                                if (previousPosition.X + c.Origin.X + c.Width > ec.AbsolutePosition.X &&
-                                    previousPosition.X + c.Origin.X < ec.AbsolutePosition.X + ec.Width)
-                                {
-                                    // Will only collide from top and if not holding down
-                                    if (previousPosition.Y + c.Origin.Y + c.Height < ec.AbsolutePosition.Y)
-                                    {
-                                        if(!Input.Keyboard.Hold(Keys.Down) || IgnoreInput)
-                                        {
-                                            // Collide on Y
-                                            //previousPosition.Y = ec.AbsolutePosition.Y - c.AbsolutePosition.Y - 1;
-                                            Entity.Transform.Position = new Vector2(Entity.Transform.Position.X, previousPosition.Y);
-
-                                            IsOnFloor = true;
-                                            ColliderBelow = ec;
-
-                                            // Trigger On Landed
-                                            if (IsFalling || IsJumping)
-                                            {
-                                                JumpCount = 0;
-
-                                                IsJumping = false;
-                                                IsFalling = false;
-
-                                                OnLand?.Invoke();
-                                                //Debug.Log("[Platform]: On Land trigger.");
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Notes: Check these ones only if ec Collider is Solid
-                            //          i.e: if(c is Solid && ec is Solid).
-                            // Prevent Movement if both colliders are solid
-                            if (!c.IsTrigger && !ec.IsTrigger)
-                            {
-                                // Notes: Make this relative to proper X or Y collision.
-                                //Entity.Transform.Position = previousPosition;
-                                // Notes: Make this proportional to the ec Collider position.
-
-                                // If on bounds of object & not on floor
-                                if (previousPosition.X + c.Origin.X + c.Width > ec.AbsolutePosition.X &&
-                                    previousPosition.X + c.Origin.X < ec.AbsolutePosition.X + ec.Width)
-                                {
-                                    // Check if collision was from Top
-                                    if (previousPosition.Y + c.Origin.Y + c.Height < ec.AbsolutePosition.Y)
-                                    {
-                                        // Collide on Y
-                                        //previousPosition.Y = ec.AbsolutePosition.Y - c.AbsolutePosition.Y - 1;
-                                        Entity.Transform.Position = new Vector2(Entity.Transform.Position.X, previousPosition.Y);
-
-                                        IsOnFloor = true;
-                                        ColliderBelow = ec;
-
-                                        // Trigger On Landed
-                                        if (IsFalling || IsJumping)
-                                        {
-                                            JumpCount = 0;
-
-                                            IsJumping = false;
-                                            IsFalling = false;
-
-                                            OnLand?.Invoke();
-                                            //Debug.Log("[Platform]: On Land trigger.");
-                                        }
-                                    }
-                                    // Collide from Bottom
-                                    else if (previousPosition.Y + c.Origin.Y > ec.AbsolutePosition.Y + ec.Height)
-                                    {
-                                        // Collide on Y
-                                        //previousPosition.Y = ec.AbsolutePosition.Y + ec.Height + 1;
-                                        Entity.Transform.Position = new Vector2(Entity.Transform.Position.X, previousPosition.Y);
-                                        //Debug.Log("[Platform]: Hit Roof.");
-                                    }
-                                    // Is inside Collider
-                                    else
-                                    {
-                                        //Debug.Log("[Platform]: Collider is inside enemy collider. Trying to push it out.");
-
-                                        // if(CloserToTop)
-                                        previousPosition.Y = ec.AbsolutePosition.Y - c.Height - c.Origin.Y - 0.1f;
-                                        Entity.Transform.Position = new Vector2(Entity.Transform.Position.X, previousPosition.Y);
-                                        // else if(CloserToBottom)
-                                        // TODO Push Platform collider out of body.
-                                    }
-                                }
-
-                                bool isOnSameLevel = ColliderBelow != null && 
-                                    ColliderBelow.AbsolutePosition.Y == ec.AbsolutePosition.Y;
-                                // Check if collision was from Left
-                                if (previousPosition.X + c.Origin.X > ec.AbsolutePosition.X + ec.Width && !isOnSameLevel)
-                                {
-                                    //previousPosition.X = ec.AbsolutePosition.X + ec.Width + 1;
-                                    Entity.Transform.Position = new Vector2(previousPosition.X, Entity.Transform.Position.Y);
-                                    IsByWall["Left"] = true;
-                                    //Debug.Log("[Platform]: Hit Wall Left.");
-                                }
-                                // Check if collision was from Right
-                                else if (previousPosition.X + c.Origin.X + c.Width < ec.AbsolutePosition.X && !isOnSameLevel)
-                                {
-                                    //previousPosition.X = ec.AbsolutePosition.X - 1;
-                                    Entity.Transform.Position = new Vector2(previousPosition.X, Entity.Transform.Position.Y);
-                                    IsByWall["Right"] = true;
-                                    //Debug.Log("[Platform]: Hit Wall Right.");
-                                }
-                            }
-
-                            // If the collision stopped us from moving, reset the velocity to zero.
-                            if(Entity.Transform.Position.X == previousPosition.X)
-                                Velocity.X = 0;
-
-                            if(Entity.Transform.Position.Y == previousPosition.Y)
-                                Velocity.Y = 0;
-                        }
-                    }
-                }
-            }
-
-            // Clean Wall connection if moving left or right
-            if (Velocity.X > 0 && IsByWall["Left"])
-                IsByWall["Left"] = false;
-            if (Velocity.X < 0 && IsByWall["Right"])
-                IsByWall["Right"] = false;
-
-            // Clean Direction for next Update
-            MoveDirection = new Vector2(0,0);
-            if (!_ApplyForce)
-                Force = new Vector2(0, 0);
         }
 
-        public override void Render()
+        private void DoSlide()
         {
-            base.Render();
+            // Slide check
+            if (!IsByWallLeft && !IsByWallRight && IsSliding)
+                IsSliding = false;
 
-            // Notes: Could implement a predictable route and speed vectors here in the future.
+            if (CanSlide && IsFalling && !IsSliding && !IsOnFloor && (IsByWallLeft || IsByWallRight))
+            {
+                IsSliding = true;
+
+                // Give one extra jump
+                if (JumpCount > 0)
+                    JumpCount--;
+            }
+
+            if (MoveDirection.Y == -1 && CanJump && CanWallJump && IsSliding && ((IsByWallLeft && MoveDirection.X == 1) || (IsByWallRight && MoveDirection.X == -1)))
+            {
+                //IsOnFloor = false;
+                CanJump = false;
+
+                JumpCount++;
+
+                IsJumping = true;
+                IsOnFloor = false;
+                IsSliding = false;
+
+                OnJump?.Invoke();
+
+                Debug.Log("[Platform]: On Wall Jump trigger.");
+                Velocity.Y = WallJumpStrength;
+            }
         }
-
-        #region Movement
 
         // Notes: Need to implement this.
-        public void SimulateControl(InputDirection direction)
+        /*public void SimulateControl(InputDirection direction)
         {
             switch(direction)
             {
@@ -542,7 +560,7 @@ namespace Caieta
                     MoveDirection.Y = 1;
                     break;
             }
-        }
+        }*/
 
         #endregion
 
@@ -551,7 +569,7 @@ namespace Caieta
         public override string ToString()
         {
             return string.Format("[Platform]: Velocity: {0} Move Direction: {1} MaxSpeed: {2} Acceleration {3} Deceleration {4} Jump Strength: {5} Gravity {6} Max Fall Speed: {7} Jump Sustain: {8} Jump Control Power: {9} Double Jump: {10} Max Jump Ammount: {11} Can Jump Falling from Ledge: {12}\n    Is Moving {13} IsJumping {14} IsFalling {15} IsOnFloor {16} Is By Wall LEFT {17} Is By Wall RIGHT {18}\n Default Controls: {19} Ignore Input: {20}",
-            Velocity, MoveDirection, MaxSpeed, Acceleration, Deceleration, JumpStrength, Gravity, MaxFallSpeed, JumpSustain, JumpControlPower, DoubleJump, MAX_JUMP_COUNT, CanJumpWhileFalling, IsMoving, IsJumping, IsFalling, IsOnFloor, IsByWall["Left"], IsByWall["Right"], DefaultControls, IgnoreInput);
+            Velocity, MoveDirection, MaxSpeed, Acceleration, Deceleration, JumpStrength, Gravity, MaxFallSpeed, JumpSustain, JumpControlPower, CanDoubleJump, MAX_JUMP_COUNT, CanJumpWhileFalling, IsMoving, IsJumping, IsFalling, IsOnFloor, IsByWallLeft, IsByWallRight, DefaultControls, IgnoreInput);
         }
 
         #endregion
