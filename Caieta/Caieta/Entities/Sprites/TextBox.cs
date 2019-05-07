@@ -11,6 +11,8 @@ namespace Caieta
         public Text Text;
         public BoxCollider Collider;
 
+        public bool FitToBox;
+
         public TextBox(string entityname, string content, SpriteFont font, bool initial_visibility = true) : base(entityname, initial_visibility)
         {
             Text = new Text(content, font);
@@ -28,6 +30,15 @@ namespace Caieta
             Add(Collider);
 
             Get<Text>().Align(Collider);
+
+            if (FitToBox)
+                Text.Content = Text.FitText(Collider);
+        }
+
+        public override void Update()
+        {
+            base.Update();
+
         }
 
     }

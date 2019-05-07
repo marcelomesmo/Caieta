@@ -345,7 +345,7 @@ namespace Caieta
             {
                 IsByWallLeft = true;
                 hasWallLeft = true;
-                Debug.Log("Ray hit left");
+                //Debug.Log("Ray hit left");
             }
 
             RightRay = new Vector2(collider.AbsolutePosition.X + collider.Width + 2, Entity.Transform.Position.Y);
@@ -353,7 +353,7 @@ namespace Caieta
             {
                 IsByWallRight = true;
                 hasWallRight = true;
-                Debug.Log("Ray hit right");
+                //Debug.Log("Ray hit right");
             }
         }
 
@@ -412,7 +412,7 @@ namespace Caieta
                 IsMoving = true;
 
                 OnMove?.Invoke();
-                Debug.Log("[Platform]: On Move trigger.");
+                //Debug.Log("[Platform]: On Move trigger.");
             }
             else if (MoveDirection.X == 0)
             {
@@ -425,7 +425,7 @@ namespace Caieta
                     IsMoving = false;
 
                     OnStop?.Invoke();
-                    Debug.Log("[Platform]: On Stop trigger.");
+                    //Debug.Log("[Platform]: On Stop trigger.");
                 }
                 /*else
                 {
@@ -459,7 +459,7 @@ namespace Caieta
                 IsOnFloor = false;
 
                 OnJump?.Invoke();
-                Debug.Log("[Platform]: On Jump trigger.");
+                //Debug.Log("[Platform]: On Jump trigger.");
 
                 Velocity.Y = JumpStrength;
             }
@@ -534,7 +534,7 @@ namespace Caieta
 
                 OnJump?.Invoke();
 
-                Debug.Log("[Platform]: On Wall Jump trigger.");
+                //Debug.Log("[Platform]: On Wall Jump trigger.");
                 Velocity.Y = WallJumpStrength;
             }
         }

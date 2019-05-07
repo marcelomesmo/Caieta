@@ -15,9 +15,18 @@ namespace Caieta.Components.Renderables.Text
          *  Character
          */
         public SpriteFont Font;
-        public Vector2 Position;
         public Vector2 Size;
         public Vector2 Origin;
+
+        /*
+         *  Scrolling Text
+         */
+        public bool IsScrolling;
+        public int ScrollDelay = 50;
+        public bool HasFinishedScrolling;
+        private string scrolledText;
+        private float scrolledTextLength;
+        // public Action OnScrollFinished;
 
         /*
          *  Paragraph
@@ -115,6 +124,26 @@ namespace Caieta.Components.Renderables.Text
         {
             base.Update();
 
+            if (IsScrolling && !HasFinishedScrolling)
+            {
+                if (ScrollDelay == 0)
+                {
+                    scrolledText = Content;
+                    HasFinishedScrolling = true;
+                }
+                else if (scrolledTextLength < Content.Length)
+                {
+                    scrolledTextLength = scrolledTextLength + Engine.Instance.DeltaTime / ScrollDelay;
+
+                    if (scrolledTextLength >= Content.Length)
+                    {
+                        scrolledTextLength = Content.Length;
+                        HasFinishedScrolling = true;
+                    }
+
+                    scrolledText = Content.Substring(0, (int)scrolledTextLength);
+                }
+            }
         }
 
         public override void Render()
@@ -122,6 +151,26 @@ namespace Caieta.Components.Renderables.Text
             base.Render();
 
             Graphics.DrawText(Font, Content, Entity.Transform.Position, Color * (Opacity/100f), Origin, Entity.Transform.Scale, Entity.Transform.Rotation);
+        }
+
+        public string FitText(BoxCollider collider)
+        {
+            string line = string.Empty;
+            string returnString = string.Empty;
+            string[] wordArray = Content.Split(' ');
+
+            foreach (string word in wordArray)
+            {
+                if (Font.MeasureString(line + word).Length() > collider.Width)
+                {
+                    returnString = returnString + line + '\n';
+                    line = string.Empty;
+                }
+
+                line = line + word + ' ';
+            }
+
+            return returnString + line;
         }
     }
 }

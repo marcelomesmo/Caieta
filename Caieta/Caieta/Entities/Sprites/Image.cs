@@ -25,7 +25,7 @@ namespace Caieta.Entities.Sprites
                 Texture2D Texture = Resources.Get<Texture2D>(_ImagePath);
 
                 DisplayImage = new Sprite(Texture);
-                DisplayImage.SetOrigin(Animation.Anchor.TOP_LEFT);
+                //DisplayImage.SetOrigin(Animation.Anchor.TOP_LEFT);
             }
 
             Add(DisplayImage);
