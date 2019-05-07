@@ -150,16 +150,7 @@ namespace Caieta
                 return;
             }
 
-            hasWallLeft = false;
-            hasWallRight = false;
-
             HandleCollisions();
-
-            // Clean Wall connection if no raycast found
-            if(!hasWallLeft)
-                IsByWallLeft = false;
-            if(!hasWallRight)
-                IsByWallRight = false;
 
             // Clean Wall connection if moving left or right
             if (Velocity.X > 0 && IsByWallLeft)
@@ -188,6 +179,9 @@ namespace Caieta
         bool hasWallLeft, hasWallRight;
         private void HandleCollisions()
         {
+            hasWallLeft = false;
+            hasWallRight = false;
+
             // Try to move Entity
             previousPosition = Entity.Transform.Position;
             Entity.Transform.Position += (Force + Velocity) * Engine.Instance.DeltaTime;
@@ -232,6 +226,12 @@ namespace Caieta
                     }
                 }
             }
+
+            // Clean Wall connection if no raycast found
+            if (!hasWallLeft)
+                IsByWallLeft = false;
+            if (!hasWallRight)
+                IsByWallRight = false;
         }
 
         private void CheckOneWayPlatform(Collider collider, Collider otherCollider)

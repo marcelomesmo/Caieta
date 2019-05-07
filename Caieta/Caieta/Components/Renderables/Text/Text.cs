@@ -26,7 +26,7 @@ namespace Caieta.Components.Renderables.Text
         public bool HasFinishedScrolling;
         private string scrolledText;
         private float scrolledTextLength;
-        // public Action OnScrollFinished;
+        public Action OnScrollComplete;
 
         /*
          *  Paragraph
@@ -42,15 +42,17 @@ namespace Caieta.Components.Renderables.Text
         //public VerticalOverflow V_Over;
         //public bool FitRect;
 
-        public Text(string text, SpriteFont font)//, int size = 10)
+        public Text(string text, SpriteFont font, HorizontalAlign horizontalAlign = HorizontalAlign.Center, VerticalAlign verticalAlign = VerticalAlign.Center)//, int size = 10)
         {
             Content = text;
 
             Font = font;
             //Font_Size = size;
 
-            H_Align = HorizontalAlign.Center;
-            V_Align = VerticalAlign.Center;
+            H_Align = horizontalAlign;
+            V_Align = verticalAlign;
+
+            OnScrollComplete = null;
         }
 
         public override void Initialize()
@@ -130,6 +132,8 @@ namespace Caieta.Components.Renderables.Text
                 {
                     scrolledText = Content;
                     HasFinishedScrolling = true;
+
+                    OnScrollComplete?.Invoke();
                 }
                 else if (scrolledTextLength < Content.Length)
                 {
@@ -139,6 +143,8 @@ namespace Caieta.Components.Renderables.Text
                     {
                         scrolledTextLength = Content.Length;
                         HasFinishedScrolling = true;
+
+                        OnScrollComplete?.Invoke();
                     }
 
                     scrolledText = Content.Substring(0, (int)scrolledTextLength);

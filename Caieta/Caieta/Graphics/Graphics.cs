@@ -174,6 +174,18 @@ namespace Caieta
         {
             SpriteBatch.DrawString(font, text, Calc.Floor(position), color, rotation, origin, scale, SpriteEffects.None, 0);
         }
+
+        // Draw SpriteFont Text with outline
+        public static void DrawTextOutlined(SpriteFont font, string text, Vector2 position, Color color, Color outlineColor, Vector2 origin, Vector2 scale, float rotation, int outlineOffset = 1)
+        {
+            for (int i = -1; i < 2; i++)
+                for (int j = -1; j < 2; j++)
+                    if (i != 0 || j != 0)
+                        DrawText(font, text, position + new Vector2(i * outlineOffset, j * outlineOffset), outlineColor, origin, scale, rotation);
+
+            DrawText(font, text, position, color, origin, scale, rotation);
+        }
+
         /*
          * If you want align centered your string, you have to set origin as the half size of the string,
          * and the string will be centered in the position.
