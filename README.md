@@ -1,6 +1,7 @@
 ![Caieta](Caieta%20Icon%20-%20Small.png)  
   
-**Caieta** is a cross-platform 2D game engine written in C# based on [Monogame](http://www.monogame.net). Highly inspired by [NEZ](https://github.com/prime31/Nez) and [Monogame.Extended](https://github.com/craftworkgames/MonoGame.Extended).  
+**Caieta** is a cross-platform 2D game engine written in C# based on [Monogame](http://www.monogame.net).  
+Highly inspired by [NEZ](https://github.com/prime31/Nez) and [Monogame.Extended](https://github.com/craftworkgames/MonoGame.Extended).  
     
 ## Features  
 All Monogame, plus:  
@@ -18,8 +19,6 @@ Caieta is distributed under the terms and conditions of the [zlib/png license](h
   
 ## Platforms  
   
-The following platforms are supported:
-
 Windows: Tested on Windows 10 Professional  
 Mac OS X: Tested on Mac OS 10.14.4  
 Linux: Not yet available  
