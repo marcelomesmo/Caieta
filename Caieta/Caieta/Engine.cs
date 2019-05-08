@@ -87,6 +87,7 @@ namespace Caieta
         private static bool _resizing;
         public static bool IsPixelPerfect;
         public static bool ExitOnEscapeKeypress;
+        public static bool PauseOnFocusLost;
 
         /*
          *      UPDATE TIMER
@@ -151,7 +152,9 @@ namespace Caieta
             IsFixedTimeStep = fixedtimestep;
             // Notes: Update to make it more dynamic (?)
             TargetFPS = 60;
-            _TimeStep = 1000 / TargetFPS;
+            _TimeStep = 1.0f / TargetFPS;
+
+            PauseOnFocusLost = true;
 
             GraphicsDeviceManager = new GraphicsDeviceManager(this)
             {
@@ -221,7 +224,7 @@ namespace Caieta
 #else
             IsMouseVisible = false;
 #endif
-            IsFixedTimeStep = false;
+            IsFixedTimeStep = true;
             ExitOnEscapeKeypress = true;
 
             _destinationRender = new RenderTarget2D(GraphicsDevice, 1920, 1080, false, SurfaceFormat.Color, DepthFormat.None, GraphicsDeviceManager.GraphicsDevice.PresentationParameters.MultiSampleCount, RenderTargetUsage.DiscardContents);
@@ -233,7 +236,6 @@ namespace Caieta
 #if !CONSOLE
         protected virtual void OnClientSizeChanged(object sender, EventArgs e)
         {
-
             Debug.Log("[Engine]: On Client Size Changed");
 
             if (Window.ClientBounds.Width > 0 && Window.ClientBounds.Height > 0 && !_resizing)
@@ -482,10 +484,15 @@ namespace Caieta
 
         protected override void Update(GameTime gameTime)
         {
-            // TODO RESIZING BUG
-            //if (_resizing)
-            //    return;
+            // Fixing bug while minimizing screen or losing focus
+            if (PauseOnFocusLost && !IsActive)
+            {
+                //Debug.Log("Focus lost");
+                SuppressDraw();
+                return;
+            }
 
+            // Elapsed time counters.
             RawDeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             DeltaTime = RawDeltaTime * TimeRate;
 
@@ -510,20 +517,26 @@ namespace Caieta
             }
 
             // Skip Update
+            // Notes: IsFixedTimeStep should be true to avoid resizing bug accumulating delta
             if (IsFixedTimeStep && _TimeStep > 0)
                 _TimeStep = Math.Max(_TimeStep - RawDeltaTime, 0);
             // Update current scene. Skip Update on screen resize
-            else if(!_resizing)
+            else
                 SceneManager.Update();
 
             // Debug Console & Inspector
             _Debugger.Update();
+
+            //Debug.Log("Delta: "+ DeltaTime + " Timestep: " + _TimeStep);
 
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
+            if (PauseOnFocusLost && !IsActive)
+                return;
+
             GraphicsDevice.SetRenderTarget(_destinationRender);       // Render null
             GraphicsDevice.Clear(Graphics.ClearColor);  // Clear screen
 

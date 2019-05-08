@@ -15,27 +15,27 @@ namespace Caieta
         public Vector2 Velocity;
         public Vector2 MoveDirection;
 
-        public Vector2 Force;
+        public Vector2 Force { get; private set; }
         private float _ForceTime;
         private float _ForceTotalTime;
-        private bool _ApplyForce;
+        private bool isApplyingForce;
 
         /*
          *      (X) Horizontal Movement
          */
-        public float MaxSpeed;
-        public float Acceleration;
-        public float Deceleration;
+        public float MaxSpeed { get; set; }
+        public float Acceleration { get; set; }
+        public float Deceleration { get; set; }
 
         /*
          *      (Y) Vertical Movement
          */
-        public float JumpStrength;
-        public float Gravity;
-        public float MaxFallSpeed;
+        public float JumpStrength { get; set; }
+        public float Gravity { get; set; }
+        public float MaxFallSpeed { get; set; }
 
-        public bool CanJump;
-        public float JumpSustain;
+        public bool CanJump { get; set; }
+        public float JumpSustain { get; set; }
         private float _JumpTime;
         public float JumpControlPower;
         public bool CanJumpWhileFalling; // Notes: Turn ON to allow player to jump while falling from ledges.
@@ -118,28 +118,30 @@ namespace Caieta
             IsByWallRight = false;
         }
 
+        public override void Initialize()
+        {
+            base.Initialize();
+
+        }
+
         public override void Update()
         {
             base.Update();
 
-            ApplyDefaultControls();
+            UpdateDefaultControls();
 
-            ApplyForce();
+            UpdateForce();
 
-            ApplyHorizontalMove();
+            UpdateHorizontalMove();
 
             Velocity.X += MoveDirection.X * Acceleration * Engine.Instance.DeltaTime;
             // Prevent the player from running faster than his top speed.  
             Velocity.X = MathHelper.Clamp(Velocity.X, -MaxSpeed, MaxSpeed);
 
-            DoJump();
-
-            DoFall();
-
-            DoSlide();
+            UpdateVerticalMove();
 
             // Prevent the player from falling faster than gravity;
-            Velocity.Y = MathHelper.Clamp(Velocity.Y + Gravity * Engine.Instance.DeltaTime, IsSliding ? -MaxSlideSpeed : - MaxFallSpeed, IsSliding ? MaxSlideSpeed : MaxFallSpeed);
+            Velocity.Y = MathHelper.Clamp(Velocity.Y + Gravity * Engine.Instance.DeltaTime, IsSliding ? -MaxSlideSpeed : -MaxFallSpeed, IsSliding ? MaxSlideSpeed : MaxFallSpeed);
 
             Colliders = Entity.GetAll<Collider>();
 
@@ -152,15 +154,9 @@ namespace Caieta
 
             HandleCollisions();
 
-            // Clean Wall connection if moving left or right
-            if (Velocity.X > 0 && IsByWallLeft)
-                IsByWallLeft = false;
-            if (Velocity.X < 0 && IsByWallRight)
-                IsByWallRight = false;
-
             // Clean Direction for next Update
-            MoveDirection = new Vector2(0,0);
-            if (!_ApplyForce)
+            MoveDirection = new Vector2(0, 0);
+            if (!isApplyingForce)
                 Force = new Vector2(0, 0);
         }
 
@@ -227,11 +223,7 @@ namespace Caieta
                 }
             }
 
-            // Clean Wall connection if no raycast found
-            if (!hasWallLeft)
-                IsByWallLeft = false;
-            if (!hasWallRight)
-                IsByWallRight = false;
+            CheckWallCollision();
         }
 
         private void CheckOneWayPlatform(Collider collider, Collider otherCollider)
@@ -357,30 +349,44 @@ namespace Caieta
             }
         }
 
+        private void CheckWallCollision()
+        {
+            // Clean Wall connection if no raycast found
+            if (!hasWallLeft)
+                IsByWallLeft = false;
+            if (!hasWallRight)
+                IsByWallRight = false;
+
+            // Clean Wall connection if moving left or right
+            if (Velocity.X > 0 && IsByWallLeft)
+                IsByWallLeft = false;
+            if (Velocity.X < 0 && IsByWallRight)
+                IsByWallRight = false;
+        }
+
         #endregion
 
         #region Applying extra Force
 
-        public void ApplyForceX(float force)
+        public void ApplyForceX(float force) => ApplyForce(new Vector2(force, Force.Y));
+
+        public void ApplyForceY(float force) => ApplyForce(new Vector2(Force.X, force));
+
+        public void ApplyForce(Vector2 force)
         {
-            Force.X = force;
-            _ApplyForce = true;
-        }
-        public void ApplyForceY(float force)
-        {
-            Force.Y = force;
-            _ApplyForce = true;
+            Force = force;
+            isApplyingForce = true;
         }
 
-        private void ApplyForce()
+        private void UpdateForce()
         {
-            if (_ApplyForce && _ForceTime < _ForceTotalTime)
+            if (isApplyingForce && _ForceTime < _ForceTotalTime)
                 _ForceTime += Engine.Instance.DeltaTime * 1000;
 
             if (_ForceTime >= _ForceTotalTime)
             {
                 _ForceTime = 0;
-                _ApplyForce = false;
+                isApplyingForce = false;
             }
         }
 
@@ -388,24 +394,24 @@ namespace Caieta
 
         #region Movement
 
-        private void ApplyDefaultControls()
+        private void UpdateDefaultControls()
         {
-            if (DefaultControls && !IgnoreInput)
-            {
-                if (Input.Keyboard.IsMoving())
-                    MoveDirection = Input.Keyboard.Direction;
+            if (!DefaultControls || IgnoreInput)
+                return;
 
-                if (Input.GamePads[0].IsMoving())
-                    MoveDirection = Input.GamePads[0].Direction;
+            if (Input.Keyboard.IsMoving())
+                MoveDirection = Input.Keyboard.Direction;
 
-                if (Input.Keyboard.Hold(Keys.Space) || Input.GamePads[0].Hold(Buttons.A))
-                    MoveDirection.Y = -1;
+            if (Input.GamePads[0].IsMoving())
+                MoveDirection = Input.GamePads[0].Direction;
 
-                //Debug.Log("[Platform]: Move Direction " + MoveDirection.X + " " + MoveDirection.Y + " (X,Y)");
-            }
+            if (Input.Keyboard.Hold(Keys.Space) || Input.GamePads[0].Hold(Buttons.A))
+                MoveDirection.Y = -1;
+
+            //Debug.Log("[Platform]: Move Direction " + MoveDirection.X + " " + MoveDirection.Y + " (X,Y)");\
         }
 
-        private void ApplyHorizontalMove()
+        private void UpdateHorizontalMove()
         {
             if (MoveDirection.X != 0 && !IsMoving)
             {
@@ -427,29 +433,26 @@ namespace Caieta
                     OnStop?.Invoke();
                     //Debug.Log("[Platform]: On Stop trigger.");
                 }
-                /*else
-                {
-                    if(IsMoving)
-                    {
-                        IsMoving = false;
-
-                        OnStop?.Invoke();
-                        Debug.Log("[Platform]: On Stop trigger.");
-                    }
-                }*/
             }
+        }
+
+        private void UpdateVerticalMove()
+        {
+            DoJump();
+
+            DoFall();
+
+            DoSlide();
         }
 
         private void DoJump()
         {
-            // Notes: Can only jump if player has released the buttons.
-            // Jump check
+            // Jump check. Can only jump if player has released the buttons.
             if (MoveDirection.Y == 0)
                 CanJump = true;
 
             if (MoveDirection.Y == -1 && CanJump &&
-                (IsOnFloor || (CanDoubleJump && JumpCount < MAX_JUMP_COUNT)
-                && !IsSliding))
+                (IsOnFloor || (CanDoubleJump && JumpCount < MAX_JUMP_COUNT) && !IsSliding))
             {
                 CanJump = false;
 
@@ -470,7 +473,7 @@ namespace Caieta
             if (IsJumping)
             {
                 //if(JumpSustain > 0)
-                    _JumpTime += Engine.Instance.DeltaTime * 1000;
+                _JumpTime += Engine.Instance.DeltaTime * 1000;
 
                 // If we are in the ascent of the jump
                 // Fully override the vertical velocity with a power curve that gives players more control over the top of the jump
