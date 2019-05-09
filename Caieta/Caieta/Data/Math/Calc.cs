@@ -57,27 +57,97 @@ namespace Caieta
 
 
         #region Time
-
-        public static string GetHumanReadableTime(TimeSpan timeSpan)
+        public static string GetHumanReadableTime(int minutes, int seconds)
         {
-            int minutes = timeSpan.Minutes;
-            int seconds = timeSpan.Seconds;
+            int _minutes = minutes;
+            int _seconds = seconds;
 
-            if(minutes < 10)
+            if (_minutes < 10)
             {
-                if (seconds < 10)
-                    return "0" + minutes + ":0" + seconds;
+                if (_seconds < 10)
+                    return "0" + _minutes + ":0" + _seconds;
                 else
-                    return "0" + minutes + ":" + seconds;
+                    return "0" + _minutes + ":" + _seconds;
             }
             else
             {
-                if (seconds < 10)
-                    return minutes + ":0" + seconds;
+                if (_seconds < 10)
+                    return _minutes + ":0" + _seconds;
                 else
-                    return minutes + ":" + seconds;
+                    return _minutes + ":" + _seconds;
             }
         }
+
+        public static string GetHumanReadableTime(int minutes, int seconds, int milliseconds)
+        {
+            int _milliseconds = milliseconds;
+            string displayMS;
+
+            if (_milliseconds < 10)
+                displayMS = ":0" + _milliseconds;
+            else
+                displayMS = ":" + _milliseconds;
+
+            return GetHumanReadableTime(minutes, seconds) + displayMS;
+        }
+
+        public static string GetHumanReadableTime(TimeSpan timeSpan, bool withMilliseconds = false)
+        {
+            if(withMilliseconds)
+                return GetHumanReadableTime(timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
+            
+            return GetHumanReadableTime(timeSpan.Minutes, timeSpan.Seconds);
+        }
+
+        #endregion
+
+
+        #region Random
+
+        private static int _seed = Environment.TickCount;
+        private static Random random = new Random(_seed);
+
+
+        public static float RandomFloat()
+        {
+            //return (float)Random(0, 100) / 100f;
+            return (float)random.NextDouble();
+        }
+
+        public static float RandomFloat(float max)
+        {
+            double mantissa = (random.NextDouble() * (max+1)) - max;
+            double exponent = Math.Pow(2.0, random.Next(-126, 127));
+            return (float)(mantissa * exponent);
+
+            //return (float)random.NextDouble() * max;
+        }
+
+        public static float RandomFloat(float min, float max)
+        {
+            return min + RandomFloat(max - min);
+        }
+
+        public static Color RandomColor()
+        {
+            return new Color(RandomFloat(), RandomFloat(), RandomFloat());
+        }
+
+        public static int Random(int max)
+        {
+            return random.Next(max + 1);
+        }
+
+        public static int Random(int min, int max)
+        {
+            return random.Next(min, max+1);
+        }
+
+        public static T Choose<T>(params T[] choices)
+        {
+            return choices[random.Next(choices.Length)];
+        }
+
 
         #endregion
     }

@@ -22,6 +22,7 @@ namespace Caieta.Entities
          *      ACTIONS
          */
         public event Action OnCreate;
+        public event Action OnStart;
         public event Action OnDestroy;
 
         /*
@@ -50,6 +51,19 @@ namespace Caieta.Entities
 
                 OnCreate();
                 OnCreate = null;
+            }
+        }
+
+        public virtual void Start()
+        {
+            Debug.Log("[Entity]: Entity '" + Name + "' started. All components initialized.");
+
+            if (OnStart != null)
+            {
+                Debug.Log("[Entity]: On Start entity trigger.");
+
+                OnStart();
+                OnStart = null;
             }
         }
 

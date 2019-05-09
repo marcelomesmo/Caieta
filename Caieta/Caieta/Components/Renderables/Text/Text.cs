@@ -42,6 +42,8 @@ namespace Caieta.Components.Renderables.Text
         //public VerticalOverflow V_Over;
         //public bool FitRect;
 
+        public bool ForceOrigin;
+
         public Text(string text, SpriteFont font, HorizontalAlign horizontalAlign = HorizontalAlign.Center, VerticalAlign verticalAlign = VerticalAlign.Center)//, int size = 10)
         {
             Content = text;
@@ -51,6 +53,7 @@ namespace Caieta.Components.Renderables.Text
 
             H_Align = horizontalAlign;
             V_Align = verticalAlign;
+            ForceOrigin = true;
 
             OnScrollComplete = null;
         }
@@ -59,13 +62,13 @@ namespace Caieta.Components.Renderables.Text
         {
             base.Initialize();
 
-            UpdatePosition();
+            if(ForceOrigin)
+                UpdatePosition();
         }
 
         public void UpdatePosition()
         {
             Size = Font.MeasureString(Content);
-            //Position = Entity.Transform.Position;
 
             // Update Centering
             if (H_Align == HorizontalAlign.Left)
@@ -113,7 +116,6 @@ namespace Caieta.Components.Renderables.Text
                 Origin.Y -= -bounds.Height / 2 + Size.Y; // Origin.Y += bounds.Height/2 - Size.Y;
 
             Origin = Origin.Floor();
-
         }
 
         public void Justify(Vector2 justify)
@@ -156,27 +158,66 @@ namespace Caieta.Components.Renderables.Text
         {
             base.Render();
 
-            Graphics.DrawText(Font, Content, Entity.Transform.Position, Color * (Opacity/100f), Origin, Entity.Transform.Scale, Entity.Transform.Rotation);
+            // Calculate each line width and rework position
+            string[] lineArray = Content.Split('\n');
+            int lineCount = 0;
+            foreach (string line in lineArray)
+            {
+                var size = Font.MeasureString(line);
+                var origin = Origin.X + size.X;
+
+                // Update Centering
+                if (H_Align == HorizontalAlign.Left)
+                    origin = Origin.X;
+                else if (H_Align == HorizontalAlign.Center)
+                    origin = size.X / 2;
+
+                Graphics.DrawText(Font, line, Entity.Transform.Position, Color * (Opacity / 100f), new Vector2(origin, Origin.Y - (size.Y * lineCount)), Entity.Transform.Scale, Entity.Transform.Rotation);
+
+                lineCount++;
+            }
+            //Graphics.DrawText(Font, Content, Entity.Transform.Position, Color * (Opacity/100f), Origin, Entity.Transform.Scale, Entity.Transform.Rotation);
         }
 
         public string FitText(BoxCollider collider)
+        {
+            return FitText(collider.Width);
+        }
+
+        public string FitText(float width)
         {
             string line = string.Empty;
             string returnString = string.Empty;
             string[] wordArray = Content.Split(' ');
 
+            if (wordArray.Length == 1)
+                return Content;
+
+            bool hasLine = false;
             foreach (string word in wordArray)
             {
-                if (Font.MeasureString(line + word).Length() > collider.Width)
+                if (Font.MeasureString(line + word).Length() > width)
                 {
+                    line = line.Substring(0, line.Length - 1);    // Remove ' ' from the end of the break line
                     returnString = returnString + line + '\n';
                     line = string.Empty;
+                    hasLine = true;
                 }
 
                 line = line + word + ' ';
             }
+            if (!hasLine)
+                return Content;
+
+            line = line.Substring(0, line.Length - 1);    // Remove ' ' from the end of the last line
 
             return returnString + line;
+        }
+
+        public void FitTextAndAlign(float width)
+        {
+            Content = FitText(width);
+            UpdatePosition();
         }
     }
 }

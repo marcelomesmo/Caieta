@@ -84,7 +84,7 @@ namespace Caieta.Components.Utils
                 }
             }
         }
-        public float TargetValue { get; private set; }
+        public float TargetValue { get; set; }
 
         public EaseFunction.Ease Ease;
         public float Duration => TargetTime;
@@ -206,6 +206,16 @@ namespace Caieta.Components.Utils
             OnStart?.Invoke();
 
             Eased = Percent = 0;
+        }
+
+        public void Restart()
+        {
+            IsActive = true;
+
+            if (!InitProperties())
+                return;
+
+            StartTween();
         }
 
         /*/

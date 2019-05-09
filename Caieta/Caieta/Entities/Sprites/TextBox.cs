@@ -4,7 +4,7 @@ using Caieta.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Caieta
+namespace Caieta.Entities.Sprites
 {
     public class TextBox : Entity
     {

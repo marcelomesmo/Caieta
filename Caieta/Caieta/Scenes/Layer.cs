@@ -32,6 +32,7 @@ namespace Caieta
 
         public List<Entity> Entities { get; private set; }
         private List<Entity> _toAdd { get; set; }
+        //private List<Entity> _toStart { get; set; }
         private List<Entity> _toRemove { get; set; }
         // Notes: Auxiliar hashes useful for O(1) set.Contains operations.
         // Notes: There are multiple stack overflow threads on this subject. 
@@ -92,6 +93,9 @@ namespace Caieta
                     }
                 }
 
+                foreach(var entity in _toAdd)
+                    entity.Start();
+
                 _toAdd.Clear();
                 _adding.Clear();
             }
@@ -117,8 +121,6 @@ namespace Caieta
             }
 
             // Notes: If necessary, sort Z Index here
-
-            // Notes: If necessary, trigger Awake here
         }
 
         public virtual void Update()
