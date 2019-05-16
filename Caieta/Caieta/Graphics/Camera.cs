@@ -121,7 +121,7 @@ namespace Caieta
                 _lerp = value;
             }
         }
-        private Vector2 _lerp = new Vector2(0.5f, 0.5f);
+        private Vector2 _lerp = Vector2.One;
 
         /*
          *      POSITION
@@ -181,8 +181,30 @@ namespace Caieta
             }
         }
         private Vector2 _zoom = Vector2.One;
-        //private float _minZoom = 0.3f;
-        //private float _maxZoom = 3f;
+        public float MinZoom
+        {
+            get { return _minZoom; }
+            set
+            {
+                _minZoom = value;
+
+                if (Zoom < _minZoom)
+                    Zoom = _minZoom;
+            }
+        }
+        private float _minZoom = 0.3f;
+        public float MaxZoom
+        {
+            get { return _maxZoom; }
+            set
+            {
+                _maxZoom = value;
+
+                if (Zoom > _maxZoom)
+                    Zoom = _maxZoom;
+            }
+        }
+        private float _maxZoom = 3f;
 
         /*
          *      ANGLE
@@ -311,5 +333,6 @@ namespace Caieta
             else
                 Position += move;
         }
+
     }
 }

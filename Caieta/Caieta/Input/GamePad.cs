@@ -29,6 +29,7 @@ namespace Caieta
 
         private List<Rumble> Rumbles;
         private float _maxRumbleLeft, _maxRumbleRight;
+        //RumbleStrength.Strong, RumbleLength.Medium
 
         public const float DEFAULT_DEADZONE = 0.1f;
         public const float DEFAULT_DIAGONAL_AVOIDANCE = 0f;
