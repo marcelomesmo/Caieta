@@ -11,7 +11,7 @@ namespace Caieta
             {
                 return Engine.Instance.Content.Load<T>(filename);
             }
-            catch (Exception ex)
+            catch
             {
                 Debug.ErrorLog("[Resources]: Unable to load resource file '" + filename + "' type '" + typeof(T) +"'.");
 

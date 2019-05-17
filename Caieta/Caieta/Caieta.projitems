@@ -37,6 +37,7 @@
     <Folder Include="$(MSBuildThisFileDirectory)Entities\Tiles\" />
     <Folder Include="$(MSBuildThisFileDirectory)Data\TiledSharp\" />
     <Folder Include="$(MSBuildThisFileDirectory)Data\Serialization\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Entities\Utils\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Engine.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Components\Attributes\OneWayPlatform.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Attributes\ShakeCamera.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Data\Serialization\Serializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Data\Serialization\CustomHashSetConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="$(MSBuildThisFileDirectory)Content\Caieta.mgcb" />

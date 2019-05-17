@@ -43,7 +43,7 @@ namespace Caieta.Entities
 
         public virtual void Create()
         {
-            Debug.Log("[Entity]: Entity '" + Name + "' added to Scene.");
+            //Debug.Log("[Entity]: Entity '" + Name + "' added to Scene.");
 
             if (OnCreate != null)
             {
@@ -56,7 +56,7 @@ namespace Caieta.Entities
 
         public virtual void Start()
         {
-            Debug.Log("[Entity]: Entity '" + Name + "' started. All components initialized.");
+            //Debug.Log("[Entity]: Entity '" + Name + "' started. All components initialized.");
 
             if (OnStart != null)
             {

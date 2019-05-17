@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
 
 namespace Caieta.Data.Serialization
 {
@@ -9,11 +11,13 @@ namespace Caieta.Data.Serialization
         // Notes: Add Json.Net to serialize XML and JSON
         public enum Mode {  XML, JSON, BINARY };
 
-        private static BinaryFormatter formatter;
+        //private static BinaryFormatter formatter;
+        private static JsonSerializer serializer;
 
         public static void Initialize()
         {
-            formatter = new BinaryFormatter();
+            //formatter = new BinaryFormatter();
+            serializer = new JsonSerializer();
         }
 
         #region Save
@@ -34,19 +38,7 @@ namespace Caieta.Data.Serialization
 
         private static void Serialize<T>(T obj, string filepath, Mode mode)
         {
-            // Create a FileStream that will write data to file.
-            FileStream file = new FileStream(filepath, FileMode.Create);
-            /*
-            MemoryStream stream = new MemoryStream();
-            using (BsonWriter writer = new BsonWriter(stream))
-            {
-                JsonSerializer serializer = new JsonSerializer();
-                serializer.Serialize(writer, obj);
-                stream.CopyTo(file);
-            }
-
-            string data = Convert.ToBase64String(stream.ToArray());
-            */
+            string fullpath = Path.Combine(Engine.Instance.ContentDirectory, "Data/" + filepath);
 
             // Save our object to file
             switch (mode)
@@ -54,21 +46,32 @@ namespace Caieta.Data.Serialization
                 case Mode.XML:
                     break;
                 case Mode.JSON:
-                    //string data = JsonConvert.SerializeObject(obj);
-                    //File.WriteAllText(Path.Combine(Engine.Instance.ContentDirectory, "Data\\" + filepath + ".json"), data);
+                    string data = JsonConvert.SerializeObject(obj);
+                    File.WriteAllText(fullpath + ".json", data);
                     break;
                 case Mode.BINARY:
-                    //var bf = new BinaryFormatter();
-                    //bf.Serialize(file, obj);
-                    formatter.Serialize(file, obj);
+                    Debug.Log("[Serializer]: Saving file..");
+                    Debug.Log("    Trying to save file to: " + fullpath + ".dat");
+                    Debug.Log("    Opening memory stream..");
+                    using (MemoryStream stream = new MemoryStream())
+                    using (BsonDataWriter datawriter = new BsonDataWriter(stream))
+                    {
+                        Debug.Log("    Serializing data..");
+                        try { serializer.Serialize(datawriter, obj); }
+                        catch(Exception e) { Debug.Log("/n    Error while serializing: " + e); }
+
+                        Debug.Log("    Copying serialized data to file..");
+                        try { File.WriteAllText(fullpath + ".dat", Convert.ToBase64String(stream.ToArray())); }
+                        catch(Exception e) { Debug.Log("/n    Error while writing to file: " + e); }
+
+                        Debug.Log("    Successfully Serialized! Data: " + Convert.ToBase64String(stream.ToArray()));
+                    }
                     break;
                 default:
                     Debug.ErrorLog("[Serializer]: Invalid mode '" + mode + "' while serializing.");
                     break;
             }
 
-            // Close the FileStream when we are done.
-            file.Close();
         }
 
         #endregion
@@ -77,11 +80,28 @@ namespace Caieta.Data.Serialization
 
         public static T Load<T>(string filepath, Mode mode)
         {
-            if(File.Exists(filepath))
+            string fullpath = Path.Combine(Engine.Instance.ContentDirectory, "Data/" + filepath);
+
+            switch (mode)
+            {
+                case Mode.XML:
+                    fullpath += ".xml";
+                    break;
+                case Mode.JSON:
+                    fullpath += ".json";
+                    break;
+                case Mode.BINARY:
+                    fullpath += ".dat";
+                    break;
+                default:
+                    break;
+            }
+
+            if (File.Exists(fullpath))
             {
                 try
                 {
-                    return Deserialize<T>(filepath, mode);
+                    return Deserialize<T>(fullpath, mode);
                 }
                 catch
                 {
@@ -96,11 +116,9 @@ namespace Caieta.Data.Serialization
             }
         }
 
-        private static T Deserialize<T>(string filepath, Mode mode)
+        private static T Deserialize<T>(string fullpath, Mode mode)
         {
             T data;
-            /// Create a FileStream will gain read access to the data file.
-            FileStream file = File.OpenRead(filepath);//= new FileStream(filepath, FileMode.Open, FileAccess.Read);
 
             // Reconstruct information from file.
             switch (mode)
@@ -110,24 +128,36 @@ namespace Caieta.Data.Serialization
                     data = default(T);
                     break;
                 case Mode.JSON:
-                    /// TODO Not yet implemented
-                    //string jsonString = File.ReadAllText(Path.Combine(Engine.Instance.ContentDirectory, "Data\\" + filepath + ".json"));
-                    //data = JsonConvert.DeserializeObject<T>(jsonString); ;
-                    data = default(T);
+                    string jsonString = File.ReadAllText(fullpath);
+                    data = JsonConvert.DeserializeObject<T>(jsonString);
                     break;
                 case Mode.BINARY:
-                    //var bf = new BinaryFormatter();
-                    //data = (T)bf.Deserialize(file);
-                    data = (T)formatter.Deserialize(file);
+                    Debug.Log("[Serializer]: Loading file..");
+                    Debug.Log("    Trying to load file from: " + fullpath);
+                    string streamData = "";
+                    try { streamData = File.ReadAllText(fullpath); }
+                    catch(Exception e) { Debug.Log("    Error while reading from file: " + e); }
+
+                    Debug.Log("    Converting data from stream: " + streamData);
+                    byte[] fileData = Convert.FromBase64String(streamData);
+
+                    Debug.Log("    Opening memory stream..");
+                    using (MemoryStream stream = new MemoryStream(fileData))
+                    using (BsonDataReader reader = new BsonDataReader(stream))
+                    {
+                        Debug.Log("    Deserializing data..");
+                        data = serializer.Deserialize<T>(reader);
+                        Debug.Log("    Successfully Deserialized! Data: " + Convert.ToBase64String(stream.ToArray()));
+                    }
+
+                    Debug.Log("    Deserialized to object: ");
+                    Debug.Log(data);
                     break;
                 default:
                     Debug.ErrorLog("[Serializer]: Invalid mode '" + mode + "' while deserializing.");
                     data = default(T);
                     break;
             }
-
-            // Close the readerFileStream when we are done
-            file.Close();
 
             return data;
         }

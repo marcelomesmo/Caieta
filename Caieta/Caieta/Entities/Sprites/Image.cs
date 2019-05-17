@@ -39,6 +39,10 @@ namespace Caieta.Entities.Sprites
 
         }
 
+        public override string ToString()
+        {
+            return string.Format("[Image]: Sprite: {0} BoxCollider: {1} Image Path: {2}", DisplayImage, Collider, _ImagePath);
+        }
 
     }
 }

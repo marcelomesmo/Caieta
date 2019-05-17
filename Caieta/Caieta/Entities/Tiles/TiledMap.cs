@@ -56,7 +56,7 @@ namespace Caieta
         {
             base.Create();
 
-            Debug.Log("[Tilemap]: Loading map. Width: '" + Map.Width + "' Height: '" + Map.Height + "'.");
+            //Debug.Log("[Tilemap]: Loading map. Width: '" + Map.Width + "' Height: '" + Map.Height + "'.");
 
             var tileset_count = 0;
             foreach(TmxTileset tileset in Map.Tilesets)
@@ -64,14 +64,14 @@ namespace Caieta
                 Debug.Log("[Tilemap]: Loading tileset '" + Map.Tilesets[tileset_count].Name + "' path '" + Tileset[tileset_count].Name + "'.");
                 tileset_count++;
             }
-            Debug.Log("   Tiles wide: " + TilesetTilesWide + " Tiles high:" + TilesetTilesHigh + ".");
+            //Debug.Log("   Tiles wide: " + TilesetTilesWide + " Tiles high:" + TilesetTilesHigh + ".");
 
             // Load Tiles
             // Grab all layers
             for (var layer = 0; layer < Map.Layers.Count; layer++)
             {
-                Debug.Log("[Tilemap]: Layer '" + Map.Layers[layer].Name + "' contain " + Map.Layers[layer].Tiles.Count + " tiles.");
-                Debug.Log("    Will load from tileset '" + Tileset[layer < tileset_count ? layer : 0].Name + "' [" + layer + "]["+ tileset_count+"].");
+                //Debug.Log("[Tilemap]: Layer '" + Map.Layers[layer].Name + "' contain " + Map.Layers[layer].Tiles.Count + " tiles.");
+                //Debug.Log("    Will load from tileset '" + Tileset[layer < tileset_count ? layer : 0].Name + "' [" + layer + "]["+ tileset_count+"].");
 
                 for (var tile = 0; tile < Map.Layers[layer].Tiles.Count; tile++)
                 {
@@ -130,7 +130,7 @@ namespace Caieta
                             {
                                 var _errorCheck = mapObject.Properties["FallDown"];
                             }
-                            catch(Exception e)
+                            catch
                             {
                                 Debug.ErrorLog("[TiledMap]: OneWayPlatform without property 'FallDown' at position X: " + mapObject.X + " Y: " + mapObject.Y + ".");
                             }
@@ -157,7 +157,7 @@ namespace Caieta
             // Load Objects
             if (Map.ObjectGroups.Contains("CollisionMasks"))
             {
-                Debug.Log("[Tilemap]: Map '" + Name + "'. Loading collision mask '" + mask + "'.");
+                //Debug.Log("[Tilemap]: Map '" + Name + "'. Loading collision mask '" + mask + "'.");
 
                 foreach (var objectMap in Map.ObjectGroups["CollisionMasks"].Objects)
                 {

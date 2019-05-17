@@ -20,7 +20,7 @@ namespace Caieta
 
             //Transform.Position = new Vector2(Graphics.Width / 2, Graphics.Height / 2);
 
-            Debug.Log("[TiledBackground]: " + entityname + " Width " + Width + " Height " + Height);
+            //Debug.Log("[TiledBackground]: " + entityname + " Width " + Width + " Height " + Height);
 
             //Sprite = new Sprite(texture);
             //Sprite.CurrentAnimation.AdjustRect(new Rectangle(0, 0, Width, Height));
@@ -66,5 +66,13 @@ namespace Caieta
                 Graphics.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.SceneManager.Camera.Matrix * Engine.ScreenMatrix);
             // Notes: Gambiarra
         }
+
+        #region Utils
+
+        public override string ToString()
+        {
+            return string.Format("[TiledBackground]: Entity: {0} Texture: {1} Width: {2} Height: {3}", Name, Texture, Width, Height);
+        }
+        #endregion
     }
 }
