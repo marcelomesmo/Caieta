@@ -68,17 +68,11 @@ namespace Caieta
 
         internal void Render()
         {
-            /*
-             *      DRAW SCENE
-             */
+            // Draw Layout, Colliders & Sprites.    Render to Viewport
             DrawScene();
-            // Draw Layout, Colliders & Sprites
 
-            /*
-             *      DRAW MENU
-             */
+            // Draw Menu with Infos.                Render to Screen
             DrawMenu();
-            // Draw Menu with Infos
         }
 
         private void DrawScene()
@@ -119,7 +113,10 @@ namespace Caieta
                 if (layer.IsVisible)
                 {
                     // Make Camera obey Layer Parallax
-                    Engine.SceneManager.Camera.Parallax = new Vector2(layer.Parallax.X / 100f, layer.Parallax.Y / 100f);
+                    if (layer.IsGlobal && Engine.SceneManager.CheckGlobal(layer.Name))
+                        Engine.SceneManager.Camera.Parallax = new Vector2(Engine.SceneManager.GetGlobal(layer.Name).Parallax.X / 100f, Engine.SceneManager.GetGlobal(layer.Name).Parallax.Y / 100f);
+                    else
+                        Engine.SceneManager.Camera.Parallax = new Vector2(layer.Parallax.X / 100f, layer.Parallax.Y / 100f);
                     // Notes: Uncomment this when position is fixed. Now it displays current position.
 
                     // Notes: We dont need to do this if current parallax is equal to last layer parallax. Could be a future optimization, but I rather believe It wont change much.
@@ -130,7 +127,7 @@ namespace Caieta
                         Graphics.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Engine.SceneManager.Camera.Matrix * Engine.ScreenMatrix);
 
                     // Draw layer Entities
-                    foreach (var ent in layer.Entities)
+                    foreach (var ent in (layer.IsGlobal && Engine.SceneManager.CheckGlobal(layer.Name)) ? Engine.SceneManager.GetGlobal(layer.Name).Entities : layer.Entities)
                     {
                         /*
                          * Draw Platform Raycast
@@ -195,26 +192,26 @@ namespace Caieta
             Graphics.SpriteBatch.Begin();
 
             // Game Data
-            Graphics.DrawText("FPS: " + Engine.Instance.FPS.ToString(), new Vector2(20, 20), Color.White, FontSize.VERYSMALL);
-            Graphics.DrawText("Memory Usage: " + (GC.GetTotalMemory(false) / 1048576f).ToString("F") + " MB", new Vector2(90, 20), Color.White, FontSize.VERYSMALL);
-            Graphics.DrawText("[Press F5 or TAB to Close]", new Vector2(screenWidth - 180, 20), Color.White, FontSize.VERYSMALL);
+            Graphics.DrawText("FPS: " + Engine.Instance.FPS.ToString(), new Vector2(20, 20), Color.White, FontSize.SMALL);
+            Graphics.DrawText("Memory Usage: " + (GC.GetTotalMemory(false) / 1048576f).ToString("F") + " MB", new Vector2(90, 20), Color.White, FontSize.SMALL);
+            Graphics.DrawText("[Press F5 or TAB to Close]", new Vector2(screenWidth - 180, 20), Color.White, FontSize.SMALL);
 
             // Draw Audio
             if ((_State & InspectorState.AUDIO) == InspectorState.AUDIO)
             {
                 Graphics.DrawText("Volume (Master: " + AudioManager.MasterVolume + " Music: " + AudioManager.Music.Volume +
                                   " SFX: " + AudioManager.SFX.Volume + ")"
-                                   , new Vector2(240, 20), Color.White, FontSize.VERYSMALL);
+                                   , new Vector2(20, 50), Color.White, FontSize.SMALL);
                 // Music
                 if (AudioManager.Music.CurrMusic != null)
                 {
-                    Graphics.DrawText(" " + AudioManager.Music.CurrMusic.Name, new Vector2(20, 40), Color.White, FontSize.VERYSMALL);
-                    Graphics.DrawText("Duration: " + Calc.GetHumanReadableTime(AudioManager.Music.CurrMusic.Position) + " / " + Calc.GetHumanReadableTime(AudioManager.Music.CurrMusic.Duration), new Vector2(20, 50), Color.White, FontSize.VERYSMALL);
+                    Graphics.DrawText(" " + AudioManager.Music.CurrMusic.Name, new Vector2(20, 60), Color.White, FontSize.SMALL);
+                    Graphics.DrawText("Duration: " + Calc.GetHumanReadableTime(AudioManager.Music.CurrMusic.Position) + " / " + Calc.GetHumanReadableTime(AudioManager.Music.CurrMusic.Duration), new Vector2(20, 70), Color.White, FontSize.SMALL);
                 }
                 else
                 {
-                    Graphics.DrawText("Not Playing ", new Vector2(20, 40), Color.White, FontSize.VERYSMALL);
-                    Graphics.DrawText("Duration: 00:00 / 00:00", new Vector2(20, 50), Color.White, FontSize.VERYSMALL);
+                    Graphics.DrawText("Not Playing ", new Vector2(20, 60), Color.White, FontSize.SMALL);
+                    Graphics.DrawText("Duration: 00:00 / 00:00", new Vector2(20, 70), Color.White, FontSize.SMALL);
                 }
             }
 
@@ -234,38 +231,38 @@ namespace Caieta
                 foreach (var layer in Engine.SceneManager.SceneLayers())
                 {
                     if (layer.IsGlobal)
-                        Graphics.DrawText(" " + layer.Name + "(" + layer.Population() + ")" + " [GLOBAL]", new Vector2(3 * screenWidth / 4, 100 + (20 * draw_space)), Color.White, FontSize.MEDIUM);
+                        Graphics.DrawText(" " + layer.Name + "(" + Engine.SceneManager.GetGlobal(layer.Name).Population() + ")" + " [GLOBAL]", new Vector2(3 * screenWidth / 4, 100 + (20 * draw_space)), Color.White, FontSize.MEDIUM);
                     else
                         Graphics.DrawText(" " + layer.Name + "(" + layer.Population() + ")", new Vector2(3 * screenWidth / 4, 100 + (20 * draw_space)), Color.White, FontSize.MEDIUM);
 
                     // Draw Entities
-                    if ((_State & InspectorState.ENTITIES) == InspectorState.ENTITIES)
-                    {
-                        foreach (var ent in layer.Entities)
-                        {
-                            // Draw Entity Name List
-                            Graphics.DrawText("  " + ent.Name, new Vector2(3 * screenWidth / 4, 120 + (20 * draw_space)), Color.White, FontSize.SMALL);
+                    //if ((_State & InspectorState.ENTITIES) == InspectorState.ENTITIES)
+                    //{
+                    //    foreach (var ent in (layer.IsGlobal && Engine.SceneManager.CheckGlobal(layer.Name)) ? Engine.SceneManager.GetGlobal(layer.Name).Entities : layer.Entities)
+                    //    {
+                    //        // Draw Entity Name List
+                    //        Graphics.DrawText("  " + ent.Name, new Vector2(3 * screenWidth / 4, 120 + (20 * draw_space)), Color.White, FontSize.SMALL);
                            
-                            // Draw Entity Position
-                            Graphics.DrawText("(World)  " + (int)ent.Transform.Position.X + " X " + (int)ent.Transform.Position.Y + " Y "
-                                , new Vector2(screenWidth - 130, 120 + (20 * draw_space)), Color.White, FontSize.VERYSMALL);
-                            Graphics.DrawText("(Screen) " + (int)ent.Transform.ScreenPosition.X + " X " + (int)ent.Transform.ScreenPosition.Y + " Y "
-                                , new Vector2(screenWidth - 130, 130 + (20 * draw_space)), Color.White, FontSize.VERYSMALL);
+                    //        // Draw Entity Position
+                    //        Graphics.DrawText("(World)  " + (int)ent.Transform.Position.X + " X " + (int)ent.Transform.Position.Y + " Y "
+                    //            , new Vector2(screenWidth - 130, 120 + (20 * draw_space)), Color.White, FontSize.VERYSMALL);
+                    //        Graphics.DrawText("(Screen) " + (int)ent.Transform.ScreenPosition.X + " X " + (int)ent.Transform.ScreenPosition.Y + " Y "
+                    //            , new Vector2(screenWidth - 130, 130 + (20 * draw_space)), Color.White, FontSize.VERYSMALL);
 
-                            draw_space++;
+                    //        draw_space++;
 
-                            Platform platform = ent.Get<Platform>();
-                            if (platform != null)
-                            {
-                                Graphics.DrawText("Vel   X: " + platform.Velocity.X + " Y: " + platform.Velocity.Y, new Vector2(250, 70), Color.White, FontSize.VERYSMALL);
-                                Graphics.DrawText("Dir   X: " + platform.MoveDirection.X + " Y: " + platform.MoveDirection.Y, new Vector2(250, 80), Color.White, FontSize.VERYSMALL);
-                                Graphics.DrawText("Force X: " + platform.Force.X + " Y: " + platform.Force.Y, new Vector2(250, 90), Color.White, FontSize.VERYSMALL);
-                                Graphics.DrawText("Moving: " + platform.IsMoving + " On Floor: " + platform.IsOnFloor, new Vector2(250, 100), Color.White, FontSize.VERYSMALL);
-                                Graphics.DrawText("Jumping: " + platform.IsJumping + " Falling: " + platform.IsFalling + " Jump Count: " + platform.JumpCount, new Vector2(250, 110), Color.White, FontSize.VERYSMALL);
-                                Graphics.DrawText("Sliding: " + platform.IsSliding + " Left Wall: " + platform.IsByWallLeft + " Right Wall: " + platform.IsByWallRight, new Vector2(250, 120), Color.White, FontSize.VERYSMALL);
-                            }
-                        }
-                    }
+                    //        Platform platform = ent.Get<Platform>();
+                    //        if (platform != null)
+                    //        {
+                    //            Graphics.DrawText("Vel   X: " + platform.Velocity.X + " Y: " + platform.Velocity.Y, new Vector2(250, 70), Color.White, FontSize.VERYSMALL);
+                    //            Graphics.DrawText("Dir   X: " + platform.MoveDirection.X + " Y: " + platform.MoveDirection.Y, new Vector2(250, 80), Color.White, FontSize.VERYSMALL);
+                    //            Graphics.DrawText("Force X: " + platform.Force.X + " Y: " + platform.Force.Y, new Vector2(250, 90), Color.White, FontSize.VERYSMALL);
+                    //            Graphics.DrawText("Moving: " + platform.IsMoving + " On Floor: " + platform.IsOnFloor, new Vector2(250, 100), Color.White, FontSize.VERYSMALL);
+                    //            Graphics.DrawText("Jumping: " + platform.IsJumping + " Falling: " + platform.IsFalling + " Jump Count: " + platform.JumpCount, new Vector2(250, 110), Color.White, FontSize.VERYSMALL);
+                    //            Graphics.DrawText("Sliding: " + platform.IsSliding + " Left Wall: " + platform.IsByWallLeft + " Right Wall: " + platform.IsByWallRight, new Vector2(250, 120), Color.White, FontSize.VERYSMALL);
+                    //        }
+                    //    }
+                    //}
                     draw_space++;
                 }
             }
@@ -273,10 +270,10 @@ namespace Caieta
             // Draw Inputs
             if ((_State & InspectorState.INPUTS) == InspectorState.INPUTS)
             {
-                Graphics.DrawText("INPUTS ", new Vector2(20, screenHeight - 75), Color.White);
-                Graphics.DrawText("Mouse Pos    " + (int)Input.Touch.Position.X + " X " + (int)Input.Touch.Position.Y + " Y", new Vector2(20, screenHeight - 60), Color.White);
-                Graphics.DrawText("Key Direction " + Input.Keyboard.GetDirection(), new Vector2(20, screenHeight - 45), Color.White);
-                Graphics.DrawText("Key Modifier  " + Input.Keyboard.GetModifierKey(), new Vector2(20, screenHeight - 30), Color.White);
+                Graphics.DrawText("INPUTS ", new Vector2(20, 110), Color.White);
+                Graphics.DrawText("Mouse Pos    " + (int)Input.Touch.Position.X + " X " + (int)Input.Touch.Position.Y + " Y", new Vector2(20, 120), Color.White);
+                Graphics.DrawText("Key Direction " + Input.Keyboard.GetDirection(), new Vector2(20, 130), Color.White);
+                Graphics.DrawText("Key Modifier  " + Input.Keyboard.GetModifierKey(), new Vector2(20, 140), Color.White);
 
                 draw_space = 0;
                 foreach (var gamepad in Input.GamePads)
@@ -284,7 +281,7 @@ namespace Caieta
                     if (gamepad.IsAttached)
                         draw_space++;
                 }
-                Graphics.DrawText("GamePads Connected   " + draw_space, new Vector2(260, screenHeight - 75), Color.White);
+                Graphics.DrawText("GamePads Connected   " + draw_space, new Vector2(20, 170), Color.White);
 
                 draw_space = 0;
                 foreach (var gamepad in Input.GamePads)

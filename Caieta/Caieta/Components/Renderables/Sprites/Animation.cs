@@ -133,6 +133,20 @@ namespace Caieta
 
         #region Fluent Setters
 
+        public Animation AtOrigin(Anchor anchor)
+        {
+            SetOrigin(anchor);
+
+            return this;
+        }
+
+        public Animation AtOrigin(float x, float y)
+        {
+            SetOrigin(x, y);
+
+            return this;
+        }
+
         public Animation SetLoop(LoopState loop)
         {
             CurrentState = loop;

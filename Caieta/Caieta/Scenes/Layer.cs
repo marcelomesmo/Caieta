@@ -68,6 +68,18 @@ namespace Caieta
             Engine.SceneManager.AddGlobal(Name, this);
         }
 
+        public Layer SetVisible(bool visibility)
+        {
+            IsVisible = visibility;
+
+            return this;
+        }
+
+        public void SetParallax(int x, int y)
+        {
+            Parallax = new Vector2(x, y);
+        }
+
         #endregion
 
         public virtual void UpdateLists()

@@ -146,6 +146,28 @@ namespace Caieta
         }
 
         #region Layers
+        /*
+        public Layer GetGlobalLayer(string name)
+        {
+            if (!Engine.SceneManager.CheckGlobal(name))
+                Debug.ErrorLog("[SceneManager]: Global layer '" + name + "' not found.");
+            else
+            {
+                // Update Global Layer
+                return Engine.SceneManager._GlobalLayers[name];
+            }
+        }*/
+
+        public Layer GetLayer(string name)
+        {
+            if (Engine.SceneManager.CheckGlobal(name) && Layers.ContainsKey(name))
+                return Engine.SceneManager.GetGlobal(name);
+
+            if (!Layers.ContainsKey(name))
+                Debug.ErrorLog("[Scene]: Scene '" + Name + "' couldnt find '" + name + "'. Layer name invalid or not declared.");
+
+            return Layers[name];
+        }
 
         public void Add(Layer layer)
         {

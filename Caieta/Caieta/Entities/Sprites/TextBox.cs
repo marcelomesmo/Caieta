@@ -30,6 +30,7 @@ namespace Caieta.Entities.Sprites
             Add(Collider);
 
             Get<Text>().Align(Collider);
+            //Get<Text>().FitText(Collider);
 
             if (FitToBox)
                 Text.Content = Text.FitText(Collider);

@@ -123,7 +123,8 @@ namespace Caieta.Entities
         public virtual void Render()
         {
             foreach (var component in Components)
-                component.Render();
+                if(component is Renderable r && r.IsVisible)
+                    component.Render();
         }
 
         public virtual void Unload()

@@ -124,7 +124,15 @@ namespace Caieta
                     if (_CurrLayer.IsVisible)
                     {
                         // Layer rendering obey Camera Parallax
-                        Engine.SceneManager.Camera.Parallax = new Vector2(_CurrLayer.Parallax.X / 100f, _CurrLayer.Parallax.Y / 100f);
+                        if (_CurrLayer.IsGlobal)
+                        {
+                            if (!_GlobalLayers.ContainsKey(_CurrLayer.Name))
+                                Debug.ErrorLog("[SceneManager]: Trying to get Parallax from invalid Global layer '" + _CurrLayer.Name + "' from within Scene '" + CurrScene.Name + "'.");
+                            else
+                                Engine.SceneManager.Camera.Parallax = new Vector2(_GlobalLayers[_CurrLayer.Name].Parallax.X / 100f, _GlobalLayers[_CurrLayer.Name].Parallax.Y / 100f);
+                        }
+                        else
+                            Engine.SceneManager.Camera.Parallax = new Vector2(_CurrLayer.Parallax.X / 100f, _CurrLayer.Parallax.Y / 100f);
 
                         // Notes: We dont need to do this if current parallax is equal to last layer parallax. Could be a future optimization, but I rather believe It wont change much.
                         // Open Batch for Current Layer
@@ -231,13 +239,13 @@ namespace Caieta
             return entities;
         }
 
-        public void ForceUpdateGlobal(string name)
+        public void ForceUpdateGlobal(string layerName)
         {
-            if (!_GlobalLayers.ContainsKey(name))
-                Debug.ErrorLog("[SceneManager]: Global layer '" + name + "' not found.");
+            if (!_GlobalLayers.ContainsKey(layerName))
+                Debug.ErrorLog("[SceneManager]: Global layer '" + layerName + "' not found.");
             else
                 // Update Global Layer
-                _GlobalLayers[name].UpdateLists();
+                _GlobalLayers[layerName].UpdateLists();
         }
 
         public void AddGlobal(string name, Layer layer)
@@ -253,9 +261,17 @@ namespace Caieta
                 Debug.Log("[SceneManager]: '" + name + "' Global layer already on stack.");
         }
 
-        public bool CheckGlobal(string name)
+        public Layer GetGlobal(string layerName)
         {
-            return _GlobalLayers.ContainsKey(name);
+            if (!_GlobalLayers.ContainsKey(layerName))
+                Debug.ErrorLog("[SceneManager]: Global layer '" + layerName + "' not found.");
+
+            return _GlobalLayers[layerName];
+        }
+
+        public bool CheckGlobal(string layerName)
+        {
+            return _GlobalLayers.ContainsKey(layerName);
         }
 
         public void Pause()

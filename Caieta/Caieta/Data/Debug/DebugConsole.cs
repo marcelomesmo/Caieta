@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Caieta
@@ -11,6 +12,8 @@ namespace Caieta
 
         private Keyboard Keyboard;
 
+        private SpriteFont ConsoleFont;
+
         public DebugConsole()
         {
             IsOpen = false;
@@ -19,6 +22,9 @@ namespace Caieta
         internal void Initialize()
         {
             Keyboard = new Keyboard();
+
+            //ConsoleFont = Resources.Get<SpriteFont>("Fonts/PressStart2P");
+            ConsoleFont = Resources.Get<SpriteFont>("Fonts/MonogramExtended");
 
         }
 
@@ -35,7 +41,7 @@ namespace Caieta
 
         private void UpdateOpen()
         {
-            if (Input.Keyboard.Pressed(Keys.OemTilde))
+            if (Keyboard.Pressed(Keys.OemTilde))
             {
                 IsOpen = false;
 
@@ -45,7 +51,7 @@ namespace Caieta
 
         private void UpdateClosed()
         {
-            if (Input.Keyboard.Pressed(Keys.OemTilde))
+            if (Keyboard.Pressed(Keys.OemTilde))
             {
                 IsOpen = true;
 
@@ -53,14 +59,32 @@ namespace Caieta
             }
         }
 
+        int screenWidth, screenHeight;
+        int consoleWidth, consoleHeight;
+        int startConsoleX, startConsoleY;
+
         internal void Render()
         {
-            int screenWidth = Graphics.Width;
-            int screenHeight = Graphics.Height;
+            screenWidth = Graphics.ViewWidth;
+            screenHeight = Graphics.ViewHeight;
+            consoleWidth = screenWidth - 20;
+            consoleHeight = screenHeight / 3;
+            startConsoleX = 10;
+            startConsoleY = 2 * screenHeight / 3 - 20;
 
-            Graphics.DrawRect(10, 40, screenWidth - 20, screenHeight - 50, Color.Black, 80, FillType.FILL);
+            // Start a new batch to draw relative to screensize
+            Graphics.SpriteBatch.Begin();
+            //Graphics.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null, null);
 
-            Graphics.DrawText(">", new Vector2(20, screenHeight - 42), Color.White);
+            Graphics.DrawRect(0, 0, screenWidth, screenHeight, Color.Black, 50, FillType.FILL);
+
+            Graphics.DrawRect(startConsoleX, startConsoleY, consoleWidth, consoleHeight, Color.Black, 80, FillType.FILL);
+
+            Graphics.DrawText(ConsoleFont, "> ", new Vector2(20, screenHeight - 40), Color.White);
+
+            Graphics.DrawText(ConsoleFont, "Type [help] for command list. ", new Vector2(startConsoleX + 10, startConsoleY + 10), Color.White);//, Vector2.Zero, new Vector2(1.5f, 1.5f), 0);
+
+            Graphics.SpriteBatch.End();
         }
     }
 }
