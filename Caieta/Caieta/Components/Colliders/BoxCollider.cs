@@ -121,7 +121,7 @@ namespace Caieta
 
         public override string ToString()
         {
-             return string.Format("[BoxCollider]: Absolute Position: {0} Origin: {1} Center: {2} Is trigger: {3} ", AbsolutePosition, Origin, Center, IsTrigger);
+             return string.Format("[BoxCollider]: Absolute Position: {0} Origin: {1} Center: {2} Bounds: {3} Is trigger: {4} ", AbsolutePosition, Origin, Center, Bounds, IsTrigger);
         }
 
 

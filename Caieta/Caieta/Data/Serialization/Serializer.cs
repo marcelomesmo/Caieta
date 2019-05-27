@@ -50,21 +50,21 @@ namespace Caieta.Data.Serialization
                     File.WriteAllText(fullpath + ".json", data);
                     break;
                 case Mode.BINARY:
-                    Debug.Log("[Serializer]: Saving file..");
-                    Debug.Log("    Trying to save file to: " + fullpath + ".dat");
-                    Debug.Log("    Opening memory stream..");
+                    //Debug.Log("[Serializer]: Saving file..");
+                    //Debug.Log("    Trying to save file to: " + fullpath + ".dat");
+                    //Debug.Log("    Opening memory stream..");
                     using (MemoryStream stream = new MemoryStream())
                     using (BsonDataWriter datawriter = new BsonDataWriter(stream))
                     {
-                        Debug.Log("    Serializing data..");
+                        //Debug.Log("    Serializing data..");
                         try { serializer.Serialize(datawriter, obj); }
                         catch(Exception e) { Debug.Log("/n    Error while serializing: " + e); }
 
-                        Debug.Log("    Copying serialized data to file..");
+                        //Debug.Log("    Copying serialized data to file..");
                         try { File.WriteAllText(fullpath + ".dat", Convert.ToBase64String(stream.ToArray())); }
                         catch(Exception e) { Debug.Log("/n    Error while writing to file: " + e); }
 
-                        Debug.Log("    Successfully Serialized! Data: " + Convert.ToBase64String(stream.ToArray()));
+                        //Debug.Log("    Successfully Serialized! Data: " + Convert.ToBase64String(stream.ToArray()));
                     }
                     break;
                 default:

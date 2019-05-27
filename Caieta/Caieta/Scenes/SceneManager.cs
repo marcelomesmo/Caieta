@@ -239,6 +239,20 @@ namespace Caieta
             return entities;
         }
 
+        public List<Entity> LayerEntities(string layerName)
+        {
+            var entities = new List<Entity>();
+
+            if (CheckGlobal(layerName))
+                entities.AddRange(_GlobalLayers[layerName].Entities);
+            else if (CurrScene.Layers.ContainsKey(layerName))
+                entities.AddRange(CurrScene.Layers[layerName].Entities);
+            else
+                Debug.ErrorLog("[SceneManager]: Layer '" + layerName + "'not found while trying to get Entities.");
+
+            return entities;
+        }
+
         public void ForceUpdateGlobal(string layerName)
         {
             if (!_GlobalLayers.ContainsKey(layerName))

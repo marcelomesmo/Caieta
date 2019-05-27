@@ -225,6 +225,16 @@ namespace Caieta
             return null;
         }
 
+        // Get Entity by type and name
+        public T GetEntity<T>(string name) where T : Entity
+        {
+            foreach (var e in Entities)
+                if (e is T && e.Name == name)
+                    return e as T;
+
+            return null;
+        }
+
         // Get Entity list by type
         public List<T> GetAllEntities<T>() where T : Entity
         {

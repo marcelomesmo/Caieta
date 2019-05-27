@@ -21,6 +21,8 @@ namespace Caieta
         public int TilesetTilesWide { get; private set; }
         public int TilesetTilesHigh { get; private set; }
 
+        //public Dictionary<int, Sprite> AnimatedTiles;
+
         public TiledMap(string name, string map, bool initial_visibility = true) : base(name, initial_visibility)
         {
             // Load Map
@@ -50,6 +52,8 @@ namespace Caieta
 
             TilesetTilesWide = Tileset[0].Width / TileWidth;
             TilesetTilesHigh = Tileset[0].Height / TileHeight;
+
+            //AnimatedTiles = new Dictionary<int, Sprite>();
         }
 
         public override void Create()
@@ -62,8 +66,44 @@ namespace Caieta
             foreach(TmxTileset tileset in Map.Tilesets)
             {
                 Debug.Log("[Tilemap]: Loading tileset '" + Map.Tilesets[tileset_count].Name + "' path '" + Tileset[tileset_count].Name + "'.");
+
+                // Has animation?
+                /*int totalAnimations = tileset.Tiles.Count;
+                if (totalAnimations > 0)
+                {
+                    int[] animIds, animDur;
+                    int count = 0;
+                    foreach (KeyValuePair<int, TmxTilesetTile> tiles  in tileset.Tiles)
+                    {
+                        int tileIdOnMap = tiles.Key;
+                        TmxTilesetTile tileAnim = tiles.Value;
+
+                        animIds = new int[tileAnim.AnimationFrames.Count];
+                        animDur = new int[tileAnim.AnimationFrames.Count]; 
+                        Debug.Log("[TiledMap]: New animation ID '" + tileIdOnMap + "'. Frame Ids [Duration]: ");
+                        foreach (TmxAnimationFrame frame in tileAnim.AnimationFrames)
+                        {
+                            animIds[count] = frame.Id;
+                            animDur[count] = frame.Duration;
+                            Debug.Log(animIds[count] + " [" + animDur[count] + "ms]");
+                        }
+
+                        Sprite animatedTile = new Sprite()
+                            .Add(new Animation("default", Tileset[tileset_count], new Vector2(TilesetTilesWide, TilesetTilesHigh), animIds).SetDuration(animDur));
+                        animatedTile.SetAnimation("default");
+
+                        AnimatedTiles.Add(tileIdOnMap, animatedTile);
+                    }
+                }*/
+
                 tileset_count++;
             }
+
+            // Add Sprite Animations
+            //foreach (Sprite animatedTile in AnimatedTiles.Values)
+            //    Add(animatedTile);
+
+
             //Debug.Log("   Tiles wide: " + TilesetTilesWide + " Tiles high:" + TilesetTilesHigh + ".");
 
             // Load Tiles
@@ -85,6 +125,11 @@ namespace Caieta
                         Tile.Opacity = (float)Map.Layers[layer].Opacity * 100;
 
                         int tileFrame = gid - Map.Tilesets[layer < tileset_count ? layer : 0].FirstGid;
+
+                        // Already a Animation Tile, dont add
+                        //if (AnimatedTiles.ContainsKey(tileFrame))
+                        //    continue;
+
                         int column = tileFrame % TilesetTilesWide;
                         int row = (int)Math.Floor((double)tileFrame / (double)TilesetTilesWide);
                         //Debug.Log("     gid "+ gid + " tileframe " + tileFrame + " c: " + column + " r: " + row);
@@ -102,6 +147,7 @@ namespace Caieta
                            TileWidth,
                            TileHeight);
 
+                        Tile.TileID = tileFrame;
                         Tile.Position = position;
                         Tile.ClipRect = tilesetRec;
                         Tile.TilesetNum = layer < tileset_count ? layer : 0;

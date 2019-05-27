@@ -311,20 +311,26 @@ namespace Caieta
                     }
                 }
 
-                // Check if collision was from Left
-                if (previousPosition.X + collider.Origin.X > otherCollider.AbsolutePosition.X + otherCollider.Width)
+                // If on bounds of object
+                if (previousPosition.Y + collider.Origin.Y + collider.Height > otherCollider.AbsolutePosition.Y &&
+                    previousPosition.Y + collider.Origin.Y < otherCollider.AbsolutePosition.Y + otherCollider.Height)
                 {
-                    Entity.Transform.Position = new Vector2(previousPosition.X, Entity.Transform.Position.Y);
-                    IsByWallLeft = true;
-                    //Debug.Log("[Platform]: Hit Wall Left.");
+                    // Check if collision was from Left
+                    if (previousPosition.X + collider.Origin.X > otherCollider.AbsolutePosition.X + otherCollider.Width)
+                    {
+                        Entity.Transform.Position = new Vector2(previousPosition.X, Entity.Transform.Position.Y);
+                        IsByWallLeft = true;
+                        //Debug.Log("[Platform]: Hit Wall Left.");
+                    }
+                    // Check if collision was from Right
+                    else if (previousPosition.X + collider.Origin.X + collider.Width < otherCollider.AbsolutePosition.X)
+                    {
+                        Entity.Transform.Position = new Vector2(previousPosition.X, Entity.Transform.Position.Y);
+                        IsByWallRight = true;
+                        //Debug.Log("[Platform]: Hit Wall Right.");
+                    }
                 }
-                // Check if collision was from Right
-                else if (previousPosition.X + collider.Origin.X + collider.Width < otherCollider.AbsolutePosition.X)
-                {
-                    Entity.Transform.Position = new Vector2(previousPosition.X, Entity.Transform.Position.Y);
-                    IsByWallRight = true;
-                    //Debug.Log("[Platform]: Hit Wall Right.");
-                }
+
             }
         }
 

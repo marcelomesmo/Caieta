@@ -116,6 +116,39 @@ namespace Caieta
         public Animation(string name, string sheet_path) : this(name, Resources.Get<Texture2D>(sheet_path), 1, 1, 0) { }
         public Animation(string name, string sheet_path, int spriteWidth, int spriteHeight, int frameStart, int frameEnd, float duration, params float[] dur)
         : this(name, Resources.Get<Texture2D>(sheet_path), spriteWidth, spriteHeight, frameStart, frameEnd, duration, dur) { }
+        public Animation(string name, Texture2D sheet, Vector2 spriteSize, params int[] frames)
+        {
+            Name = name;
+
+            Sheet = sheet;
+
+            FrameWidth = (int)spriteSize.X;
+            FrameHeight = (int)spriteSize.Y;
+
+            Rows = Sheet.Height / FrameHeight;
+            Columns = Sheet.Width / FrameWidth;
+
+            Origin = Center = new Vector2(FrameWidth * 0.5f, FrameHeight * 0.5f);
+
+            CurrentFrame = 0;
+            FirstFrame = 0;
+            LastFrame = frames.Length;
+            TotalFrames = frames.Length;
+            FrameDirection = 1;
+
+            Frames = new Rectangle[TotalFrames];
+            int _FrameRow, _FrameColumn;
+            FrameDuration = new float[TotalFrames];
+            // Fills Duration list
+            for (int i = 0; i < TotalFrames; i++)
+            {
+                // Set & Calculate Frame position in Sprite Sheet
+                _FrameRow = frames[i] / Columns;
+                _FrameColumn = frames[i] % Columns;
+
+                Frames[i] = new Rectangle(FrameWidth * _FrameColumn, FrameHeight * _FrameRow, FrameWidth, FrameHeight);
+            }
+        }
 
         public void Start()
         {
@@ -132,6 +165,26 @@ namespace Caieta
         }
 
         #region Fluent Setters
+
+        public Animation SetDuration(params int[] dur)
+        {
+            for (int i = 0; i < TotalFrames; i++)
+            {
+                // Set Frame duration
+                // Notes: This could be shortcutted to: i < dur.Length ? Duration[i] = dur[i] : Duration[i] = duration;
+                //          But I rather leave it like that for the sake of readability.
+                if (dur.Length == 0)
+                    FrameDuration[i] = dur[0];     // All frames have the same duration
+                else if (i == 0)
+                    FrameDuration[i] = dur[0];     // First-frame has "duration"
+                else if (i < dur.Length)
+                    FrameDuration[i] = dur[i];       // Get duration from duration list
+                else
+                    FrameDuration[i] = dur[0];
+            }
+
+            return this;
+        }
 
         public Animation AtOrigin(Anchor anchor)
         {

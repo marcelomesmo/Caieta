@@ -1,5 +1,6 @@
 ﻿using System;
 using Caieta.Audio;
+using Caieta.Components.Renderables.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -154,6 +155,20 @@ namespace Caieta
                          *  Draw Sprite
                          */
                         foreach (var sprite in ent.GetAll<Sprite>())
+                        {
+                            // Sprite Box
+                            Graphics.DrawRect(ent.Transform.Position.X - sprite.Origin.X, ent.Transform.Position.Y - sprite.Origin.Y, sprite.Width * ent.Transform.Scale.X, sprite.Height * ent.Transform.Scale.Y, Color.LimeGreen, 20, FillType.FILL);
+
+                            // Sprite Origin
+                            Graphics.DrawRect(ent.Transform.Position.X - sprite.Origin.X - 2, ent.Transform.Position.Y - sprite.Origin.Y - 2, 5, 5, Color.LimeGreen, 50);
+                            Graphics.DrawPoint(ent.Transform.Position - sprite.Origin, Color.LimeGreen, 50);
+                            Graphics.DrawRect(ent.Transform.Position.X - sprite.Origin.X - 2, ent.Transform.Position.Y - sprite.Origin.Y - 2, 5, 5, Color.LimeGreen, 50);
+                        }
+
+                        /*
+                         *  Draw TiledSprite
+                         */
+                        foreach (var sprite in ent.GetAll<TiledSprite>())
                         {
                             // Sprite Box
                             Graphics.DrawRect(ent.Transform.Position.X - sprite.Origin.X, ent.Transform.Position.Y - sprite.Origin.Y, sprite.Width * ent.Transform.Scale.X, sprite.Height * ent.Transform.Scale.Y, Color.LimeGreen, 20, FillType.FILL);

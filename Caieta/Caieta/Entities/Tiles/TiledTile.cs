@@ -6,6 +6,7 @@ namespace Caieta
 {
     public class TiledTile : Renderable
     {
+        public int TileID;
         public Vector2 Position;
         public Rectangle ClipRect;
 
