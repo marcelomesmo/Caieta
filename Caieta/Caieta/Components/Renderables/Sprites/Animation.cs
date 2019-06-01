@@ -1,4 +1,5 @@
 ﻿using System;
+using Caieta.Data.Math;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -16,7 +17,9 @@ namespace Caieta
             RemainOnFinalFrame,     // No Loop
             RevertToFirstFrame,     // Loop
             PingPong,               // PingPong Loop
-            RepeatCount             // Loop for *count*
+            RepeatCount,            // Loop for *count*
+            Reverse,                // No Loop (Reverse)
+            LoopReverse             // Loop (Reverse)
         }
 
         public LoopState CurrentState = LoopState.RevertToFirstFrame;
@@ -50,11 +53,14 @@ namespace Caieta
         private int _countTo = 1;   // How many times to repeat
 
         // Create animation using all frames on a sheet.
-        public Animation(string name, Texture2D sheet, int rows, int columns, float duration, params float[] dur) : 
-        this(name, sheet, sheet.Width / columns, sheet.Height / rows, 1, rows * columns, duration, dur) { }
+        public Animation(string name, Texture2D sheet, int rows, int columns, float duration) : this(name, sheet, sheet.Width / columns, sheet.Height / rows, 1, rows * columns, duration) { }
+        public Animation(string name, string sheetPath, int rows, int columns, float duration) : this(name, Resources.Get<Texture2D>(sheetPath), rows, columns, duration) { }
         // Create single sprite animation
         public Animation(string name, Texture2D sheet) : this(name, sheet, 1, 1, 0) { }
+        public Animation(string name, string sheetPath) : this(name, Resources.Get<Texture2D>(sheetPath), 1, 1, 0) { }
         // Create single sprite animation from a sheet given start position and quantity of frames
+        public Animation(string name, string sheetPath, Size spriteSize, int frameStart, int frameEnd, float duration, params float[] dur) : this(name, sheetPath, (int)spriteSize.Width, (int)spriteSize.Height, frameStart, frameEnd, duration, dur) { }
+        public Animation(string name, string sheetPath, int spriteWidth, int spriteHeight, int frameStart, int frameEnd, float duration, params float[] dur) : this(name, Resources.Get<Texture2D>(sheetPath), spriteWidth, spriteHeight, frameStart, frameEnd, duration, dur) { }
         public Animation(string name, Texture2D sheet, int spriteWidth, int spriteHeight, int frameStart, int frameEnd, float duration, params float[] dur)
         { 
             Name = name;
@@ -111,16 +117,11 @@ namespace Caieta
                 */
             }
         }
-        public Animation(string name, string sheet_path, int rows, int columns, float duration, params float[] dur) 
-        : this(name, Resources.Get<Texture2D>(sheet_path), rows, columns, duration, dur) { }
-        public Animation(string name, string sheet_path) : this(name, Resources.Get<Texture2D>(sheet_path), 1, 1, 0) { }
-        public Animation(string name, string sheet_path, int spriteWidth, int spriteHeight, int frameStart, int frameEnd, float duration, params float[] dur)
-        : this(name, Resources.Get<Texture2D>(sheet_path), spriteWidth, spriteHeight, frameStart, frameEnd, duration, dur) { }
-        public Animation(string name, Texture2D sheet, Vector2 spriteSize, params int[] frames)
+        public Animation(string name, string sheetPath, Vector2 spriteSize, params int[] frames)
         {
             Name = name;
 
-            Sheet = sheet;
+            Sheet = Resources.Get<Texture2D>(sheetPath);
 
             FrameWidth = (int)spriteSize.X;
             FrameHeight = (int)spriteSize.Y;
@@ -149,18 +150,26 @@ namespace Caieta
                 Frames[i] = new Rectangle(FrameWidth * _FrameColumn, FrameHeight * _FrameRow, FrameWidth, FrameHeight);
             }
         }
+        //public Animation(string name, string sheetPath, int spriteWidth, int spriteHeight, int frameStart, int frameEnd, float duration, params float[] dur) : this(name, Resources.Get<Texture2D>(sheetPath), spriteWidth, spriteHeight, frameStart, frameEnd, duration, dur) { }
 
         public void Start()
         {
             IsPlaying = true;
-            CurrentFrame = 0;
-            TimesPlayed = 0;
+            Reset();
         }
 
         public void Stop()
         {
             IsPlaying = false;
-            CurrentFrame = 0;
+            Reset();
+        }
+
+        private void Reset()
+        {
+            if (CurrentState == LoopState.Reverse || CurrentState == LoopState.LoopReverse)
+                CurrentFrame = TotalFrames - 1;
+            else
+                CurrentFrame = 0;
             TimesPlayed = 0;
         }
 
@@ -203,6 +212,9 @@ namespace Caieta
         public Animation SetLoop(LoopState loop)
         {
             CurrentState = loop;
+
+            if(CurrentState == LoopState.Reverse || CurrentState == LoopState.LoopReverse)
+                FrameDirection = -1;
 
             return this;
         }
@@ -263,15 +275,17 @@ namespace Caieta
                 // Stop on last frame
                 case LoopState.RemainOnFinalFrame:
                 case LoopState.RepeatCount:
-                    if(TimesPlayed >= _countTo)
+                    if (TimesPlayed >= _countTo)
                     {
                         Stop();
                         CurrentFrame = TotalFrames - 1;
                     }
+                    else
+                        CurrentFrame = 0;
                     break;
 
                 case LoopState.PingPong:
-                    // Notes: We need to double skip last frame to avoid duplicanting.
+                    // Notes: We need to double skip last frame to avoid duplicating.
                     // Pong
                     if (CurrentFrame < 0)
                     {
@@ -285,6 +299,23 @@ namespace Caieta
                         FrameDirection = -1;
                     }
 
+                    break;
+
+                // Stop on first frame
+                case LoopState.Reverse:
+                    if (TimesPlayed >= _countTo)
+                    {
+                        Stop();
+                        CurrentFrame = 0;
+                    }
+                    else
+                        CurrentFrame = TotalFrames-1;
+
+                    break;
+
+                // Loop reverse
+                case LoopState.LoopReverse:
+                    CurrentFrame = TotalFrames - 1;
                     break;
 
                 // Loop

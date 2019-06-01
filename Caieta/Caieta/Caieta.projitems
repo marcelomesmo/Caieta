@@ -104,6 +104,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Data\Serialization\Serializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Data\Serialization\CustomHashSetConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Components\Renderables\Sprites\TiledSprite.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Data\Math\Size.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Components\Attributes\Blink.cs" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="$(MSBuildThisFileDirectory)Content\Caieta.mgcb" />

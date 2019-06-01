@@ -122,6 +122,9 @@ namespace Caieta.Entities
 
         public virtual void Render()
         {
+            if (!IsVisible)
+                return;
+
             foreach (var component in Components)
                 if(component is Renderable r && r.IsVisible)
                     component.Render();

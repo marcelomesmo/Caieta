@@ -16,6 +16,8 @@ namespace Caieta.Components.Utils
         public float TargetTime { get; protected set; }
         public float ElapsedTime { get; protected set; }
 
+        public float Progress => ElapsedTime / TargetTime;
+
         public Timer(float time, bool repeat = false)
         {
             OnTime = null;

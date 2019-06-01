@@ -91,6 +91,17 @@ namespace Caieta
             return "-";
         }
 
+        public Keys GetLastReleasedKey()
+        {
+            if (PreviousState.GetPressedKeys().Length > 0)
+            {
+                foreach (var key in PreviousState.GetPressedKeys())
+                    if (!CurrentState.IsKeyDown(key))       // Released(key)
+                        return key;
+            }
+            return Keys.None;
+        }
+
         public string GetModifierKey()
         {
             if (CurrentState.GetPressedKeys().Length > 0)

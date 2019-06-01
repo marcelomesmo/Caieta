@@ -171,7 +171,7 @@ namespace Caieta
                         foreach (var sprite in ent.GetAll<TiledSprite>())
                         {
                             // Sprite Box
-                            Graphics.DrawRect(ent.Transform.Position.X - sprite.Origin.X, ent.Transform.Position.Y - sprite.Origin.Y, sprite.Width * ent.Transform.Scale.X, sprite.Height * ent.Transform.Scale.Y, Color.LimeGreen, 20, FillType.FILL);
+                            Graphics.DrawRect(ent.Transform.Position.X - sprite.Origin.X, ent.Transform.Position.Y - sprite.Origin.Y, sprite.RegionWidth * ent.Transform.Scale.X, sprite.RegionHeight * ent.Transform.Scale.Y, Color.LimeGreen, 20, FillType.FILL);
 
                             // Sprite Origin
                             Graphics.DrawRect(ent.Transform.Position.X - sprite.Origin.X - 2, ent.Transform.Position.Y - sprite.Origin.Y - 2, 5, 5, Color.LimeGreen, 50);

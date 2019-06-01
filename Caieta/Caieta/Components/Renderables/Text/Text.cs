@@ -17,6 +17,7 @@ namespace Caieta.Components.Renderables.Text
         public SpriteFont Font;
         public Vector2 Size;
         public Vector2 Origin;
+        public Vector2 Scale = Vector2.One;
 
         /*
          *  Scrolling Text
@@ -68,7 +69,7 @@ namespace Caieta.Components.Renderables.Text
 
         public void UpdatePosition()
         {
-            Size = Font.MeasureString(Content);
+            Size = Font.MeasureString(Content) * Scale;
 
             // Update Centering
             if (H_Align == HorizontalAlign.Left)
@@ -95,7 +96,7 @@ namespace Caieta.Components.Renderables.Text
 
         public void Align(Rectangle bounds)
         {
-            Size = Font.MeasureString(Content);
+            Size = Font.MeasureString(Content) * Scale;
             Vector2 pos = new Vector2(bounds.Center.X, bounds.Center.Y);
 
             Origin = pos;
@@ -172,7 +173,7 @@ namespace Caieta.Components.Renderables.Text
                 else if (H_Align == HorizontalAlign.Center)
                     origin = size.X / 2;
 
-                Graphics.DrawText(Font, line, Entity.Transform.Position, Color * (Opacity / 100f), new Vector2(origin, Origin.Y - (size.Y * lineCount)), Entity.Transform.Scale, Entity.Transform.Rotation);
+                Graphics.DrawText(Font, line, Entity.Transform.Position, Color * (Opacity / 100f), new Vector2(origin, Origin.Y - (size.Y * lineCount)), Entity.Transform.Scale * Scale, Entity.Transform.Rotation);
 
                 lineCount++;
             }
@@ -196,7 +197,8 @@ namespace Caieta.Components.Renderables.Text
             bool hasLine = false;
             foreach (string word in wordArray)
             {
-                if (Font.MeasureString(line + word).Length() > width)
+                var size = Font.MeasureString(line + word) * Scale;
+                if (size.Length() > width)
                 {
                     line = line.Substring(0, line.Length - 1);    // Remove ' ' from the end of the break line
                     returnString = returnString + line + '\n';

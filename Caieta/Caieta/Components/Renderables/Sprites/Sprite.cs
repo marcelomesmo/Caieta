@@ -11,6 +11,7 @@ namespace Caieta
         public Animation CurrentAnimation { get; private set; }
 
         public Action<string> OnFinish;
+        public Action<string> OnStop;
         public Action<string> OnFrameChange;
 
         public float AnimationTimer;
@@ -70,15 +71,19 @@ namespace Caieta
 
                         OnFinish?.Invoke(CurrentAnimation.Name);
                         //if (OnFinish != null)
-                         //   OnFinish(CurrentAnimation.Name);
+                        //   OnFinish(CurrentAnimation.Name);
 
                         CurrentAnimation.CalculateNextFrame();
+
+                        //if (CurrentAnimation.TimesPlayed >= CurrentAnimation.CountTo)
+                        if (!CurrentAnimation.IsPlaying /*&& CurrentAnimation.TotalFrames > 1*/)
+                            OnStop?.Invoke(CurrentAnimation.Name);
                     }
                 }
             }
         }
 
-        Vector2 DrawPosition;
+        protected Vector2 DrawPosition;
         public override void Render()
         {
             base.Render();
@@ -212,32 +217,36 @@ namespace Caieta
             }
         }*/
 
-        public void SetOrigin(Animation.Anchor anchor, Animation.AnchorPolicy policy = Animation.AnchorPolicy.AllAnimations)
+        public void SetOrigin(Animation.Anchor anchor)//, Animation.AnchorPolicy policy = Animation.AnchorPolicy.AllAnimations)
         {
-            switch(policy)
-            {
-                case Animation.AnchorPolicy.CurrentAnimation:
-                    CurrentAnimation.SetOrigin(anchor);
-                    break;
+            //switch(policy)
+            //{
+                //case Animation.AnchorPolicy.CurrentAnimation:
+                //    CurrentAnimation.SetOrigin(anchor);
+                //    break;
 
-                case Animation.AnchorPolicy.AllAnimations:
+                //case Animation.AnchorPolicy.AllAnimations:
                     foreach (Animation anim in Animations.Values)
                         anim.SetOrigin(anchor);
-                    break;
-            }
+            //        break;
+            //}
         }
 
         public void SetOrigin(Vector2 origin, Animation.AnchorPolicy policy = Animation.AnchorPolicy.AllAnimations)
         {
+            SetOrigin(origin.X, origin.Y, policy);
+        }
+        public void SetOrigin(float x, float y, Animation.AnchorPolicy policy = Animation.AnchorPolicy.AllAnimations)
+        {
             switch (policy)
             {
                 case Animation.AnchorPolicy.CurrentAnimation:
-                    CurrentAnimation.SetOrigin(origin.X, origin.Y);
+                    CurrentAnimation.SetOrigin(x, y);
                     break;
 
                 case Animation.AnchorPolicy.AllAnimations:
                     foreach (Animation anim in Animations.Values)
-                        anim.SetOrigin(origin.X, origin.Y);
+                        anim.SetOrigin(x, y);
                     break;
             }
         }

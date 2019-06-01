@@ -35,7 +35,7 @@ namespace Caieta
         {
             return "[Camera]:\n\tViewport: { " + Viewport.X + ", " + Viewport.Y + ", " + Viewport.Width + ", " + Viewport.Height +
                 " }\n\tPosition: { " + _position.X + ", " + _position.Y +
-                " }\n\tOrigin: { " + _origin .X + ", " + _origin .Y +
+                " }\n\tOrigin: { " + _origin.X + ", " + _origin.Y +
                 " }\n\tZoom: { " + _zoom.X + ", " + _zoom.Y +
                 " }\n\tAngle: " + _angle;
         }
@@ -46,10 +46,12 @@ namespace Caieta
                     //Matrix.CreateTranslation(new Vector3(-new Vector2((int)Math.Round(_position.X) * _parallax.X, (int)Math.Round(_position.Y) * _parallax.Y), 0)) *
                     Matrix.CreateTranslation(new Vector3(-_position * _parallax, 0.0f)) *
                     //Matrix.CreateTranslation(new Vector3(-_origin, 0.0f)) *
-                    Matrix.CreateRotationZ(_angle) *
                     Matrix.CreateScale(new Vector3(_zoom, 1)) *
+                    Matrix.CreateRotationZ(_angle) *
                     //Matrix.CreateTranslation(new Vector3(new Vector2((int)Math.Round(_origin.X), (int)Math.Round(_origin.Y)), 0));
                     Matrix.CreateTranslation(new Vector3(_origin, 0.0f));
+
+            // ISROT
 
             _inverse = Matrix.Invert(_matrix);
 
@@ -178,6 +180,7 @@ namespace Caieta
             {
                 _changed = true;
                 _zoom.X = _zoom.Y = value;
+                //UpdateMatrices();
             }
         }
         private Vector2 _zoom = Vector2.One;

@@ -5,7 +5,6 @@ namespace Caieta
 {
     public static class Calc
     {
-
         #region operations
         /* XNA MathHelper has it already
         public static int Clamp(int value, int min, int max)

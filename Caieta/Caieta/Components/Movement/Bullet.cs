@@ -113,8 +113,8 @@ namespace Caieta
             Entity.Transform.Position += Velocity * Engine.Instance.DeltaTime;
 
             // If there are no colliders: move indistinguible (??)
-            if (Colliders.Count <= 0)
-                return;
+            //if (Colliders.Count <= 0)
+                //return;
 
             /* 
             *      HANDLE COLLISIONS

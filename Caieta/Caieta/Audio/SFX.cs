@@ -27,6 +27,22 @@ namespace Caieta.Audio
             _SoundInstance.Add(name, SFXs[name].CreateInstance());
         }
 
+        public bool IsPlaying(string name)
+        {
+            return _SoundInstance[name].State == SoundState.Playing;
+        }
+
+        public void PlayNew(string name, bool loop = false, float volume = 1.0f, float pitch = 0.0f, float pan = 0.0f)
+        {
+            if (!SFXs.ContainsKey(name))
+                Debug.ErrorLog("[SFX]: No SFX named '" + name + "' previous loaded.");
+            else
+            {
+                SFXs[name].Play(volume, pitch, pan);
+                //Debug.Log("[SFX]: Play '" + name + "' : looping " + loop + ".");
+            }
+        }
+
         public void Play(string name, bool loop = false, float volume = 1.0f, float pitch = 0.0f, float pan = 0.0f)
         {
             if (!_SoundInstance.ContainsKey(name))

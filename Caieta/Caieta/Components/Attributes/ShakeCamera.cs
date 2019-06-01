@@ -23,9 +23,7 @@ namespace Caieta.Components.Attributes
                 //_shakeDirection = ShakeVector();
                 _shakeOffset = _shakeDirection;
                 if (_shakeOffset.X != 0f || _shakeOffset.Y != 0f)
-                {
                     _shakeOffset.Normalize();
-                }
                 else
                 {
                     _shakeOffset.X = _shakeOffset.X + Calc.RandomFloat() - 0.5f;

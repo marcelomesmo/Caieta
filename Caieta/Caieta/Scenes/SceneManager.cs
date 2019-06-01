@@ -121,44 +121,48 @@ namespace Caieta
                 // Render Layers
                 foreach (var _CurrLayer in CurrScene.Layers.Values)
                 {
-                    if (_CurrLayer.IsVisible)
+                    if (!_CurrLayer.IsVisible)
+                        continue;
+
+                    if (_CurrLayer.IsGlobal && _GlobalLayers.ContainsKey(_CurrLayer.Name))
+                        if (!_GlobalLayers[_CurrLayer.Name].IsVisible)
+                            continue;
+
+                    // Layer rendering obey Camera Parallax
+                    if (_CurrLayer.IsGlobal)
                     {
-                        // Layer rendering obey Camera Parallax
-                        if (_CurrLayer.IsGlobal)
-                        {
-                            if (!_GlobalLayers.ContainsKey(_CurrLayer.Name))
-                                Debug.ErrorLog("[SceneManager]: Trying to get Parallax from invalid Global layer '" + _CurrLayer.Name + "' from within Scene '" + CurrScene.Name + "'.");
-                            else
-                                Engine.SceneManager.Camera.Parallax = new Vector2(_GlobalLayers[_CurrLayer.Name].Parallax.X / 100f, _GlobalLayers[_CurrLayer.Name].Parallax.Y / 100f);
-                        }
+                        if (!_GlobalLayers.ContainsKey(_CurrLayer.Name))
+                            Debug.ErrorLog("[SceneManager]: Trying to get Parallax from invalid Global layer '" + _CurrLayer.Name + "' from within Scene '" + CurrScene.Name + "'.");
                         else
-                            Engine.SceneManager.Camera.Parallax = new Vector2(_CurrLayer.Parallax.X / 100f, _CurrLayer.Parallax.Y / 100f);
-
-                        // Notes: We dont need to do this if current parallax is equal to last layer parallax. Could be a future optimization, but I rather believe It wont change much.
-                        // Open Batch for Current Layer
-                        if (Engine.IsPixelPerfect)
-                            Graphics.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null,/*Effect,*/ Engine.SceneManager.Camera.Matrix * Engine.ScreenMatrix);
-                        else
-                            Graphics.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null,/*Effect,*/ Engine.SceneManager.Camera.Matrix * Engine.ScreenMatrix);
-
-                        // Render Global Layer
-                        if (_CurrLayer.IsGlobal)
-                        {
-                            if (!_GlobalLayers.ContainsKey(_CurrLayer.Name))
-                                Debug.ErrorLog("[SceneManager]: Trying to Render invalid Global layer '" + _CurrLayer.Name + "' from within Scene '" + CurrScene.Name + "'.");
-                            else
-                                _GlobalLayers[_CurrLayer.Name].Render();
-                        }
-                        // Render Local Layer
-                        else
-                            _CurrLayer.Render();
-
-                        // Set Camera back to Default
-                        Engine.SceneManager.Camera.Parallax = Vector2.One;
-
-                        // Close Batch for Current Layer
-                        Graphics.SpriteBatch.End();
+                            Engine.SceneManager.Camera.Parallax = new Vector2(_GlobalLayers[_CurrLayer.Name].Parallax.X / 100f, _GlobalLayers[_CurrLayer.Name].Parallax.Y / 100f);
                     }
+                    else
+                        Engine.SceneManager.Camera.Parallax = new Vector2(_CurrLayer.Parallax.X / 100f, _CurrLayer.Parallax.Y / 100f);
+
+                    // Notes: We dont need to do this if current parallax is equal to last layer parallax. Could be a future optimization, but I rather believe It wont change much.
+                    // Open Batch for Current Layer
+                    if (Engine.IsPixelPerfect)
+                        Graphics.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullNone, null,/*Effect,*/ Engine.SceneManager.Camera.Matrix * Engine.ScreenMatrix);
+                    else
+                        Graphics.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null,/*Effect,*/ Engine.SceneManager.Camera.Matrix * Engine.ScreenMatrix);
+
+                    // Render Global Layer
+                    if (_CurrLayer.IsGlobal)
+                    {
+                        if (!_GlobalLayers.ContainsKey(_CurrLayer.Name))
+                            Debug.ErrorLog("[SceneManager]: Trying to Render invalid Global layer '" + _CurrLayer.Name + "' from within Scene '" + CurrScene.Name + "'.");
+                        else
+                            _GlobalLayers[_CurrLayer.Name].Render();
+                    }
+                    // Render Local Layer
+                    else
+                        _CurrLayer.Render();
+
+                    // Set Camera back to Default
+                    Engine.SceneManager.Camera.Parallax = Vector2.One;
+
+                    // Close Batch for Current Layer
+                    Graphics.SpriteBatch.End();
                 }
 
                 // Render Scene on top of everything (?)
