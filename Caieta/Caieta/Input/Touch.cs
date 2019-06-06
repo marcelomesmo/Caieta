@@ -582,6 +582,23 @@ namespace Caieta
             }*/
         }
 
+        public Vector2 ScreenPosition
+        {
+            get
+            {
+                if (IsTouchAvailable && CurrentTouches.Count > 0)
+                    return new Vector2(CurrentTouches[0].Position.X, CurrentTouches[0].Position.Y);
+
+                return new Vector2(CurrentState.X, CurrentState.Y);
+            }
+            /*
+            set
+            {
+                var vector = Vector2.Transform(value, Engine.ScreenMatrix);
+                Microsoft.Xna.Framework.Input.Mouse.SetPosition((int)Math.Round(vector.X), (int)Math.Round(vector.Y));
+            }*/
+        }
+
 
         #endregion
 

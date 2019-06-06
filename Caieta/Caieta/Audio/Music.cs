@@ -123,6 +123,5 @@ namespace Caieta.Audio
             MediaPlayer.Volume = (Volume / 100f) * (AudioManager.MasterVolume / 100f);
             Debug.Log("[Music]: Volume " + Volume + "% set to " + (Volume / 100f) + ". Master Volume at " + AudioManager.MasterVolume + "%.");
         }
-
     }
 }

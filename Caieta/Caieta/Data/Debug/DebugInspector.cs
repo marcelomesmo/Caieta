@@ -186,7 +186,7 @@ namespace Caieta
                         // Draw Angle
                         //Graphics.DrawLineAgle(ent.Transform.Position, ent.Transform.Rotation, 5, Color.Orange);
                         // Draw Name
-                        Graphics.DrawText(ent.Name, new Vector2((int)Math.Round(ent.Transform.Position.X), (int)Math.Round(ent.Transform.Position.Y)) + new Vector2(-10, -10), Color.Bisque, FontSize.VERYSMALL);
+                        Graphics.DrawText(Graphics.DefaultFont[FontSize.VERYSMALL],ent.Name, new Vector2((int)Math.Round(ent.Transform.Position.X), (int)Math.Round(ent.Transform.Position.Y)), Color.Bisque, Vector2.Zero, new Vector2(0.5f, 0.5f), 0);
                     }
 
                     // Set Camera back to Default
@@ -286,7 +286,7 @@ namespace Caieta
             if ((_State & InspectorState.INPUTS) == InspectorState.INPUTS)
             {
                 Graphics.DrawText("INPUTS ", new Vector2(20, 110), Color.White);
-                Graphics.DrawText("Mouse Pos    " + (int)Input.Touch.Position.X + " X " + (int)Input.Touch.Position.Y + " Y", new Vector2(20, 120), Color.White);
+                Graphics.DrawText((int)Input.Touch.Position.X + " X " + (int)Input.Touch.Position.Y + " Y", new Vector2(Input.Touch.ScreenPosition.X, Input.Touch.ScreenPosition.Y + 15), Color.White);
                 Graphics.DrawText("Key Direction " + Input.Keyboard.GetDirection(), new Vector2(20, 130), Color.White);
                 Graphics.DrawText("Key Modifier  " + Input.Keyboard.GetModifierKey(), new Vector2(20, 140), Color.White);
 

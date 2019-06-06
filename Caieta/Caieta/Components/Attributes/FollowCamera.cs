@@ -58,3 +58,27 @@ namespace Caieta.Components.Attributes
         }
     }
 }
+
+
+// Zoom
+
+//var newZoom = 1 + ZoomTimer.Progress / 10;
+
+//Engine.SceneManager.Camera.Zoom = newZoom;
+//Engine.SceneManager.Camera.Position = new Vector2(Transform.Position.X, Transform.Position.Y);
+//Engine.SceneManager.Camera.CenterOrigin();
+
+//var msx = Transform.Position.X - Graphics.Width / 2;
+//var msy = Transform.Position.Y - Graphics.Height / 2;
+
+//var width = Engine.SceneManager.Camera.Matrix.Translation.X - msx;
+//var height = Engine.SceneManager.Camera.Matrix.Translation.Y + msy;
+
+//var zoomOffset = 1 - newZoom / Engine.SceneManager.Camera.Zoom;
+
+//Engine.SceneManager.Camera.Position -= new Vector2(width * zoomOffset, height * zoomOffset);
+
+//Engine.SceneManager.Camera.Zoom = newZoom;
+
+
+//Debug.Log("W: " + width + " H: " + height + " zoom: " + newZoom + " zoomoff: " + zoomOffset + Engine.SceneManager.Camera);

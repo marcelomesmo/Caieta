@@ -155,6 +155,12 @@ namespace Caieta
             return CurrentState.IsKeyDown(Keys.LeftWindows) || CurrentState.IsKeyDown(Keys.RightWindows);
         }
 
+        public bool IsModifierDown()
+        {
+            return IsShiftDown() || IsAltDown() || IsControlDown() || IsCommandDown();
+        }
+
+
         #endregion
 
         #region Key Checks

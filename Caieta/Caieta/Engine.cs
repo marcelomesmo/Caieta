@@ -85,6 +85,7 @@ namespace Caieta
         private static int ViewHeight;
         public static bool IsFullScreen;
         private static bool _resizing;
+        public static bool IsResizable;
         public static bool IsPixelPerfect;
         public static bool ExitOnEscapeKeypress;
         public static bool PauseOnFocusLost;
@@ -130,7 +131,7 @@ namespace Caieta
         /*
          *      START ENGINE
          */
-        public Engine(string gameTitle, int width, int height, int display_w, int display_h, Dictionary<string, Scene> scenes, string firstScene, bool fullscreen = false, bool pixelperfect = true, bool fixedtimestep = false)
+        public Engine(string gameTitle, int width, int height, int display_w, int display_h, Dictionary<string, Scene> scenes, string firstScene, bool fullscreen = false, bool pixelperfect = true, bool fixedtimestep = false, bool canresize = false)
         {
             Instance = this;
 
@@ -146,6 +147,7 @@ namespace Caieta
             Width = width;
             Height = height;
             IsFullScreen = fullscreen;
+            IsResizable = canresize;
             // Notes: Replace by ResolutionPolicy enum
             IsPixelPerfect = pixelperfect;
 
@@ -192,7 +194,6 @@ namespace Caieta
                 ViewHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
                 //}
 
-
                 Window.AllowUserResizing = false;
                 GraphicsDeviceManager.IsFullScreen = true;
                 //GraphicsDeviceManager.HardwareModeSwitch = false;
@@ -203,7 +204,7 @@ namespace Caieta
                 ViewWidth = display_w;
                 ViewHeight = display_h;
 
-                Window.AllowUserResizing = true;
+                Window.AllowUserResizing = IsResizable;
                 GraphicsDeviceManager.IsFullScreen = false;
             }
 #endif
@@ -399,6 +400,7 @@ namespace Caieta
                 GraphicsDeviceManager.PreferredBackBufferHeight = ViewHeight;
 
                 GraphicsDeviceManager.IsFullScreen = false;
+                IsFullScreen = false;
 
                 GraphicsDeviceManager.ApplyChanges();
 
@@ -419,6 +421,7 @@ namespace Caieta
             GraphicsDeviceManager.PreferredBackBufferHeight = ViewHeight;
 
             GraphicsDeviceManager.IsFullScreen = true;
+            IsFullScreen = true;
             //Window.IsBorderless = true;
             //GraphicsDeviceManager.ToggleFullScreen();
 
@@ -428,7 +431,7 @@ namespace Caieta
 #endif
         }
 
-            #endregion
+        #endregion
 
         protected override void Initialize()
         {
