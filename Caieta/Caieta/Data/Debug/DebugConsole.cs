@@ -643,10 +643,16 @@ namespace Caieta
             Engine.SceneManager.LoadScene("W" + world + "Level" + level);
         }
 
-        [Command("load", "Change scene by Name.")]
+        [Command("gotoscene", "Change scene by Name.")]
         private void Change(string scenename)
         {
             Engine.SceneManager.LoadScene(scenename);
+        }
+
+        [Command("-r", "Restart game from first scene.")]
+        private void RestartGame()
+        {
+            Engine.SceneManager.LoadScene(Engine.SceneManager.FirstScene);
         }
 
         // Entities
@@ -669,35 +675,35 @@ namespace Caieta
         //[Command("tracker", "Logs all tracked objects in the scene. Set mode to 'e' for just entities, 'c' for just components, or 'cc' for just collidable components")]
         //private void Tracker(string mode)
         //{
-            //if (Engine.SceneManager.CurrScene == null)
-            //{
-            //    Engine.Commands.Log("Current Scene is null!");
-            //    return;
-            //}
+        //if (Engine.SceneManager.CurrScene == null)
+        //{
+        //    Engine.Commands.Log("Current Scene is null!");
+        //    return;
+        //}
 
-            //switch (mode)
-            //{
-            //    default:
-            //        Engine.Commands.Log("-- Entities --");
-            //        //Engine.Scene.Tracker.LogEntities();
-            //        Engine.Commands.Log("-- Components --");
-            //        //Engine.Scene.Tracker.LogComponents();
-            //        Engine.Commands.Log("-- Collidable Components --");
-            //        //Engine.Scene.Tracker.LogCollidableComponents();
-            //        break;
+        //switch (mode)
+        //{
+        //    default:
+        //        Engine.Commands.Log("-- Entities --");
+        //        //Engine.Scene.Tracker.LogEntities();
+        //        Engine.Commands.Log("-- Components --");
+        //        //Engine.Scene.Tracker.LogComponents();
+        //        Engine.Commands.Log("-- Collidable Components --");
+        //        //Engine.Scene.Tracker.LogCollidableComponents();
+        //        break;
 
-            //    case "e":
-            //        //Engine.Scene.Tracker.LogEntities();
-            //        break;
+        //    case "e":
+        //        //Engine.Scene.Tracker.LogEntities();
+        //        break;
 
-            //    case "c":
-            //        //Engine.Scene.Tracker.LogComponents();
-            //        break;
+        //    case "c":
+        //        //Engine.Scene.Tracker.LogComponents();
+        //        break;
 
-            //    case "cc":
-            //        //Engine.Scene.Tracker.LogCollidableComponents();
-            //        break;
-            //}
+        //    case "cc":
+        //        //Engine.Scene.Tracker.LogCollidableComponents();
+        //        break;
+        //}
         //}
 
         [Command("help", "Display help for all or given command.")]

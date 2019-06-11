@@ -44,6 +44,8 @@ namespace Caieta.Entities
         public virtual void Create()
         {
             //Debug.Log("[Entity]: Entity '" + Name + "' added to Scene.");
+            //foreach (var component in Components)
+                //component.Create();
 
             if (OnCreate != null)
             {

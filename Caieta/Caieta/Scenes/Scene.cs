@@ -56,13 +56,14 @@ namespace Caieta
         {
             Debug.Log("[Scene]: Start scene '" + Name + "'.");
 
-            // First Update Entities
             foreach (var layer in Layers.Values)
             {
+                // Awake new Entities. Call Entity.Create() and Entity.Start() on entities added this frame.
                 if (!layer.IsGlobal)
-                    layer.UpdateLists();
+                    layer.AwakeEntities();
                 else
-                    Engine.SceneManager.ForceUpdateGlobal(layer.Name);
+                    Engine.SceneManager.ForceAwakeGlobalEntities(layer.Name);
+
             }
 
             // Trigger OnSceneStart after everything is loaded and every entity is added.

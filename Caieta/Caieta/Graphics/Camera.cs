@@ -11,8 +11,9 @@ namespace Caieta
         public Camera()
         {
             Viewport = new Viewport();
-            Viewport.Width = Graphics.ViewWidth;
-            Viewport.Height = Graphics.ViewHeight;
+            Viewport.Width = Graphics.Width;
+            Viewport.Height = Graphics.Height;
+            CenterOrigin();
             UpdateMatrices();
         }
 
@@ -21,6 +22,7 @@ namespace Caieta
             Viewport = new Viewport();
             Viewport.Width = width;
             Viewport.Height = height;
+            CenterOrigin();
             UpdateMatrices();
         }
 
@@ -28,6 +30,7 @@ namespace Caieta
         {
             Viewport.Width = width;
             Viewport.Height = height;
+            CenterOrigin();
             UpdateMatrices();
         }
 
@@ -49,7 +52,7 @@ namespace Caieta
                     Matrix.CreateScale(new Vector3(_zoom, 1)) *
                     Matrix.CreateRotationZ(_angle) *
                     //Matrix.CreateTranslation(new Vector3(new Vector2((int)Math.Round(_origin.X), (int)Math.Round(_origin.Y)), 0));
-                    Matrix.CreateTranslation(new Vector3(_origin, 0.0f));
+                    Matrix.CreateTranslation(new Vector3(_origin * _parallax, 0.0f));
 
             // ISROT
 
@@ -60,7 +63,8 @@ namespace Caieta
 
         public void Reset()
         {
-            Origin = Vector2.Zero;
+            //Origin = Vector2.Zero;
+            CenterOrigin();
             Position = Vector2.Zero;
             Parallax = Vector2.One;
             Zoom = 1;
@@ -113,17 +117,6 @@ namespace Caieta
             }
         }
         private Vector2 _origin = Vector2.Zero;
-
-        public Vector2 LerpStrength
-        {
-            get { return _lerp; }
-            set
-            {
-                _changed = true;
-                _lerp = value;
-            }
-        }
-        private Vector2 _lerp = Vector2.One;
 
         /*
          *      POSITION
@@ -308,8 +301,8 @@ namespace Caieta
 
         public void ClampToLayout()
         {
-            _position.X = MathHelper.Clamp(_position.X, Engine.SceneManager.CurrScene.Layout.Left, Engine.SceneManager.CurrScene.Layout.Right - Graphics.Width);
-            _position.Y = MathHelper.Clamp(_position.Y, Engine.SceneManager.CurrScene.Layout.Top, Engine.SceneManager.CurrScene.Layout.Bottom - Graphics.Height);
+            _position.X = MathHelper.Clamp(_position.X, Engine.SceneManager.CurrScene.Layout.Left + _origin.X, Engine.SceneManager.CurrScene.Layout.Right - _origin.X);
+            _position.Y = MathHelper.Clamp(_position.Y, Engine.SceneManager.CurrScene.Layout.Top + _origin.Y, Engine.SceneManager.CurrScene.Layout.Bottom - _origin.Y);
             _changed = true;
         }
 

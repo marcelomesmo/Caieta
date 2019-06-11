@@ -82,7 +82,7 @@ namespace Caieta
 
         #endregion
 
-        public virtual void UpdateLists()
+        public virtual void AwakeEntities()
         {
             /*
              * Update Entity List
@@ -139,7 +139,6 @@ namespace Caieta
         {
             // Update Entities
             foreach (var _entity in Entities)
-                //if(_entity.IsActive)
                 _entity.Update();
         }
 

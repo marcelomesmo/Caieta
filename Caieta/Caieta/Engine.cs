@@ -383,7 +383,7 @@ namespace Caieta
             };
 
             Graphics.Resize(ViewWidth, ViewHeight);
-            SceneManager.Camera.Resize(ViewWidth, ViewHeight);
+            SceneManager.Camera.Resize(Graphics.Width, Graphics.Height);
         }
 
         public static void SetWindowed(int width, int height)
@@ -441,6 +441,7 @@ namespace Caieta
 
             Graphics.Initialize(Width, Height);
             Graphics.Resize(ViewWidth, ViewHeight);
+            SceneManager.Camera.Resize(Graphics.Width, Graphics.Height);
 
             Input.Initialize();
 

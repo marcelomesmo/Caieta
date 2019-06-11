@@ -19,6 +19,8 @@ namespace Caieta
         private Scene _NextScene;
         private Dictionary<string, Layer> _GlobalLayers;
 
+        public string FirstScene { get; private set; }
+
         public SceneManager(Dictionary<string, Scene> scenes, string firstScene)
         {
             // Init Scene List
@@ -32,10 +34,12 @@ namespace Caieta
 
             _GlobalLayers = new Dictionary<string, Layer>();
 
+            FirstScene = firstScene;
+
             // Check First Scene
-            if (!_SceneList.ContainsKey(firstScene))
-                throw new ArgumentException("[SceneManager]: First scene '" + firstScene + "'. Name invalid or not declared.");
-            else CurrScene = _NextScene = _SceneList[firstScene];
+            if (!_SceneList.ContainsKey(FirstScene))
+                throw new ArgumentException("[SceneManager]: First scene '" + FirstScene + "'. Name invalid or not declared.");
+            else CurrScene = _NextScene = _SceneList[FirstScene];
 
             // Game Camera
             Camera = new Camera();
@@ -77,14 +81,14 @@ namespace Caieta
                         else
                         {
                             // Update Global Layer
-                            _GlobalLayers[_CurrLayer.Name].UpdateLists();
+                            _GlobalLayers[_CurrLayer.Name].AwakeEntities();
                             _GlobalLayers[_CurrLayer.Name].Update();
                         }
                     }
                     else
                     {
                         // Update Local Layer
-                        _CurrLayer.UpdateLists();
+                        _CurrLayer.AwakeEntities();
                         _CurrLayer.Update();
                     }
 
@@ -257,13 +261,13 @@ namespace Caieta
             return entities;
         }
 
-        public void ForceUpdateGlobal(string layerName)
+        public void ForceAwakeGlobalEntities(string layerName)
         {
             if (!_GlobalLayers.ContainsKey(layerName))
                 Debug.ErrorLog("[SceneManager]: Global layer '" + layerName + "' not found.");
             else
                 // Update Global Layer
-                _GlobalLayers[layerName].UpdateLists();
+                _GlobalLayers[layerName].AwakeEntities();
         }
 
         public void AddGlobal(string name, Layer layer)

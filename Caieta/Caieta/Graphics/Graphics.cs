@@ -45,7 +45,7 @@ namespace Caieta
             Width = ViewWidth = width;
             Height = ViewHeight = height;
 
-            // Debug.Log("[Graphics]: Screen size " + ScreenWidth + " x " + ScreenHeight);
+            //Debug.Log("[Graphics]: Real size " + Width + " x " + Height + " Screen size " + ViewWidth + " x " + ViewHeight);
 
             Debug.Log("[Graphics]: Sucessfully init graphics.");
             Debug.LogLine();

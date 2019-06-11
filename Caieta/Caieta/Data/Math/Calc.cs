@@ -52,6 +52,15 @@ namespace Caieta
             return (float)Math.Atan2(vector.X, -vector.Y);
         }
         */
+
+        public static Vector2 Round(Vector2 value)
+        {
+            Vector2 rounded;
+            rounded.X = (float)Math.Round(value.X);
+            rounded.Y = (float)Math.Round(value.Y);
+
+            return rounded;
+        }
         #endregion
 
 
@@ -92,9 +101,9 @@ namespace Caieta
 
         public static string GetHumanReadableTime(TimeSpan timeSpan, bool withMilliseconds = false)
         {
-            if(withMilliseconds)
+            if (withMilliseconds)
                 return GetHumanReadableTime(timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
-            
+
             return GetHumanReadableTime(timeSpan.Minutes, timeSpan.Seconds);
         }
 
@@ -115,7 +124,7 @@ namespace Caieta
 
         public static float RandomFloat(float max)
         {
-            double mantissa = (random.NextDouble() * (max+1)) - max;
+            double mantissa = (random.NextDouble() * (max + 1)) - max;
             double exponent = Math.Pow(2.0, random.Next(-126, 127));
             return (float)(mantissa * exponent);
 
@@ -139,14 +148,13 @@ namespace Caieta
 
         public static int Random(int min, int max)
         {
-            return random.Next(min, max+1);
+            return random.Next(min, max + 1);
         }
 
         public static T Choose<T>(params T[] choices)
         {
             return choices[random.Next(choices.Length)];
         }
-
 
         #endregion
     }
