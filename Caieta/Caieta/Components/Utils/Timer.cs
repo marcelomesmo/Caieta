@@ -58,10 +58,10 @@ namespace Caieta.Components.Utils
 
         }
 
-        public void AdjustTimer(float time)
+        public void AdjustTimer(float targettime)
         {
             Stop();
-            TargetTime = time >= 0f ? time : 0f;
+            TargetTime = targettime >= 0f ? targettime : 0f;
             Start();
         }
 
